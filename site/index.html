@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1216" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PsychoPal">
+<meta name="description" content="Weekly papers, funding, conferences, training and tools for psychedelic and neuroimaging research.">
+<title>PsychoPal</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="styles.css">
+<script src="config.js"></script>
+<script src="archive/sync.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <img src="icons/icon.svg" alt="">
+      <h1>PsychoPal</h1>
+      <span class="wk" id="wk"></span>
+      <a class="ib" href="archive/" title="Archive &amp; search" aria-label="Archive and search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </a>
+    </div>
+    <nav class="chips" id="tabs" aria-label="Show"></nav>
+    <nav class="chips sub" id="streams" aria-label="Topic" hidden></nav>
+  </div>
+</header>
+<main class="wrap" id="feed" aria-live="polite"><p class="empty">Loading this week…</p></main>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+# Facts used to filter funding by eligibility. Fill in the TODOs; until then, schemes are shown with an "Check eligibility" note.
+phd_awarded: null            # TODO: exact date your PhD was awarded, e.g. 2023-06-30
+based_in: UK                 # current country of work
+nationality: null            # TODO: e.g. Italian (some schemes restrict by nationality or residence)
+# MSCA Postdoctoral Fellowships mobility rule: you must not have lived/worked in the HOST country for more than 12 months
+# in the 36 months before the call deadline. List countries where you lived/worked in the last 3 years:
+recent_countries: [UK]
+open_to_moving_abroad: true  # if false, schemes that require moving country are hidden

@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>PsychoPal · Graph view</title>
+<style>.pst{font-family:var(--mono);font-size:10px;letter-spacing:.5px;text-transform:uppercase;border:1px solid var(--line);color:var(--mut);padding:1px 5px;margin-left:6px}.pst.pre{border-color:var(--red);color:var(--red)}.pst.reg{border-color:#a8d8e8;color:#a8d8e8}
+
+:root{--bg:#11161b;--panel:#171e24;--panel2:#1c252e;--line:#2a333c;--tx:#e6e9ec;--mut:#9aa7b2;--dim:#5f7180;--red:#e0453b;--link:#a9c7e0;--amb:#e8c15a;--mono:Consolas,Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.45}
+main{max-width:1280px;margin:0 auto;padding:24px 16px 60px}a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+h1{font-size:32px;margin:8px 0 2px}.m{font-family:var(--mono);color:var(--mut);font-size:12px}
+#hdr{position:relative;height:124px;margin:0 0 4px;border:1px solid var(--line);background:#0d1216;overflow:hidden}
+#eeg{position:absolute;inset:0;width:100%;height:100%;display:block}
+#hdr .ht{position:absolute;left:0;top:0;bottom:0;width:62%;padding:16px 18px;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(90deg,#0d1216 0%,rgba(13,18,22,.92) 45%,rgba(13,18,22,0) 100%);pointer-events:none}
+#hdr .ht a{pointer-events:auto}#hdr h1{margin:0 0 2px;text-shadow:0 1px 6px #0d1216}
+#hdr .ro{position:absolute;right:6px;top:5px;background:rgba(13,18,22,.82);padding:2px 5px;font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.5px;text-align:right;pointer-events:none}
+#hdr .ro b{color:var(--red);font-weight:normal}
+@media (max-width:600px){#hdr{height:auto;border:0;background:none}#eeg{position:relative;height:84px;border:1px solid var(--line);background:#0d1216}#hdr .ht{position:static;width:auto;padding:8px 0 0;background:none}#hdr .ro{top:5px;font-size:9px}#hdr .rd{display:none}}
+#q{width:100%;padding:10px 12px;margin:14px 0 8px;background:var(--panel);border:1px solid var(--line);color:var(--tx);font-size:15px}
+.ctl{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin:6px 0}
+.grp{display:flex;flex-wrap:wrap;gap:4px;align-items:center}.lab{font-family:var(--mono);font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-right:4px}
+.b,.chip{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--mut);font-size:12px;padding:4px 8px;white-space:nowrap;font-family:inherit}
+.b.on,.chip.on{border-color:var(--red);color:var(--tx);background:#2a1d1f}.b .sw{display:inline-block;width:10px;height:2px;vertical-align:3px;margin-right:5px}
+.seg{display:inline-flex}.seg .b{margin-left:-1px}.seg .b.on{z-index:1;position:relative}
+.chip .n{font-size:10px;color:var(--dim);margin-left:3px;font-family:var(--mono)}
+input[type=range]{accent-color:#e0453b;width:110px;vertical-align:middle}.rv{font-family:var(--mono);font-size:11px;color:var(--tx);min-width:16px;display:inline-block}
+details.set{background:var(--panel);border:1px solid var(--line);padding:6px 12px;margin:6px 0}details.set summary{cursor:pointer;font-family:var(--mono);font-size:12px;color:var(--mut)}
+.rows .row{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0;align-items:center}
+#gw{position:relative;height:min(76vh,820px);min-height:420px;border:1px solid var(--line);background:#0d1216;overflow:hidden;margin-top:8px;touch-action:none}
+#g{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}#g.drag{cursor:grabbing}#g.pt{cursor:pointer}
+#leg{position:absolute;left:8px;top:8px;background:rgba(13,18,22,.86);border:1px solid var(--line);padding:6px 8px;font-family:var(--mono);font-size:10.5px;color:var(--mut);pointer-events:none;line-height:1.55;max-width:46%}
+#leg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:-1px}#leg .r{white-space:nowrap}
+#zb{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:4px}#zb .b{width:32px;padding:4px 0;text-align:center;font-family:var(--mono);font-size:14px;background:rgba(23,30,36,.92)}
+#tip{position:absolute;pointer-events:none;background:#1c252e;border:1px solid var(--line);padding:5px 8px;font-size:12px;max-width:320px;display:none;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+#side{position:absolute;right:0;top:0;bottom:0;width:min(400px,92%);background:rgba(23,30,36,.98);border-left:1px solid var(--line);padding:14px 16px 20px;overflow:auto;display:none;z-index:6;-webkit-overflow-scrolling:touch}
+#side h3{margin:6px 0 4px;font-size:16px;line-height:1.3}#side h3 a{color:var(--tx)}#side .x{position:sticky;top:0;float:right;cursor:pointer;background:var(--panel2);border:1px solid var(--line);color:var(--mut);padding:2px 8px;font-size:13px;z-index:2}
+#side .au{color:var(--mut);font-size:13px}#side p{font-size:13.5px;margin:8px 0}.badge{font-family:var(--mono);font-size:11px;color:var(--c);border:1px solid var(--c);padding:1px 6px}
+.ty{font-family:var(--mono);font-size:11px;color:var(--dim);margin-left:6px;text-transform:uppercase}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}.tags .chip{font-size:11px;padding:2px 6px}
+.cav{color:var(--mut);font-size:13px;border-left:2px solid var(--dim);padding-left:8px}.cav b{color:var(--red);font-family:var(--mono);font-size:11px}
+.note{background:#1f2a1f;border-left:2px solid #a6dc8f;padding:6px 8px;font-size:13px;margin-top:8px}
+.acts{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;align-items:center}.acts button,.acts a{cursor:pointer;background:var(--panel2);border:1px solid var(--line);color:var(--mut);font-size:12px;padding:4px 8px;font-family:inherit}
+.acts button.on{color:var(--tx);border-color:var(--amb)}.acts a:hover,.acts button:hover{color:var(--tx);text-decoration:none}
+.nb{list-style:none;padding:0;margin:4px 0}.nb li{border-top:1px solid var(--line);padding:5px 0;font-size:12.5px;cursor:pointer}.nb li:hover{color:#fff}.nb .why{display:block;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+.h4{font-family:var(--mono);font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin:12px 0 2px}
+#count{font-family:var(--mono);color:var(--mut);font-size:12px;margin:8px 0 0}
+@media (max-width:700px){main{padding:14px 10px 70px}#gw{height:68vh;min-height:360px}#side{left:0;right:0;top:auto;width:auto;max-height:62%;border-left:0;border-top:2px solid var(--red)}#leg{font-size:9.5px;max-width:60%}input[type=range]{width:90px}}
+</style><link rel="icon" href="../icons/icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../icons/icon-180.png"><script src="../config.js"></script><script src="sync.js"></script><script src="vendor/d3-force.bundle.min.js"></script></head><body><main>
+<header id="hdr" aria-label="Graph view"><canvas id="eeg" aria-hidden="true"></canvas>
+<div class="ro" aria-hidden="true"><span class="rd">Fz · Cz · Pz · 1/f + <b>α</b> 8–12 Hz<br></span><span id="apow">α power ▁</span></div>
+<div class="ht"><h1>◌ Graph view</h1>
+<p class="m" style="margin:0"><a href="../">PsychoPal feed</a> · <a href="./">← Archive</a> · <a href="search.html">⌕ Literature search</a></p></div></header>
+<input id="q" type="search" placeholder="Highlight papers: titles, authors, summaries, tags, notes…" autocomplete="off">
+<div class="ctl">
+ <span class="grp"><span class="lab">Show</span><span class="seg" id="mode"><button class="b" data-mode="papers" title="Papers only, linked to papers that share attributes">Papers</button><button class="b" data-mode="tags" title="Tags as their own nodes, papers link to their tags (Obsidian style)">Tags</button><button class="b" data-mode="both" title="Paper–paper links plus tag nodes">Both</button></span></span>
+ <span class="grp" id="etypes"><span class="lab">Link by</span></span>
+</div>
+<details class="set" id="setd"><summary>Graph settings · link density, hidden items, filters</summary>
+<div class="ctl">
+ <span class="grp"><span class="lab">Links / paper</span><input type="range" id="per" min="1" max="12" step="1"><span class="rv" id="perv"></span></span>
+ <span class="grp"><span class="lab">Min shared</span><input type="range" id="minw" min="1" max="4" step="1"><span class="rv" id="minwv"></span></span>
+ <span class="grp"><span class="lab">Labels</span><span class="seg" id="labs"><button class="b" data-lab="auto">Auto</button><button class="b" data-lab="all">All</button><button class="b" data-lab="none">Off</button></span></span>
+</div>
+<div class="ctl" id="opts"></div>
+<div class="rows" id="chiprows"></div>
+</details>
+<div id="gw"><canvas id="g" aria-label="Paper graph"></canvas><div id="leg"></div>
+<div id="zb"><button class="b" id="zin" title="Zoom in">+</button><button class="b" id="zout" title="Zoom out">−</button><button class="b" id="zfit" title="Fit to screen">⤢</button><button class="b" id="zre" title="Re-run layout">↻</button></div>
+<div id="tip"></div><aside id="side"></aside></div>
+<div id="count"></div>
+<p class="m">Drag the background to pan, scroll or pinch to zoom, drag a dot to pull its neighbours, tap a dot for details. Links join papers that share a drug group, modality or method family (plus topic tags, authors or text similarity if you switch them on). Thicker means more shared attributes; only each paper's strongest links are drawn. Stars and marks sync with the archive.</p>
+</main>
+<script>
+// ---- Config ----
+const SECTIONS=[["Psychedelic research","Psychedelics","✺","#a78bfa"],["Neuropsychopharmacology","Neuropsychopharm","⚗\uFE0E","#f0a35e"],["Neuroimaging","Neuroimaging","◉","#5fc9bf"],
+["Computational neuroscience","Comp neuro","∑","#7fc0ee"],["Neuroscience","Neuroscience","✧","#9fb4f2"],["Biological psychiatry","Bio psychiatry","✚","#f095ad"],
+["Brain–body coupling","Brain–body","♥\uFE0E","#f39a85"],["Neurodynamics","Neurodynamics","∿","#b9d86a"],["New psychedelic trials","Trials","⊕","#c3a6f0"],
+["Catch-up","Catch-up","↺","#d0a882"],["Funding","Funding","£","#e7b97a"],["Conferences","Conferences","◎","#e6d27a"],["Training","Training","✎\uFE0E","#a6dc8f"],["Tools & methods","Tools","⚙\uFE0E","#e8c15a"]];
+const secOf=n=>SECTIONS.find(s=>s[0]===n)||[n,n,"◆","#c3a6f0"];
+const MODS=["EEG","MEG","TMS / TMS-EEG","fMRI","PET","MRI (structural/diffusion)","MRS"],MCOL={"EEG":"#5fc9bf","MEG":"#7fc0ee","TMS / TMS-EEG":"#e3a5e0","fMRI":"#c3a6f0","PET":"#f0a35e","MRI (structural/diffusion)":"#b9d86a","MRS":"#e6d27a"},OTHER="#6b7c8a";
+const RESEARCH=new Set(["paper","catchup","trial","tool_paper"]);
+const norm=s=>String(s||"").toLowerCase().replace(/[.\u2019']/g,"").replace(/\s+/g," ").trim();
+// edge / tag types: [key, label, values(item) -> [[normKey,label]], default on, colour, makes tag nodes, min members for a tag node]
+const ET=[
+ ["drug","Drug",i=>(i.drug_groups||[]).map(v=>[v,v]),1,"#e3a5e0",1,1],
+ ["mod","Modality",i=>(i.modality_groups||[]).map(v=>[v,v]),1,"#5fc9bf",1,1],
+ ["method","Method",i=>(i.method_groups||[]).map(v=>[v,v]),1,"#e7b97a",1,1],
+ ["topic","Topic tags",i=>(i.topics||[]).map(v=>[norm(v),"#"+v]),0,"#9fb4f2",1,2],
+ ["author","Authors",i=>(i.authors||[]).map(v=>[norm(v),v]),0,"#a6dc8f",1,2],
+ ["sim","Similarity",null,0,"#9aa7b2",0,0]];
+const CHIPS=[["drug","Drug","drug_groups",null],["mod","Modality","modality_groups",MODS],["dis","Disorder / population","disorders",null],["stage","Clinical / Pre-clinical","stage",["Clinical","Pre-clinical"]],["pub","Publication status","pub_status",["Peer reviewed","Preprint","Registered"]],["sec","Section","section",null]];
+const cv=(i,f)=>{const v=i[f];return Array.isArray(v)?v:v?[v]:[]};
+const TEXT=i=>[i.title,(i.authors||[]).join(" "),i.post,i.why_you,(i.ai_tags||[]).join(" "),i.venue,(i.drugs||[]).join(" "),(i.drug_groups||[]).join(" "),(i.disorders||[]).join(" "),(i.modality_groups||[]).join(" "),(i.method_groups||[]).join(" "),i.stage||"",i.pub_status||"",(i.methods||[]).join(" "),(i.populations||[]).join(" "),(i.topics||[]).join(" "),i.modality,i.kind,i.section].join(" ").toLowerCase();
+const esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $=id=>document.getElementById(id);
+// ---- Personal state: same localStorage as the feed and archive (pp-marks) ----
+const rd=k=>{try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return{}}},wr=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+// PsychoPal: marks live in "pp-marks" (shared with the feed and archive); "ni" (not interested) is an alias of "dislike" (hidden).
+const fixP=p=>{p=p||{};p.star=p.star||{};p.status=p.status||{};p.dislike=p.dislike||{};p.ni=p.dislike;p.more=p.more||{};p.ts=p.ts||{};return p};
+const wrP=p=>{const c=Object.assign({},p);delete c.ni;wr("pp-marks",c)};
+let P=fixP(rd("pp-marks")),SL={star:{},ni:{}};
+const mark=(k,id)=>{P.ts[k+"|"+id]=Date.now()};
+window.PPSync&&PPSync.on("pp-marks",s=>{P=fixP(s);if(ITEMS.length)rebuild()});
+// ---- Graph UI settings (this browser only; not synced) ----
+const DEF={mode:"papers",et:Object.fromEntries(ET.map(e=>[e[0],!!e[3]])),per:4,minw:1,lab:"auto",sl:false,quar:false,nonres:false};
+let G=Object.assign({},DEF,rd("pp-graph"));G.et=Object.assign({},DEF.et,G.et||{});
+const saveG=()=>wr("pp-graph",G);
+const S={q:"",ch:Object.fromEntries([...CHIPS.map(c=>[c[0],new Set()]),["mine",new Set()]]),sel:null,hover:null};
+// ---- "My marks" chips: read live from P (pp-marks) ----
+const MARKS=["Starred","To read","Read","Unmarked"];
+const myMarks=i=>{const o=[],st=(i._sl?SL.star:P.star)[i.id],s=i._sl?null:P.status[i.id];if(st)o.push("Starred");if(s==="toread")o.push("To read");if(s==="read")o.push("Read");if(!st&&!s)o.push("Unmarked");return o};
+let ITEMS=[],SHORT=[],BYID={};
+fetch("items.json",{cache:"no-cache"}).then(r=>r.json()).then(a=>{
+ ITEMS=a.map(i=>({...i,pub_date:i.date||"",relevance:i.top?3:(i.kind==="paper"||i.kind==="catchup")?2:1,_sl:false})).map(i=>({...i,_s:TEXT(i)}));SHORT=[];ITEMS.forEach(i=>BYID[i.id]=i);
+ init()}).catch(e=>{$("count").textContent="Could not load the archive data.";console.error(e)});
+// ---- Controls ----
+function init(){
+ $("etypes").insertAdjacentHTML("beforeend",ET.map(e=>`<button class="b" data-et="${e[0]}"><span class="sw" style="background:${e[4]}"></span>${e[1]}</button>`).join(""));
+ $("opts").innerHTML=[["quar","⊘ Show hidden","Show items you hid with 👎 (faded, red ring)"],["nonres","Non-research items","Also show news, policy, funding, conferences and training items"]]
+  .map(o=>`<button class="b" data-opt="${o[0]}" title="${o[2]}">${o[1]}</button>`).join("");
+ const all=[...ITEMS,...SHORT];
+ $("chiprows").innerHTML=`<div class="row" id="markrow"></div>`+CHIPS.map(([k,l,f,ord])=>{const n={};ITEMS.forEach(i=>cv(i,f).forEach(v=>n[v]=(n[v]||0)+1));
+  let v=Object.keys(n);v=ord?ord.filter(x=>n[x]):k==="sec"?SECTIONS.map(s=>s[0]).filter(x=>n[x]):v.sort((a,b)=>(a==="Healthy volunteers")-(b==="Healthy volunteers")||(a==="Non-hal")-(b==="Non-hal")||n[b]-n[a]||a.localeCompare(b));
+  return v.length?`<div class="row"><span class="lab">${l}</span>${v.map(x=>`<button class="chip" data-c="${k}|${esc(x)}">${esc(k==="sec"?secOf(x)[2]+" "+secOf(x)[1]:x)}<span class="n">${n[x]}</span></button>`).join("")}</div>`:""}).join("")+
+  `<div class="row"><button class="b" id="clear">Clear filters</button></div>`;
+ $("per").value=G.per;$("minw").value=G.minw;
+ if(!matchMedia("(max-width:700px)").matches)$("setd").open=true;
+ document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.closest("#pp-sd")||b.id==="pp-sync")return;const d=b.dataset;
+  if(d.mode){G.mode=d.mode;saveG();rebuild(true)}
+  else if(d.et){G.et[d.et]=!G.et[d.et];saveG();rebuild(true)}
+  else if(d.lab){G.lab=d.lab;saveG();paintCtl();draw()}
+  else if(d.opt){G[d.opt]=!G[d.opt];saveG();rebuild(true)}
+  else if(d.c){const k=d.c.split("|")[0],v=d.c.slice(k.length+1),st=S.ch[k];st.has(v)?st.delete(v):st.add(v);rebuild(true)}
+  else if(b.id==="clear"){Object.values(S.ch).forEach(x=>x.clear());S.q="";$("q").value="";rebuild(true)}
+  else if(d.q!==undefined){S.q=d.q.toLowerCase();$("q").value=d.q;paintCount();draw()}
+  else if(d.star){const sl=BYID[d.star]._sl;if(sl){SL.star[d.star]?delete SL.star[d.star]:SL.star[d.star]=1;0}else{P.star[d.star]?delete P.star[d.star]:(P.star[d.star]=1,mark("star",d.star));wrP(P)}afterMark(d.star)}
+  else if(d.st){const[id,v]=d.st.split("|");P.status[id]===v?delete P.status[id]:(P.status[id]=v,v==="read"&&mark("read",id));wrP(P);afterMark(id)}
+  else if(d.ni){const sl=BYID[d.ni]._sl;if(sl){SL.ni[d.ni]?delete SL.ni[d.ni]:SL.ni[d.ni]=Date.now();0}else if(P.ni[d.ni]){delete P.ni[d.ni];delete P.ts["ni|"+d.ni]}else{P.ni[d.ni]=Date.now();mark("ni",d.ni)}wrP(P);rebuild()}
+  else if(d.go){select(d.go,true)}
+  else if(d.fil){const[k,v]=[d.fil.split("|")[0],d.fil.slice(d.fil.indexOf("|")+1)];S.ch[k].add(v);rebuild(true)}
+  else if(b.classList.contains("x")){select(null)}
+  else if(b.id==="zin")zoomBy(1.4);else if(b.id==="zout")zoomBy(1/1.4);else if(b.id==="zfit")fit(true);
+  else if(b.id==="zre"){NODES.forEach(n=>{n.x=n.y=undefined;n.vx=n.vy=0});NM.clear();rebuild(true)}
+  else return});
+ $("per").addEventListener("input",e=>{G.per=+e.target.value;saveG();rebuild()});
+ $("minw").addEventListener("input",e=>{G.minw=+e.target.value;saveG();rebuild()});
+ $("q").addEventListener("input",e=>{S.q=e.target.value.trim().toLowerCase();paintCount();draw()});
+ $("q").addEventListener("keydown",e=>{if(e.key==="Enter"){const m=NODES.filter(n=>n.it&&qm(n.it));if(m.length)fitTo(m,true)}});
+ setupCanvas();rebuild(true)}
+function paintCtl(){
+ document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("on",b.dataset.mode===G.mode));
+ document.querySelectorAll("[data-et]").forEach(b=>b.classList.toggle("on",!!G.et[b.dataset.et]));
+ document.querySelectorAll("[data-lab]").forEach(b=>b.classList.toggle("on",b.dataset.lab===G.lab));
+ document.querySelectorAll("[data-opt]").forEach(b=>b.classList.toggle("on",!!G[b.dataset.opt]));
+ {const base=[...ITEMS,...(G.sl?SHORT:[])].filter(i=>(G.nonres||RESEARCH.has(i.kind))&&(G.quar||!(i._sl?SL.ni:P.ni)[i.id])),n={};base.forEach(i=>myMarks(i).forEach(v=>n[v]=(n[v]||0)+1));
+  const mr=$("markrow");if(mr)mr.innerHTML=`<span class="lab">My marks</span>`+MARKS.map(x=>`<button class="chip" data-c="mine|${x}" title="${x==="Unmarked"?"No star and no To read / Read status":x+(x==="Starred"?" (archive stars; shortlist stars too when the Shortlist layer is on)":"")}">${x==="Starred"?"★ ":""}${x}<span class="n">${n[x]||0}</span></button>`).join("")}
+ document.querySelectorAll(".chip[data-c]").forEach(b=>{const k=b.dataset.c.split("|")[0];b.classList.toggle("on",S.ch[k].has(b.dataset.c.slice(k.length+1)))});
+ $("perv").textContent=G.per;$("minwv").textContent=G.minw;
+ const pp=G.mode!=="tags";$("per").disabled=$("minw").disabled=!pp;
+ $("leg").innerHTML=MODS.map(m=>`<span class="r"><i style="background:${MCOL[m]}"></i>${m}</span>`).join(" ")+` <span class="r"><i style="background:${OTHER}"></i>other / none</span><br>`+
+  `<span class="r"><i style="background:none;border:2px solid #e8c15a;width:10px;height:10px"></i>starred</span> `+(G.sl?`<span class="r"><i style="background:none;border:1.5px dashed #e6e9ec"></i>shortlist</span> `:"")+(G.quar?`<span class="r"><i style="background:none;border:1.5px solid #e0453b"></i>quarantined</span> `:"")+
+  `<span class="r">◐ multi-modal</span>`+(G.mode!=="papers"?`<br>`+ET.filter(e=>e[5]&&G.et[e[0]]).map(e=>`<span class="r"><i style="background:${e[4]};border-radius:2px;transform:rotate(45deg)"></i>${e[1].replace(" tags","")} tag</span>`).join(" "):"")}
+// ---- Graph model ----
+let NODES=[],LINKS=[],ADJ=new Map(),sim=null;const NM=new Map();
+const qm=i=>!S.q||S.q.split(/\s+/).every(w=>i._s.includes(w));
+function keep(i){
+ if(!G.nonres&&!RESEARCH.has(i.kind))return false;
+ const hid=i._sl?SL.ni[i.id]:P.ni[i.id];if(hid&&!G.quar)return false;
+ for(const[k,,f]of CHIPS){const st=S.ch[k];if(st.size&&!cv(i,f).some(v=>st.has(v)))return false}
+ if(S.ch.mine.size&&!myMarks(i).some(v=>S.ch.mine.has(v)))return false;return true}
+function nodeFor(id,mk){let n=NM.get(id);if(!n){n=mk();NM.set(id,n)}return n}
+function rebuild(refit){
+ paintCtl();
+ const pool=[...ITEMS.filter(keep),...(G.sl?SHORT.filter(keep):[])];const ids=new Set(pool.map(i=>i.id));
+ const papers=pool.map(i=>{const n=nodeFor(i.id,()=>({id:i.id}));n.it=i;n.tag=null;n.r=4.5+(i.relevance||1)*1.3+((i._sl?SL.star:P.star)[i.id]?1.5:0);
+  n.mods=(i.modality_groups||[]).filter(m=>MCOL[m]);return n});
+ const vals={};ET.forEach(e=>{if(e[2]&&G.et[e[0]]){const m=new Map();pool.forEach(i=>{const seen=new Set();e[2](i).forEach(([k,l])=>{if(!k||seen.has(k))return;seen.add(k);if(!m.has(k))m.set(k,{label:l,ids:[]});m.get(k).ids.push(i.id)})});vals[e[0]]=m}});
+ let links=[];
+ if(G.mode!=="tags"){ // paper–paper: weight = number of shared attributes (+1 for similarity)
+  const pair=new Map();const add=(a,b,why,s)=>{if(a===b)return;const k=a<b?a+"\u0000"+b:b+"\u0000"+a;let p=pair.get(k);if(!p){p={source:a<b?a:b,target:a<b?b:a,w:0,why:[],s:0,types:{}};pair.set(k,p)}p.w++;p.why.push(why);p.types[why.split(":")[0]]=(p.types[why.split(":")[0]]||0)+1;if(s)p.s=Math.max(p.s,s)};
+  for(const[t,m]of Object.entries(vals))for(const[,v]of m){const L=v.ids;if(L.length<2||L.length>250)continue;for(let a=0;a<L.length;a++)for(let b=a+1;b<L.length;b++)add(L[a],L[b],t+":"+v.label)}
+  if(G.et.sim){const done=new Set();pool.forEach(i=>(i.similar||[]).forEach((j,n)=>{const w=(i.similar_w||[])[n]||0;const k=[i.id,j].sort().join("|");if(!ids.has(j)||w<0.12||done.has(k))return;done.add(k);add(i.id,j,"sim:similar text ("+w.toFixed(2)+")",w)}))}
+  const all=[...pair.values()].filter(p=>p.w>=G.minw),score=p=>p.w+p.s,by=new Map();
+  all.forEach(p=>{[p.source,p.target].forEach(x=>{if(!by.has(x))by.set(x,[]);by.get(x).push(p)})});
+  const kept=new Set();by.forEach(L=>{L.sort((a,b)=>score(b)-score(a));L.slice(0,G.per).forEach(p=>kept.add(p))});links=[...kept]}
+ let tags=[];
+ if(G.mode!=="papers"){ET.forEach(e=>{if(!e[5]||!G.et[e[0]]||!vals[e[0]])return;for(const[k,v]of vals[e[0]]){if(v.ids.length<e[6])continue;const id="tag:"+e[0]+":"+k;
+   const n=nodeFor(id,()=>({id}));n.it=null;n.tag={type:e[0],label:v.label,col:e[0]==="mod"?(MCOL[v.label]||e[4]):e[4],ids:v.ids,tl:e[1]};n.r=4+Math.sqrt(v.ids.length)*2.2;tags.push(n);
+   v.ids.forEach(pid=>links.push({source:pid,target:id,w:1,tag:1,why:[],types:{[e[0]]:1}}))}})}
+ NODES=[...papers,...tags];LINKS=links;
+ const fresh=NODES.filter(n=>n.x===undefined);
+ // seed new nodes near a neighbour (tags near their papers) so the layout settles fast
+ const pos=new Map(NODES.filter(n=>n.x!==undefined).map(n=>[n.id,n]));
+ fresh.forEach((n,k)=>{const nb=LINKS.find(l=>(l.source.id||l.source)===n.id&&pos.has(l.target.id||l.target)||(l.target.id||l.target)===n.id&&pos.has(l.source.id||l.source));
+  const o=nb?pos.get((nb.source.id||nb.source)===n.id?(nb.target.id||nb.target):(nb.source.id||nb.source)):null;
+  const a=k*2.399,r=o?20:30+8*Math.sqrt(k);n.x=(o?o.x:0)+r*Math.cos(a);n.y=(o?o.y:0)+r*Math.sin(a)});
+ ADJ=new Map();
+ if(sim)sim.stop();
+ sim=d3.forceSimulation(NODES).alphaDecay(0.03).velocityDecay(0.35)
+  .force("link",d3.forceLink(LINKS).id(d=>d.id).distance(l=>l.tag?34+l.target.r:70/(1+0.35*(l.w-1))).strength(l=>l.tag?0.35:Math.min(0.12*l.w,0.6)/Math.sqrt(Math.min(deg(l.source),deg(l.target))||1)))
+  .force("charge",d3.forceManyBody().strength(d=>d.tag?-120:-70).distanceMax(420).theta(0.9))
+  .force("x",d3.forceX(0).strength(d=>ADJ.get(d.id)&&ADJ.get(d.id).length?0.03:0.09)).force("y",d3.forceY(0).strength(d=>ADJ.get(d.id)&&ADJ.get(d.id).length?0.03:0.09))
+  .force("collide",d3.forceCollide(d=>d.r+2.5).iterations(1)).stop();
+ LINKS.forEach(l=>{[[l.source.id,l.target],[l.target.id,l.source]].forEach(([a,b])=>{if(!ADJ.has(a))ADJ.set(a,[]);ADJ.get(a).push({n:b,l})})});
+ sim.force("link").strength(l=>l.tag?0.35:Math.min(0.12*l.w,0.6)/Math.sqrt(Math.min(deg(l.source),deg(l.target))||1));
+ sim.force("x").strength(d=>deg(d)?0.03:0.09);sim.force("y").strength(d=>deg(d)?0.03:0.09);
+ const warm=fresh.length>NODES.length*0.4;sim.alpha(warm?1:0.5);if(warm)for(let i=0;i<180;i++)sim.tick();
+ sim.on("tick",draw).alphaTarget(0).restart();
+ if(S.sel&&!NM.get(S.sel)||S.sel&&!NODES.includes(NM.get(S.sel)))select(null);else if(S.sel)panel(NM.get(S.sel));
+ if(refit||!fitted){fit(false);fitted=true}
+ paintCount();draw()}
+const deg=n=>(ADJ.get(n.id||n)||[]).length;
+let fitted=false;
+function paintCount(){const p=NODES.filter(n=>n.it),q=S.q?p.filter(n=>qm(n.it)).length:0,sl=p.filter(n=>n.it._sl).length;
+ $("count").textContent=`${p.length-sl} archive papers${sl?` · ${sl} shortlist`:""} · ${LINKS.filter(l=>!l.tag).length} paper links${G.mode!=="papers"?` · ${NODES.length-p.length} tag nodes`:""}${S.q?` · ${q} match “${S.q}”`:""}`+
+  ` · ${Object.keys(P.ni).filter(k=>BYID[k]).length} hidden${G.quar?" (shown)":""}`}
+function afterMark(id){if(S.ch.mine.size)rebuild();else{paintCtl();updNode(id)}}
+function updNode(id){const n=NM.get(id);if(n&&n.it)n.r=4.5+(n.it.relevance||1)*1.3+((n.it._sl?SL.star:P.star)[id]?1.5:0);if(S.sel===id)panel(n);draw()}
+// ---- Canvas, pan/zoom, drag ----
+let cvs,ctx,W=0,H=0,dpr=1,T={k:1,x:0,y:0},raf=0;
+function setupCanvas(){cvs=$("g");ctx=cvs.getContext("2d");const rs=()=>{dpr=Math.min(devicePixelRatio||1,2);const r=cvs.getBoundingClientRect();W=r.width;H=r.height;cvs.width=Math.round(W*dpr);cvs.height=Math.round(H*dpr);draw()};
+ rs();addEventListener("resize",rs);
+ const ptr=new Map();let drag=null,pan=null,pinch=null,down=null;
+ const loc=e=>{const r=cvs.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
+ cvs.addEventListener("pointerdown",e=>{cvs.setPointerCapture(e.pointerId);const p=loc(e);ptr.set(e.pointerId,p);
+  if(ptr.size===2){drag&&release();drag=null;pan=null;const[a,b]=[...ptr.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),k:T.k,c:[(a[0]+b[0])/2,(a[1]+b[1])/2],T:{...T}};down=null;return}
+  down={p,t:Date.now(),id:e.pointerId};const n=hit(p);
+  if(n){drag=n;n.fx=n.x;n.fy=n.y;sim.alphaTarget(0.25).restart();cvs.classList.add("drag")}else{pan={p,T:{...T}};cvs.classList.add("drag")}});
+ cvs.addEventListener("pointermove",e=>{const p=loc(e);if(ptr.has(e.pointerId))ptr.set(e.pointerId,p);
+  if(pinch&&ptr.size===2){const[a,b]=[...ptr.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]),c=[(a[0]+b[0])/2,(a[1]+b[1])/2];const k=clampK(pinch.k*d/pinch.d);
+   const wx=(pinch.c[0]-pinch.T.x)/pinch.T.k,wy=(pinch.c[1]-pinch.T.y)/pinch.T.k;T={k,x:c[0]-wx*k,y:c[1]-wy*k};draw();return}
+  if(drag){const[wx,wy]=toW(p);drag.fx=wx;drag.fy=wy;return}
+  if(pan){T.x=pan.T.x+p[0]-pan.p[0];T.y=pan.T.y+p[1]-pan.p[1];draw();return}
+  if(e.pointerType==="mouse"){const n=hit(p);if(n!==S.hover){S.hover=n;cvs.classList.toggle("pt",!!n);draw()}tip(n,p)}});
+ const up=e=>{const p=loc(e);ptr.delete(e.pointerId);if(ptr.size<2)pinch=null;
+  const click=down&&down.id===e.pointerId&&Math.hypot(p[0]-down.p[0],p[1]-down.p[1])<6&&Date.now()-down.t<500;
+  if(drag){const n=drag;release();if(click)select(n.id)}else if(pan){pan=null;if(click)select(null)}
+  down=null;cvs.classList.remove("drag")};
+ const release=()=>{if(drag){drag.fx=drag.fy=null;drag=null;sim.alphaTarget(0)}};
+ cvs.addEventListener("pointerup",up);cvs.addEventListener("pointercancel",up);
+ cvs.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"){S.hover=null;tip(null);draw()}});
+ cvs.addEventListener("wheel",e=>{e.preventDefault();const p=loc(e);zoomAt(p,Math.exp(-e.deltaY*(e.deltaMode?0.05:0.0015)))},{passive:false})}
+const clampK=k=>Math.max(0.15,Math.min(8,k));
+const toW=p=>[(p[0]-T.x)/T.k,(p[1]-T.y)/T.k];
+function zoomAt(p,f){const k=clampK(T.k*f),[wx,wy]=toW(p);T={k,x:p[0]-wx*k,y:p[1]-wy*k};draw()}
+function zoomBy(f){zoomAt([W/2,H/2],f)}
+function hit(p){const[wx,wy]=toW(p);let best=null,bd=1e9;for(const n of NODES){const d=Math.hypot(n.x-wx,n.y-wy),r=Math.max(n.r+3,9/T.k);if(d<r&&d<bd){bd=d;best=n}}return best}
+function fit(anim){fitTo(NODES,anim)}
+function fitTo(ns,anim){if(!ns.length||!W)return;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;ns.forEach(n=>{x0=Math.min(x0,n.x-n.r);y0=Math.min(y0,n.y-n.r);x1=Math.max(x1,n.x+n.r);y1=Math.max(y1,n.y+n.r)});
+ const pad=40,k=clampK(Math.min((W-2*pad)/Math.max(x1-x0,60),(H-2*pad)/Math.max(y1-y0,60),2.2)),to={k,x:W/2-(x0+x1)/2*k,y:H/2-(y0+y1)/2*k};
+ if(!anim){T=to;draw();return}const fr={...T},t0=performance.now();const st=t=>{const u=Math.min(1,(t-t0)/350),e=u*(2-u);T={k:fr.k+(to.k-fr.k)*e,x:fr.x+(to.x-fr.x)*e,y:fr.y+(to.y-fr.y)*e};draw();if(u<1)requestAnimationFrame(st)};requestAnimationFrame(st)}
+function tip(n,p){const t=$("tip");if(!n){t.style.display="none";return}
+ t.innerHTML=n.it?`<b>${esc(n.it.title)}</b><br><span class="m">${esc((n.it.authors||[])[0]||"")}${(n.it.authors||[]).length>1?" et al.":""} · ${esc(n.it.venue_clean||n.it.venue||"")} · ${esc((n.it.pub_date||"").slice(0,7))}${n.it._sl?" · SHORTLIST":""}</span>`:`<b>${esc(n.tag.label)}</b> <span class="m">${esc(n.tag.tl)} · ${n.tag.ids.length} papers</span>`;
+ t.style.display="block";const x=Math.min(p[0]+14,W-t.offsetWidth-6),y=p[1]+16+t.offsetHeight>H?p[1]-t.offsetHeight-10:p[1]+16;t.style.left=x+"px";t.style.top=y+"px"}
+// ---- Drawing ----
+function draw(){if(raf)return;raf=requestAnimationFrame(()=>{raf=0;paint()})}
+const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`};
+function paint(){if(!ctx)return;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+ ctx.fillStyle="#0d1216";ctx.fillRect(0,0,W,H);
+ // faint grid like the EEG header
+ ctx.strokeStyle="rgba(42,51,60,.35)";ctx.lineWidth=1;ctx.beginPath();const gs=80*T.k;if(gs>18){for(let x=((T.x%gs)+gs)%gs;x<W;x+=gs){ctx.moveTo(Math.round(x)+.5,0);ctx.lineTo(Math.round(x)+.5,H)}}ctx.stroke();
+ const focus=S.sel?NM.get(S.sel):S.hover,fset=new Set();if(focus){fset.add(focus.id);(ADJ.get(focus.id)||[]).forEach(a=>fset.add(a.n.id))}
+ const q=!!S.q;ctx.save();ctx.translate(T.x,T.y);ctx.scale(T.k,T.k);
+ for(const l of LINKS){const a=l.source,b=l.target;if(a.x===undefined)continue;const on=focus&&(fset.has(a.id)&&fset.has(b.id)&&(a===focus||b===focus));
+  const dom=Object.entries(l.types).sort((x,y)=>y[1]-x[1])[0][0],col=ET.find(e=>e[0]===dom)[4];
+  let al=l.tag?0.22:Math.min(0.18+0.12*l.w,0.6);if(focus)al=on?0.9:0.05;if(q&&!(a.it&&qm(a.it)||b.it&&qm(b.it)))al*=0.3;
+  ctx.strokeStyle=hexA(Object.keys(l.types).length>1&&!on?"#9aa7b2":col,al);ctx.lineWidth=(l.tag?0.8:0.7+0.9*(l.w-1))/Math.sqrt(T.k);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
+ for(const n of NODES){let al=1;if(focus&&!fset.has(n.id))al=0.2;if(q&&n.it&&!qm(n.it))al=Math.min(al,0.14);if(q&&n.tag)al=Math.min(al,0.35);
+  ctx.globalAlpha=al;
+  if(n.tag){const s=n.r;ctx.save();ctx.translate(n.x,n.y);ctx.rotate(Math.PI/4);ctx.fillStyle="#0d1216";ctx.strokeStyle=n.tag.col;ctx.lineWidth=1.6;ctx.fillRect(-s*.75,-s*.75,s*1.5,s*1.5);ctx.strokeRect(-s*.75,-s*.75,s*1.5,s*1.5);ctx.fillStyle=hexA(n.tag.col,.35);ctx.fillRect(-s*.45,-s*.45,s*.9,s*.9);ctx.restore()}
+  else{const it=n.it,cols=n.mods.length?n.mods.map(m=>MCOL[m]):[OTHER],sl=it._sl,starred=(sl?SL.star:P.star)[it.id],quar=(sl?SL.ni:P.ni)[it.id];
+   if(sl){ctx.fillStyle="#0d1216";ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,6.2832);ctx.fill();ctx.setLineDash([2.5,2]);ctx.lineWidth=2;
+    cols.forEach((c,k)=>{ctx.strokeStyle=c;ctx.beginPath();ctx.arc(n.x,n.y,n.r-1,-Math.PI/2+k*6.2832/cols.length,-Math.PI/2+(k+1)*6.2832/cols.length);ctx.stroke()});ctx.setLineDash([])}
+   else if(cols.length===1){ctx.fillStyle=cols[0];ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,6.2832);ctx.fill()}
+   else cols.forEach((c,k)=>{ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.arc(n.x,n.y,n.r,-Math.PI/2+k*6.2832/cols.length,-Math.PI/2+(k+1)*6.2832/cols.length);ctx.closePath();ctx.fill()});
+   if(P.status[it.id]==="read"&&!sl){ctx.fillStyle="rgba(13,18,22,.55)";ctx.beginPath();ctx.arc(n.x,n.y,n.r*.42,0,6.2832);ctx.fill()}
+   if(starred){ctx.strokeStyle="#e8c15a";ctx.lineWidth=2;ctx.beginPath();ctx.arc(n.x,n.y,n.r+2.6,0,6.2832);ctx.stroke()}
+   if(quar){ctx.strokeStyle="#e0453b";ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(n.x,n.y,n.r+1.2,0,6.2832);ctx.stroke();ctx.beginPath();ctx.moveTo(n.x-n.r*.6,n.y-n.r*.6);ctx.lineTo(n.x+n.r*.6,n.y+n.r*.6);ctx.stroke()}
+   if(S.sel===n.id||S.hover===n){ctx.strokeStyle="#e6e9ec";ctx.lineWidth=1.5/T.k;ctx.beginPath();ctx.arc(n.x,n.y,n.r+(starred?5:3),0,6.2832);ctx.stroke()}}}
+ ctx.globalAlpha=1;ctx.restore();
+ // labels in screen space (constant size)
+ ctx.textAlign="center";ctx.textBaseline="top";const LB=[];
+ for(const n of NODES){const sx=n.x*T.k+T.x,sy=n.y*T.k+T.y;if(sx<-100||sx>W+100||sy<-20||sy>H+20)continue;let txt=null;
+  const show=G.lab!=="none",isF=focus&&(n===focus||(S.sel&&fset.has(n.id)));
+  if(n.tag){if(G.lab==="all"||show&&(T.k>0.55||n.tag.ids.length>=3)||isF)txt=n.tag.label}
+  else if(G.lab==="all"||isF||show&&(T.k>1.2||q&&qm(n.it)&&T.k>0.6))txt=n.it.title.length>44?n.it.title.slice(0,42)+"…":n.it.title;
+  if(!txt)continue;if(focus&&!fset.has(n.id)&&G.lab!=="all")continue;
+  const pr=(n===focus?1e6:0)+(isF?1e5:0)+(n.tag?1e4+n.tag.ids.length*10:0)+(n.it&&q&&qm(n.it)?5e3:0)+(n.it&&(n.it._sl?SL.star:P.star)[n.it.id]?2e3:0)+deg(n)*10+n.r;
+  LB.push({n,txt,sx,sy,pr})}
+ LB.sort((a,b)=>b.pr-a.pr);const placed=[];
+ for(const L of LB){const n=L.n;ctx.font=(n.tag?"10.5px ":"11px ")+"Consolas,Menlo,monospace";const w=ctx.measureText(L.txt).width;const y=L.sy+n.r*T.k+4;
+  const R=[L.sx-w/2-3,y-1,L.sx+w/2+3,y+13];
+  if(G.lab!=="all"&&placed.some(o=>R[0]<o[2]&&R[2]>o[0]&&R[1]<o[3]&&R[3]>o[1]))continue;placed.push(R);
+  ctx.fillStyle="rgba(13,18,22,.78)";ctx.fillRect(R[0],R[1],w+6,14);ctx.fillStyle=n.tag?n.tag.col:(n===focus?"#e6e9ec":"#b9c3cb");ctx.fillText(L.txt,L.sx,y)}}
+// ---- Side panel ----
+function select(id,center){S.sel=id;const n=id&&NM.get(id);if(!n){$("side").style.display="none";S.sel=null;draw();return}panel(n);
+ if(center){const sx=n.x*T.k+T.x,sy=n.y*T.k+T.y,pw=matchMedia("(max-width:700px)").matches?0:Math.min(400,W*.92);if(sx<20||sx>W-pw-20||sy<20||sy>H-20){T.x+=(W-pw)/2-sx;T.y+=H/2-sy}}draw()}
+const PSB=i=>i.pub_status?`<span class="pst${/preprint/i.test(i.pub_status)?" pre":i.pub_status==="Registered"?" reg":""}" title="Publication status">${esc(i.pub_status)}</span>`:"";
+function chipBtn(k,v,lab){return`<button class="chip" data-fil="${k}|${esc(v)}" title="Filter the graph to this">${esc(lab||v)}</button>`}
+function panel(n){const sd=$("side");sd.style.display="block";
+ if(n.tag){const t=n.tag,ps=t.ids.map(id=>BYID[id]).filter(Boolean).sort((a,b)=>(b.relevance||0)-(a.relevance||0));
+  const fk={drug:"drug",mod:"mod"}[t.type];
+  sd.innerHTML=`<button class="x">✕</button><span class="badge" style="--c:${t.col}">◆ ${esc(t.tl)}</span><h3>${esc(t.label)}</h3><div class="m">${ps.length} papers in view</div>
+  <div class="acts">${fk?chipBtn(fk,t.label,"Filter graph to "+t.label):""}<button data-q="${esc(t.type==="topic"?t.label.slice(1):t.label)}">Highlight matches</button></div>
+  <div class="h4">Papers</div><ul class="nb">${ps.map(i=>`<li data-go="${i.id}"><button data-go="${i.id}" style="all:unset;cursor:pointer">${esc(i.title)}</button><span class="why">${esc(i.venue_clean||i.venue||"")} · ${esc((i.pub_date||"").slice(0,7))}${i._sl?" · shortlist":""}</span></li>`).join("")}</ul>`;return}
+ const i=n.it,s=secOf(i.section),sl=i._sl,au=i.authors||[],auT=au.length>6?au.slice(0,6).join(", ")+` +${au.length-6} more`:au.join(", "),r=i.relevance||0;
+ const star=(sl?SL.star:P.star)[i.id],ni=(sl?SL.ni:P.ni)[i.id];
+ const dd=i.drug_display||i.drugs||[];
+ const tags=[...(i.drug_groups||[]).map(v=>chipBtn("drug",v)),...(i.modality_groups||[]).map(v=>chipBtn("mod",v)),...(i.disorders||[]).map(v=>chipBtn("dis",v)),...(i.stage?[chipBtn("stage",i.stage)]:[]),...(i.pub_status?[chipBtn("pub",i.pub_status)]:[]),
+  ...(i.method_groups||[]).map(v=>`<button class="chip" data-q="${esc(v)}" title="Highlight papers in this method family">⚙ ${esc(v)}</button>`),...(i.topics||[]).map(v=>`<button class="chip" data-q="${esc(v)}">#${esc(v)}</button>`)].join("");
+ const nb=(ADJ.get(n.id)||[]).slice().sort((a,b)=>(b.l.w||0)-(a.l.w||0));
+ const src=i.url||(i.doi?"https://doi.org/"+i.doi:"");
+ sd.innerHTML=`<button class="x">✕</button><span class="badge" style="--c:${s[3]}">${s[2]} ${esc(s[1])}</span><span class="ty">${esc(i.kind||"")}</span>${PSB(i)}<span class="ty" title="Relevance">Relevance ${"●".repeat(r)}${"○".repeat(3-r)}</span>
+ <h3>${src?`<a href="${esc(src)}" target="_blank" rel="noopener">${esc(i.title)}</a>`:esc(i.title)}</h3>${auT?`<div class="au">${esc(auT)}</div>`:""}
+ <div class="m">${esc(i.venue_clean||i.venue||"")}${i.pub_date?" · "+esc(i.pub_date):""}${i.doi?" · doi:"+esc(i.doi):""}${sl&&i.added_date?" · shortlisted "+esc(i.added_date):""}</div>
+ <div class="tags">${tags}</div>${i.post?`<p>${esc(i.post)}</p>`:""}${i.why_you?`<div class="cav"><b>WHY IT MATTERS</b> ${esc(i.why_you)}</div>`:""}${i.notes?`<div class="note"><b>My notes:</b> ${esc(i.notes)}</div>`:""}
+ <div class="acts"><button data-star="${i.id}" class="${star?"on":""}">${star?"★ Starred":"☆ Star"}</button>
+ ${sl?"":`<button data-st="${i.id}|toread" class="${P.status[i.id]==="toread"?"on":""}">To read</button><button data-st="${i.id}|read" class="${P.status[i.id]==="read"?"on":""}">Read</button>`}
+ <button data-ni="${i.id}">${ni?"↺ Restore":"⊘ Not interested"}</button></div>
+ <div class="acts">${i.detail_url?`<a href="${esc(i.detail_url)}">details</a>`:""}${i.issue_url?`<a href="${esc(i.issue_url)}">In issue #${esc(i.issue)} →</a>`:""}${sl?`<a href="shortlist.html">On the shortlist →</a>`:""}${src?`<a href="${esc(src)}" target="_blank" rel="noopener">Source ↗</a>`:""}${i.zotero?`<a href="search.html?seed=${encodeURIComponent(i.doi||i.id)}" target="_blank" rel="noopener">⌕ More like this</a>`:""}</div>
+ <div class="h4">Linked to (${nb.length})</div>${nb.length?`<ul class="nb">${nb.map(({n:m,l})=>`<li data-go="${m.id}"><button data-go="${m.id}" style="all:unset;cursor:pointer">${m.tag?"◆ "+esc(m.tag.tl)+": "+esc(m.tag.label):esc(m.it.title)}</button>${l.why&&l.why.length?`<span class="why">${l.w} shared · ${esc(l.why.map(w=>w.replace(/^[a-z]+:/,"")).join(" · "))}</span>`:""}</li>`).join("")}</ul>`:`<div class="m">No links with the current settings. Try more link types or a lower "Min shared".</div>`}`}
+</script><script>
+/* EEG header: 3 channels of 1/f noise with infrequent ~10 Hz alpha bursts. No libs. */
+(()=>{const cv=document.getElementById("eeg");if(!cv||!cv.getContext)return;const cx=cv.getContext("2d");
+const FS=200,WIN=8,N=FS*WIN,CH=[["Fz",.35],["Cz",.65],["Pz",1]],TAUS=[.004,.016,.064,.256,1.024];
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let buf=CH.map(()=>new Float32Array(N)),env=new Float32Array(N),head=0,tot=0,st=CH.map(()=>TAUS.map(()=>0)),
+ burst=null,nextB=2.5,tsec=0,marks=[],dz=[0,0],pw=0,raf=0,last=0,acc=0,W=0,H=0,dpr=1;
+const A=TAUS.map(t=>Math.exp(-1/(FS*t))),G=A.map(a=>Math.sqrt(1-a*a)/Math.sqrt(TAUS.length));
+const gn=()=>{let u=1-Math.random(),v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(6.283185*v)};
+function step(){tsec+=1/FS;
+ if(!burst&&tsec>=nextB){const d=.5+Math.random()*1.5;burst={t0:tsec,d,f:9+Math.random()*2.2,ph:Math.random()*6.28,a:3+Math.random()*1.4};marks.push(tot+Math.round(d*FS/2))}
+ let e=0,s=0;if(burst){const u=(tsec-burst.t0)/burst.d;if(u>=1){burst=null;nextB=tsec+3+Math.random()*7}else{e=Math.sin(Math.PI*u)**2;s=burst.a*e*Math.sin(6.283185*burst.f*(tsec-burst.t0)+burst.ph)}}
+ for(let c=0;c<CH.length;c++){let x=0;const S=st[c];for(let k=0;k<A.length;k++){S[k]=A[k]*S[k]+G[k]*gn();x+=S[k]}
+  buf[c][head]=x*1.15+s*CH[c][1]}
+ env[head]=e;
+ const ph=6.283185*10*tsec,x=buf[2][head],k=1-Math.exp(-1/(FS*.12));dz[0]+=k*(x*Math.cos(ph)-dz[0]);dz[1]+=k*(x*Math.sin(ph)-dz[1]);pw=4*(dz[0]*dz[0]+dz[1]*dz[1]);
+ head=(head+1)%N;tot++;if(marks.length&&marks[0]<tot-N)marks.shift()}
+function size(){dpr=Math.min(devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cx.setTransform(dpr,0,0,dpr,0,0)}
+const BARS="▁▂▃▄▅▆▇█",ap=document.getElementById("apow");
+function draw(){if(!W)return;cx.clearRect(0,0,W,H);const lh=H/CH.length,sx=W/N,sy=lh/9.5,off=(tot%FS)*sx;
+ cx.strokeStyle="rgba(42,51,60,.55)";cx.lineWidth=1;cx.beginPath();for(let x=W-off;x>0;x-=FS*sx){cx.moveTo(Math.round(x)+.5,0);cx.lineTo(Math.round(x)+.5,H)}cx.stroke();
+ cx.font="10px Consolas,Menlo,monospace";cx.textAlign="right";
+ for(let c=0;c<CH.length;c++){const y0=lh*(c+.5),b=buf[c],P=i=>y0-Math.max(-4.6,Math.min(4.6,b[(head+i)%N]))*sy;
+  cx.strokeStyle="rgba(154,167,178,.55)";cx.lineWidth=1.1;cx.beginPath();cx.moveTo(0,P(0));for(let i=1;i<N;i++)cx.lineTo(i*sx,P(i));cx.stroke();
+  cx.strokeStyle="#e0453b";cx.lineWidth=1.5;cx.beginPath();let on=false;
+  for(let i=0;i<N;i++){const e=env[(head+i)%N];if(e>.12){if(!on){cx.moveTo(i*sx,P(i));on=true}else cx.lineTo(i*sx,P(i))}else on=false}cx.stroke();
+  cx.fillStyle="#5f7180";cx.fillText(CH[c][0],W-6,y0+lh*.38)}
+ cx.fillStyle="#e0453b";cx.textAlign="center";cx.font="12px Consolas,Menlo,monospace";
+ for(const m of marks){const x=(m-(tot-N))*sx;if(x>0&&x<W)cx.fillText("α",x,11)}
+ if(ap){const v=Math.min(1,Math.sqrt(pw)/3.4);ap.textContent="α power "+BARS[Math.min(7,Math.floor(v*8))]+" "+(pw).toFixed(1)}}
+function prefill(){nextB=1e9;for(let i=0;i<N;i++){if(i===Math.round(N*.55)){nextB=tsec+1/FS}step()}nextB=tsec+2+Math.random()*4}
+function loop(t){raf=requestAnimationFrame(loop);if(!last){last=t;return}const dt=Math.min(.1,(t-last)/1000);last=t;acc+=dt;if(acc<1/40)return;
+ let n=Math.round(acc*FS);acc=0;while(n--)step();draw()}
+size();prefill();draw();
+addEventListener("resize",()=>{size();draw()});
+if(!RM){raf=requestAnimationFrame(loop);document.addEventListener("visibilitychange",()=>{cancelAnimationFrame(raf);last=0;acc=0;if(!document.hidden)raf=requestAnimationFrame(loop)})}
+})();
+</script>
+</body></html>

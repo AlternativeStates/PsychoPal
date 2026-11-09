@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>PsychoPal Archive</title>
+<link rel="icon" href="../icons/icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../icons/icon-180.png">
+<link rel="stylesheet" href="../styles.css">
+<style>
+/* archive-specific (tokens come from ../styles.css) — ported from the Neurodynamics Digest archive */
+.ah{padding:18px 0 4px}.ah h1{margin:0;font-size:26px}.ah p{margin:4px 0 0;color:var(--mut);font-size:14px}.ah a{color:var(--accent)}
+#q{width:100%;padding:12px 14px;margin:14px 0 8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;color:var(--tx);font-size:16px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin}
+.tab,.chipf,.view{flex:none;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--mut);border-radius:999px;font-size:13px;padding:5px 11px;white-space:nowrap}
+.tab .ic{color:var(--c);margin-right:4px}.tab.on{background:var(--c);border-color:var(--c);color:#fff}.tab.on .ic,.tab.on .n{color:#fff}
+.n{font-size:11px;color:var(--dim);margin-left:4px}
+.row{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.lab{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;width:100%}
+.chipf.on,.view.on{border-color:var(--accent);color:var(--tx);background:var(--accent-soft)}
+details.more{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:8px 0}details.more summary{cursor:pointer;font-size:13px;color:var(--mut)}
+select{background:var(--panel2);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:6px;font-size:14px;width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:8px}
+#bar{display:flex;justify-content:space-between;align-items:center;margin:12px 0;gap:8px;flex-wrap:wrap}#count{color:var(--mut);font-size:13px}
+#bar button{cursor:pointer;background:none;border:1px solid var(--line);border-radius:8px;color:var(--mut);font-size:13px;padding:4px 10px}
+#simbar{display:none;background:var(--accent-soft);border-radius:12px;padding:10px 12px;margin:8px 0;font-size:14px}
+#simbar button{margin-left:8px;cursor:pointer;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px 8px;color:var(--tx)}
+.acard{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:var(--radius);padding:14px 16px;margin:0 0 12px}
+.acard h3{margin:6px 0 4px;font-size:17px;line-height:1.35}.acard h3 a{color:var(--tx);text-decoration:none}.acard h3 a:hover{text-decoration:underline}
+.sb{font-size:12px;font-weight:600;color:var(--c)}.ty{font-size:12px;color:var(--dim);margin-left:6px}
+.pst{font-size:11px;font-weight:600;letter-spacing:.03em;border:1px solid var(--line);border-radius:6px;color:var(--mut);padding:1px 6px;margin-left:6px}.pst.pre{color:var(--bad)}
+.meta{color:var(--mut);font-size:13px}.tags{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}.tags .chipf{font-size:11.5px;padding:2px 8px}
+.acard p{margin:6px 0;font-size:15px}.acard .why{font-size:14px}
+.aacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.aacts button,.aacts a{cursor:pointer;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--mut);font-size:13px;padding:5px 9px;text-decoration:none}
+.aacts button.on{color:var(--tx);border-color:var(--warn)}.aacts .det{margin-left:auto;background:none;border:0}
+.qnote{background:var(--panel2);border-radius:12px;padding:8px 12px;font-size:14px;margin:8px 0}
+</style>
+<script src="../config.js"></script><script src="sync.js"></script></head><body><main class="wrap">
+<header class="ah"><h1>Archive</h1>
+<p><a href="../">← Feed</a> · every card PsychoPal has shown you · <a href="search.html">⌕ Literature search</a> · <a href="graph.html">◌ Graph view</a></p></header>
+<input id="q" type="search" placeholder="Search titles, authors, summaries, tags…" autocomplete="off">
+<div class="tabs" id="tabs"></div>
+<div class="row" id="views"></div>
+<div id="chiprows"></div>
+<details class="more" id="more"><summary>More filters · method family, week, venue</summary><div class="grid" id="selects"></div></details>
+<div id="simbar"></div>
+<div id="bar"><span id="count"></span><span><button id="expj">Export marks (JSON)</button> <button id="clear">Clear filters</button></span></div><div id="list"></div>
+<p class="foot">Saves, likes, read marks and hides are kept in this browser and synced across your devices once you connect sync (pill, bottom right). The weekly run learns from them.</p>
+</main>
+<script>
+const SECTIONS=[ // [section name in data, tab label, icon, accent]
+["Psychedelic research","Psychedelics","✺","#8b5cf6"],["Neuropsychopharmacology","Neuropsychopharm","⚗︎","#e07b2a"],["Neuroimaging","Neuroimaging","◉","#0f9f95"],
+["Computational neuroscience","Comp neuro","∑","#2f86d0"],["Neuroscience","Neuroscience","✧","#5b6fd6"],["Biological psychiatry","Bio psychiatry","✚","#d6457a"],
+["Brain–body coupling","Brain–body","♥︎","#e0604a"],["Neurodynamics","Neurodynamics","∿","#6f9e1e"],["New psychedelic trials","Trials","⊕","#8b5cf6"],
+["Catch-up","Catch-up","↺","#9a7b4f"],["Funding","Funding","£","#c98a1b"],["Conferences","Conferences","◎","#c0392b"],["Training","Training","✎︎","#2e8b57"],
+["Tools & methods","Tools","⚙︎","#b8860b"]];
+const CHIPS=[["drug","Drug","drug_groups",null],["mod","Modality","modality_groups",["EEG","MEG","TMS / TMS-EEG","fMRI","PET","MRI (structural/diffusion)","MRS"]],
+ ["dis","Disorder / population","disorders",null],["stage","Clinical / Pre-clinical","stage",["Clinical","Pre-clinical"]],["pub","Publication status","pub_status",["Peer reviewed","Preprint","Registered"]]];
+const cv=(i,f)=>{const v=i[f];return Array.isArray(v)?v:v?[v]:[]};
+const SELECTS=[["method","Method family",i=>i.method_groups||[]],["week","Week",i=>i.week?[i.week]:[]],["venue","Venue",i=>i.venue_clean?[i.venue_clean]:[]]];
+const VIEWS=[["all","All"],["star","★ Saved"],["toread","To read"],["read","Read"],["like","👍 Liked"],["hid","Hidden"]];
+const TEXT=i=>[i.title,(i.authors||[]).join(" "),i.post,i.why_you,i.venue,(i.ai_tags||[]).join(" "),(i.drug_groups||[]).join(" "),(i.disorders||[]).join(" "),(i.modality_groups||[]).join(" "),(i.method_groups||[]).join(" "),i.stage||"",i.pub_status||"",i.section,i.funder||""].join(" ").toLowerCase();
+const KEY="pp-marks";
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return{}}};
+let P=load();const norm=()=>{for(const k of["like","dislike","star","status","more","ts"])P[k]=P[k]||{}};norm();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(P))}catch(e){}};
+const mark=(k,id)=>{P.ts[k+"|"+id]=Date.now()};
+addEventListener("load",()=>window.PPSync&&PPSync.on(KEY,s=>{P=s||{};norm();if(ITEMS.length)render()}));
+const S={tab:"All",view:new URLSearchParams(location.search).get("view")||"all",q:"",ch:Object.fromEntries(CHIPS.map(c=>[c[0],new Set()])),sel:{},sim:null};
+const secOf=n=>SECTIONS.find(s=>s[0]===n)||[n,n,"◆","#8a9097"];
+const esc=t=>String(t??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const safe=u=>/^https?:\/\//i.test(u||"")?u:"";
+const $=id=>document.getElementById(id);
+let ITEMS=[],BYID={};
+fetch("items.json",{cache:"no-cache"}).then(r=>r.json()).then(d=>{ITEMS=d.map(i=>({...i,_s:TEXT(i)}));ITEMS.forEach(i=>BYID[i.id]=i);init()})
+ .catch(()=>{$("list").innerHTML='<div class="empty">The archive is empty until the first weekly run.</div>'});
+function init(){
+ const present=new Set(ITEMS.map(i=>i.section));
+ const tabs=[["All","All","◇","#5c636b"],...SECTIONS.filter(s=>present.has(s[0]))];
+ $("tabs").innerHTML=tabs.map(t=>`<button class="tab" style="--c:${t[3]}" data-t="${esc(t[0])}"><span class="ic">${t[2]}</span>${esc(t[1])}<span class="n">${t[0]==="All"?ITEMS.length:ITEMS.filter(i=>i.section===t[0]).length}</span></button>`).join("");
+ $("views").innerHTML=VIEWS.map(v=>`<button class="view" data-v="${v[0]}">${v[1]}</button>`).join("");
+ $("chiprows").innerHTML=CHIPS.map(([k,l,f,ord])=>{const n={};ITEMS.forEach(i=>cv(i,f).forEach(v=>n[v]=(n[v]||0)+1));
+  let v=Object.keys(n);v=ord?ord.filter(x=>n[x]):v.sort((a,b)=>(a==="Healthy volunteers")-(b==="Healthy volunteers")||n[b]-n[a]||a.localeCompare(b));
+  return v.length?`<div class="row"><span class="lab">${l}</span>${v.map(x=>`<button class="chipf" data-c="${k}|${esc(x)}">${esc(x)}<span class="n">${n[x]}</span></button>`).join("")}</div>`:""}).join("");
+ $("selects").innerHTML=SELECTS.map(([k,l,g])=>{const v=[...new Set(ITEMS.flatMap(g))].sort((a,b)=>k==="week"?b.localeCompare(a):a.localeCompare(b));return `<label class="meta">${l}<br><select data-k="${k}"><option value="">Any</option>${v.map(x=>`<option>${esc(x)}</option>`).join("")}</select></label>`}).join("");
+ document.addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.closest("#pp-sd")||b.id==="pp-sync")return;const d=b.dataset;
+  if(d.t!==undefined)S.tab=d.t; else if(d.v)S.view=d.v;
+  else if(d.c){const k=d.c.split("|")[0],v=d.c.slice(k.length+1),st=S.ch[k];st.has(v)?st.delete(v):st.add(v)}
+  else if(d.f){const k=d.f.split("|")[0],v=d.f.slice(k.length+1);S.sel[k]=v;document.querySelector(`select[data-k="${k}"]`).value=v;$("more").open=true}
+  else if(d.star){P.star[d.star]?delete P.star[d.star]:(P.star[d.star]=1,mark("star",d.star));save()}
+  else if(d.st){const[id,v]=d.st.split("|");P.status[id]===v?delete P.status[id]:(P.status[id]=v,mark(v,id));save()}
+  else if(d.like){P.like[d.like]?delete P.like[d.like]:(P.like[d.like]=1,delete P.dislike[d.like],mark("like",d.like));save()}
+  else if(d.hide){P.dislike[d.hide]=1;delete P.like[d.hide];mark("dislike",d.hide);save()}
+  else if(d.restore){delete P.dislike[d.restore];save()}
+  else if(d.sim){S.sim=d.sim;S.tab="All";P.more[d.sim]=(P.more[d.sim]||0)+1;mark("more",d.sim);save();window.scrollTo(0,0)}
+  else if(d.unsim!==undefined)S.sim=null;
+  else if(b.id==="expj"){exportJSON();return}
+  else if(b.id==="clear"){S.tab="All";S.view="all";S.q="";Object.values(S.ch).forEach(x=>x.clear());S.sel={};S.sim=null;$("q").value="";document.querySelectorAll("select").forEach(s=>s.value="")}
+  else return; render()});
+ $("selects").addEventListener("change",e=>{S.sel[e.target.dataset.k]=e.target.value;render()});
+ $("q").addEventListener("input",e=>{S.q=e.target.value.trim().toLowerCase();render()});
+ render()}
+function match(i){
+ if(S.view==="hid")return !!P.dislike[i.id]&&(S.tab==="All"||i.section===S.tab);
+ if(P.dislike[i.id])return false;
+ if(S.tab!=="All"&&i.section!==S.tab)return false;
+ if(S.view==="star"&&!P.star[i.id])return false;
+ if(S.view==="like"&&!P.like[i.id])return false;
+ if((S.view==="toread"||S.view==="read")&&P.status[i.id]!==S.view)return false;
+ for(const[k,,f]of CHIPS){const st=S.ch[k];if(st.size&&!cv(i,f).some(v=>st.has(v)))return false}
+ for(const[k,,g]of SELECTS){const v=S.sel[k];if(v&&!g(i).includes(v))return false}
+ if(S.q&&!S.q.split(/\s+/).every(w=>i._s.includes(w)))return false;
+ return true}
+function coins(i){const k=(a,b)=>a+"="+encodeURIComponent(b),q=["ctx_ver=Z39.88-2004","rft_val_fmt="+encodeURIComponent("info:ofi/fmt:kev:mtx:journal"),k("rft.genre","article"),k("rft.atitle",i.title||"")];
+ if(i.venue_clean)q.push(k("rft.jtitle",i.venue_clean));(i.authors||[]).forEach(a=>q.push(k("rft.au",a)));if(i.date)q.push(k("rft.date",i.date));
+ if(i.doi)q.push(k("rft_id","info:doi/"+i.doi));if(i.url)q.push(k("rft_id",i.url));return q.join("&")}
+let zotPing=0;function zotRefresh(){clearTimeout(zotPing);zotPing=setTimeout(()=>{try{history.replaceState(history.state,"",location.href)}catch(e){}},300)}
+function card(i){const s=secOf(i.section),u=safe(i.url);
+ const tags=[...(i.drug_groups||[]).map(v=>`<button class="chipf" data-c="drug|${esc(v)}">${esc(v)}</button>`),...(i.modality_groups||[]).map(v=>`<button class="chipf" data-c="mod|${esc(v)}">${esc(v)}</button>`),
+  ...(i.disorders||[]).map(v=>`<button class="chipf" data-c="dis|${esc(v)}">${esc(v)}</button>`),...(i.method_groups||[]).map(v=>`<button class="chipf" data-f="method|${esc(v)}">${esc(v)}</button>`)].join("");
+ const au=i.authors||[];const auT=au.length>6?au.slice(0,6).join(", ")+` +${au.length-6} more`:au.join(", ");
+ return `<article class="acard" style="--c:${s[3]}">${i.zotero&&(i.doi||i.url)?`<span class="Z3988" title="${esc(coins(i))}"></span>`:""}<span class="sb">${s[2]} ${esc(s[1])}</span>${i.pub_status?`<span class="pst${i.pub_status==="Preprint"?" pre":""}">${esc(i.pub_status)}</span>`:""}<span class="ty">${esc(i.week||"")}</span>
+ <h3>${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(i.title)}</a>`:esc(i.title)}</h3>
+ ${auT?`<div class="meta">${esc(auT)}</div>`:""}<div class="meta">${esc(i.venue||i.funder||"")}${i.date?" · "+esc(i.date):""}${i.deadline?" · deadline "+esc(i.deadline):""}</div>
+ ${tags?`<div class="tags">${tags}</div>`:""}${i.post?`<p>${esc(i.post)}</p>`:""}${i.why_you?`<p class="why" style="--c:${s[3]}"><b>Why it matters for you:</b> ${esc(i.why_you)}</p>`:""}
+ <div class="aacts">${P.dislike[i.id]?`<button data-restore="${i.id}">↺ Restore</button>`:""}<button data-star="${i.id}" class="${P.star[i.id]?"on":""}">${P.star[i.id]?"★ Saved":"☆ Save"}</button>
+ <button data-like="${i.id}" class="${P.like[i.id]?"on":""}">👍${P.like[i.id]?" Liked":""}</button>
+ <button data-st="${i.id}|toread" class="${P.status[i.id]==="toread"?"on":""}">To read</button><button data-st="${i.id}|read" class="${P.status[i.id]==="read"?"on":""}">Read</button>
+ ${(i.similar||[]).length?`<button data-sim="${i.id}" title="Show related items (also tells PsychoPal you want more like this)">More like this${P.more[i.id]?" ·"+P.more[i.id]:""}</button>`:""}
+ ${P.dislike[i.id]?"":`<button data-hide="${i.id}" title="Hide (PsychoPal shows less like this)">👎 Hide</button>`}
+ ${i.doi?`<a href="search.html?seed=${encodeURIComponent(i.doi)}" title="Find similar papers in the wider literature">⌕ Similar papers</a>`:""}${i.detail_url?`<a class="det" href="${esc(i.detail_url)}">details</a>`:""}</div></article>`}
+function render(){
+ document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.t===S.tab));
+ document.querySelectorAll(".view").forEach(b=>b.classList.toggle("on",b.dataset.v===S.view));
+ let r;
+ if(S.sim&&BYID[S.sim]){const src=BYID[S.sim];r=[src,...(src.similar||[]).map(k=>BYID[k]).filter(x=>x&&!P.dislike[x.id])];
+  $("simbar").style.display="block";$("simbar").innerHTML=`Items similar to <b>${esc(src.title)}</b> <button data-unsim="">Back to all</button>`}
+ else{$("simbar").style.display="none";r=ITEMS.filter(match).sort((a,b)=>(b.week||"").localeCompare(a.week||"")||(b.top?1:0)-(a.top?1:0))}
+ const nh=Object.keys(P.dislike).filter(k=>BYID[k]).length;
+ $("count").textContent=S.sim?`${r.length-1} similar items`:S.view==="hid"?`${r.length} hidden items`:`${r.length} of ${ITEMS.length-nh} items`;
+ const hv=document.querySelector('.view[data-v="hid"]');if(hv)hv.textContent=`Hidden (${nh})`;
+ $("list").innerHTML=(S.view==="hid"&&!S.sim?'<div class="qnote">Items you hid with 👎. Similar items rank lower in future editions. Use Restore to bring one back.</div>':"")+(r.length?r.slice(0,400).map(card).join(""):'<div class="empty">Nothing matches. Try clearing a filter.</div>');
+ document.querySelectorAll(".chipf[data-c]").forEach(b=>{const k=b.dataset.c.split("|")[0];b.classList.toggle("on",S.ch[k].has(b.dataset.c.slice(k.length+1)))});zotRefresh()}
+function exportJSON(){const pick=id=>BYID[id]?{id,title:BYID[id].title,section:BYID[id].section,url:BYID[id].url||""}:{id};
+ const o={exported:new Date().toISOString(),saved:Object.keys(P.star).map(pick),liked:Object.keys(P.like).map(pick),hidden:Object.keys(P.dislike).map(pick),
+  status:Object.entries(P.status).map(([id,s])=>({...pick(id),status:s})),more_like_this:Object.entries(P.more).map(([id,n])=>({...pick(id),count:n}))};
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(o,null,1)],{type:"application/json"}));a.download=`psychopal-marks-${o.exported.slice(0,10)}.json`;document.body.appendChild(a);a.click();a.remove()}
+</script></body></html>

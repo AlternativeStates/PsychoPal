@@ -1,0 +1,63 @@
+# Training watchlist: courses, workshops and summer schools. Dates/deadlines are extracted automatically when a page changes.
+items:
+  - id: spm-course
+    name: SPM course for fMRI / MEG-EEG (UCL FIL)
+    url: https://www.fil.ion.ucl.ac.uk/spm/course/
+    organiser: Wellcome Centre for Human Neuroimaging, UCL
+    location: London
+  - id: fsl-course
+    name: FSL Course
+    url: https://open.win.ox.ac.uk/pages/fslcourse/website/
+    organiser: Oxford WIN
+  - id: fieldtrip-workshops
+    name: FieldTrip toolbox workshops
+    url: https://www.fieldtriptoolbox.org/workshop/
+    organiser: Donders Institute
+  - id: mne-workshops
+    name: MNE-Python workshops & tutorials
+    url: https://mne.tools/stable/overview/people.html
+    organiser: MNE-Python community
+    disabled: true
+  - id: eeglab-workshops
+    name: EEGLAB workshops
+    url: https://eeglab.org/workshops/
+    organiser: SCCN, UC San Diego
+  - id: tms-eeg-summer-school
+    name: Science Factory – TMS-EEG Summer School & Workshop (Aalto)
+    url: https://www.aalto.fi/en/events/13th-science-factory-tms-eeg-summer-school-and-workshop
+    organiser: Aalto University
+    location: Espoo, Finland
+    notes: Annual hands-on TMS-EEG school; 13th edition 1-6 Jun 2027. Update the URL each year to the next edition's event page.
+  - id: neuromatch
+    name: Neuromatch Academy (Computational Neuroscience, NeuroAI)
+    url: https://neuromatch.io/
+    organiser: Neuromatch
+    notes: Online summer courses in July; applications usually open in early spring.
+  - id: cpc-zurich
+    name: Computational Psychiatry Course (Zurich)
+    url: https://www.translationalneuromodeling.org/cpcourse/
+    organiser: TNU, University of Zurich & ETH
+  - id: woods-hole-mcn
+    name: Methods in Computational Neuroscience (Woods Hole)
+    url: https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/methods-computational-neuroscience
+    organiser: Marine Biological Laboratory
+  - id: brainhack
+    name: Brainhack events
+    url: https://brainhack.org/
+    organiser: Brainhack community
+  - id: ohbm-education
+    name: OHBM educational courses
+    url: https://www.humanbrainmapping.org/
+    organiser: OHBM
+    notes: Half-day courses on the first day of the OHBM meeting.
+    disabled: true
+  - id: turku-pet-course
+    name: Turku PET Centre courses
+    url: https://turkupetcentre.fi/
+    organiser: Turku PET Centre
+    notes: PET modelling and imaging courses.
+  - id: dcm-course
+    name: DCM / Active Inference courses (FIL)
+    url: https://www.fil.ion.ucl.ac.uk/spm/course/
+    organiser: UCL FIL
+    disabled: true

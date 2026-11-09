@@ -1,0 +1,41 @@
+# PsychoPal settings. Edit freely; every value has a safe default in code.
+
+site_title: PsychoPal
+site_url: "https://alternativestates.github.io/PsychoPal/"   # GitHub Pages address (lower-case user name)
+github_repo: "AlternativeStates/PsychoPal"     # used by sync.js for likes/saves across devices
+
+# Papers
+papers_total: 25            # papers per weekly edition
+top_for_you: 5              # pinned "Top 5 for you"
+min_per_stream: 2           # every stream gets at least this many (if it has candidates above min_paper_score)
+max_per_stream: 8
+min_paper_score: 4.0
+tool_papers_max: 3          # methods/software papers shown as Tools cards
+
+# Extras
+trials_max: 5               # newly registered psychedelic trials (ClinicalTrials.gov)
+catchup_per_week: 2         # older, highly cited must-reads
+buzz_top: 30                # how many of the week's papers to check on Bluesky / Hacker News
+buzz_discover: 3            # extra "being discussed" papers found on Bluesky (0 = off)
+
+# Opportunities (funding, conferences, training)
+countdown_weeks: [8, 4, 2]  # show a reminder card this many weeks before a deadline
+deadline_strip_days: 90     # "Upcoming deadlines" strip horizon
+ukri_max: 6                 # max new UKRI opportunities per week
+
+# Tools
+tool_releases_max: 6        # max new software releases per week
+
+# Claude (card text). Only NEW items are sent; text is cached in state/summaries.jsonl forever.
+llm:
+  enabled: true
+  model: claude-sonnet-5-5
+  use_batch: true           # Message Batches API: 50% cheaper, results within minutes (max wait below)
+  batch_max_wait_min: 60
+  items_per_request: 10
+  max_items_to_llm: 80      # hard cap per week
+  effort: low
+sweep:
+  enabled: true             # monthly web-search sweep for new funding / conferences / courses
+  model: claude-sonnet-5-5
+  max_searches: 8

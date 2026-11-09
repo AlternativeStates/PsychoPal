@@ -1,0 +1,39 @@
+# Software watchlist: new GitHub releases in the week become Tools cards (patch releases x.y.Z are skipped unless major_only: false).
+# Add or remove repos freely ("owner/name" as in the GitHub URL).
+major_only: true
+joss_keywords: "neuro|eeg|meg|fmri|\\bmri\\b|\\bpet\\b|brain|neural|cortex|electrophysiolog|tms|connectom|psychiatr|bids"
+repos:
+  # imaging pipelines
+  - nipreps/fmriprep
+  - nipreps/petprep
+  - nipreps/mriqc
+  - PennLINC/qsiprep
+  - PennLINC/xcp_d
+  - ME-ICA/tedana
+  - nipy/nipype
+  - nipy/nibabel
+  - nilearn/nilearn
+  - ANTsX/ANTs
+  - freesurfer/freesurfer
+  - rordenlab/dcm2niix
+  - bids-standard/bids-specification
+  - spm/spm
+  # PET
+  - mathesong/kinfitr
+  # EEG / MEG / TMS-EEG
+  - mne-tools/mne-python
+  - mne-tools/mne-connectivity
+  - fieldtrip/fieldtrip
+  - sccn/eeglab
+  - brainstorm-tools/brainstorm3
+  - nigelrogasch/TESA
+  - fooof-tools/fooof
+  # brain–body
+  - neuropsychology/NeuroKit
+  # neurodynamics / modelling / maps
+  - raphaelvallat/antropy
+  - DynamicsAndNeuralSystems/pyspi
+  - neurolib-dev/neurolib
+  - the-virtual-brain/tvb-root
+  - netneurolab/neuromaps
+  - MICA-MNI/BrainSpace

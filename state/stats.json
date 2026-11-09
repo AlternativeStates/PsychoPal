@@ -1,0 +1,254 @@
+{
+ "week": "2026-W45",
+ "window": [
+  "2026-11-02",
+  "2026-11-08"
+ ],
+ "started": "2026-11-09T13:12:53",
+ "preferences": {
+  "liked": 0,
+  "disliked": 0,
+  "starred": 0
+ },
+ "stage_seconds": {
+  "papers": 8.2,
+  "buzz": 58.4,
+  "buzz_discover": 18.5,
+  "trials": 0.2,
+  "catchup": 2.1,
+  "tools": 0.8,
+  "opportunities": 18.3,
+  "summarise": 0.0,
+  "opportunities_finalise": 0.0,
+  "archive": 0.1
+ },
+ "papers": {
+  "window": [
+   "2026-11-02",
+   "2026-11-08"
+  ],
+  "sources": {
+   "pubmed": {
+    "hits": 736,
+    "seconds": 28.7,
+    "queries": 33,
+    "query_errors": [],
+    "per_group": {
+     "psychedelic_imaging": 2,
+     "psychedelic_any": 40,
+     "psychedelic_clinical": 22,
+     "preclinical_psychedelic": 5,
+     "own_centre": 1,
+     "altered_states_nondrug": 4,
+     "serotonin_pet": 2,
+     "ketamine_rapid": 61,
+     "plasticity": 37,
+     "receptor_pharmacology": 6,
+     "tryptamine_comp_chem": 4,
+     "pharmaco_imaging_other": 24,
+     "pet_methods": 7,
+     "tms_eeg": 6,
+     "plasticity_imaging": 10,
+     "neuroimaging_methods": 149,
+     "comp_modelling": 1,
+     "dcm_wholebrain": 3,
+     "comp_psychiatry": 19,
+     "receptor_maps": 19,
+     "neuro_top": 169,
+     "biopsych_top": 56,
+     "psychiatry_imaging": 33,
+     "addiction_imaging": 24,
+     "brain_body": 51,
+     "interoception_psych": 35,
+     "eeg_dynamics": 38,
+     "info_theory_dynamics": 48,
+     "travelling_waves": 2,
+     "aperiodic_waveform": 4,
+     "consciousness_dynamics": 33,
+     "tools_papers": 9,
+     "named_researchers": 4
+    }
+   },
+   "europepmc": {
+    "hits": 708,
+    "seconds": 129.7,
+    "queries": 33,
+    "query_errors": [],
+    "per_group": {
+     "psychedelic_imaging": 8,
+     "psychedelic_any": 64,
+     "psychedelic_clinical": 31,
+     "preclinical_psychedelic": 21,
+     "own_centre": 0,
+     "altered_states_nondrug": 10,
+     "serotonin_pet": 11,
+     "ketamine_rapid": 90,
+     "plasticity": 49,
+     "receptor_pharmacology": 4,
+     "tryptamine_comp_chem": 12,
+     "pharmaco_imaging_other": 32,
+     "pet_methods": 20,
+     "tms_eeg": 5,
+     "plasticity_imaging": 18,
+     "neuroimaging_methods": 100,
+     "comp_modelling": 1,
+     "dcm_wholebrain": 4,
+     "comp_psychiatry": 26,
+     "receptor_maps": 59,
+     "neuro_top": 34,
+     "biopsych_top": 17,
+     "psychiatry_imaging": 41,
+     "addiction_imaging": 19,
+     "brain_body": 112,
+     "interoception_psych": 71,
+     "eeg_dynamics": 47,
+     "info_theory_dynamics": 71,
+     "travelling_waves": 5,
+     "aperiodic_waveform": 18,
+     "consciousness_dynamics": 62,
+     "tools_papers": 60,
+     "named_researchers": 5
+    }
+   },
+   "openalex": {
+    "hits": 533,
+    "seconds": 26.2,
+    "queries": 17,
+    "query_errors": [],
+    "per_group": {
+     "psychedelic_imaging": 9,
+     "psychedelic_any": 136,
+     "serotonin_pet": 6,
+     "ketamine_rapid": 94,
+     "plasticity": 36,
+     "tryptamine_comp_chem": 7,
+     "pet_methods": 3,
+     "tms_eeg": 8,
+     "comp_modelling": 3,
+     "dcm_wholebrain": 5,
+     "comp_psychiatry": 96,
+     "receptor_maps": 7,
+     "brain_body": 29,
+     "eeg_dynamics": 66,
+     "info_theory_dynamics": 90,
+     "travelling_waves": 5,
+     "aperiodic_waveform": 18
+    },
+    "cost_usd": 0.017000000000000008
+   },
+   "biorxiv": {
+    "hits": 292,
+    "seconds": 221.8,
+    "per_category": {
+     "neuroscience": 267,
+     "pharmacology_and_toxicology": 25
+    },
+    "versions_skipped": 81,
+    "query_errors": []
+   },
+   "medrxiv": {
+    "hits": 73,
+    "seconds": 33.2,
+    "per_category": {
+     "psychiatry_and_clinical_psychology": 21,
+     "neurology": 41,
+     "addiction_medicine": 0,
+     "radiology_and_imaging": 11
+    },
+    "versions_skipped": 16,
+    "query_errors": []
+   },
+   "arxiv": {
+    "hits": 25,
+    "seconds": 3.1,
+    "per_category": {
+     "q-bio.NC": 25
+    }
+   }
+  },
+  "raw_hits": 2367,
+  "after_merge": 1925,
+  "dropped": {
+   "already_shown": 0,
+   "errata": 12,
+   "outside_window": 0,
+   "bulk_below_threshold": 291
+  },
+  "scored_pool": 1622,
+  "selected": 25,
+  "tool_papers": 3,
+  "per_stream": {
+   "psychedelics": 8,
+   "neuropsychopharm": 5,
+   "neuroimaging": 2,
+   "comp_neuro": 2,
+   "neuroscience": 2,
+   "bio_psychiatry": 2,
+   "brain_body": 2,
+   "neurodynamics": 2,
+   "tools": 0
+  },
+  "seconds": 8.2
+ },
+ "buzz": {
+  "checked": 25,
+  "with_chatter": 4,
+  "errors": 0
+ },
+ "buzz_discover": {
+  "calls": 40,
+  "candidates": 1,
+  "kept": 1
+ },
+ "trials": {
+  "registered": 4,
+  "psychedelic": 3
+ },
+ "catchup": {
+  "topics": [
+   "brain criticality",
+   "ayahuasca brain",
+   "psychedelic mystical experience"
+  ],
+  "pool": 73
+ },
+ "tools": {
+  "releases": 0,
+  "joss": 0,
+  "errors": [
+   "nipreps/fmriprep: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
+   "nipreps/petprep: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
+   "nipreps/mriqc: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
+   "PennLINC/qsiprep: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
+   "PennLINC/xcp_d: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
+   "ME-ICA/tedana: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
+   "nipy/nipype: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
+   "nipy/nibabel: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
+   "nilearn/nilearn: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
+   "ANTsX/ANTs: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207."
+  ]
+ },
+ "opportunities": {
+  "watched": 44,
+  "fetched": 44,
+  "fetch_failed": [],
+  "changed": 0,
+  "new": 44,
+  "hidden_ineligible": 0,
+  "ukri": 1
+ },
+ "llm": {
+  "skipped": "no ANTHROPIC_API_KEY or llm disabled",
+  "items": 79
+ },
+ "cards": {
+  "catchup": 2,
+  "conference": 2,
+  "funding": 4,
+  "paper": 26,
+  "tool_paper": 3,
+  "trial": 3
+ },
+ "finished": "2026-11-09T13:14:40",
+ "health": []
+}

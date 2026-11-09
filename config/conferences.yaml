@@ -1,0 +1,86 @@
+# Conference watchlist. Dates and abstract deadlines are extracted from each page automatically when it changes.
+# Optional manual overrides: deadline: YYYY-MM-DD (abstract deadline), event_dates: "12-15 Jun 2027", location.
+items:
+  # ---- requested ----
+  - id: psychedelic-science
+    name: Psychedelic Science (MAPS)
+    url: https://psychedelicscience.org/
+    organiser: MAPS
+  - id: insight
+    name: INSIGHT conference (MIND Foundation)
+    url: https://insight-conference.eu/
+    organiser: MIND Foundation
+    location: Berlin
+  - id: icpr
+    name: ICPR – Interdisciplinary Conference on Psychedelic Research
+    url: https://icpr-conference.com/
+    organiser: OPEN Foundation
+    location: Haarlem, NL
+  - id: assc
+    name: ASSC – Association for the Scientific Study of Consciousness
+    url: https://theassc.org/
+    organiser: ASSC
+  - id: ohbm
+    name: OHBM Annual Meeting
+    url: https://www.humanbrainmapping.org/
+    organiser: Organization for Human Brain Mapping
+  - id: ipeg
+    name: IPEG – International Pharmaco-EEG Society meeting
+    url: https://www.ipeg-society.org/
+    organiser: IPEG
+  # ---- suggested ----
+  - id: nrm
+    name: NRM – NeuroReceptor Mapping
+    url: https://edinburghneuroscience.ed.ac.uk/neuroreceptor-mapping-2026
+    organiser: NRM
+    notes: Biennial PET receptor-imaging meeting (kinetic modelling, radioligands) — core for 5-HT PET work. NRM 2026 was in Uppsala (27-30 Jun 2026); next edition expected 2028 — update the URL when announced.
+  - id: brainpet
+    name: BRAIN & BRAIN PET (ISCBFM)
+    url: https://www.iscbfm.org/
+    organiser: ISCBFM
+    notes: Cerebral blood flow and brain PET meeting (JCBFM society).
+  - id: ecnp
+    name: ECNP Congress
+    url: https://www.ecnp.eu/
+    organiser: European College of Neuropsychopharmacology
+  - id: cinp
+    name: CINP World Congress
+    url: https://cinp.org/
+    organiser: CINP
+  - id: acnp
+    name: ACNP Annual Meeting
+    url: https://acnp.org/
+    organiser: American College of Neuropsychopharmacology
+  - id: sobp
+    name: SOBP Annual Meeting
+    url: https://sobp.org/
+    organiser: Society of Biological Psychiatry
+  - id: bap
+    name: BAP Summer Meeting
+    url: https://www.bap.org.uk/
+    organiser: British Association for Psychopharmacology
+  - id: breaking-convention
+    name: Breaking Convention
+    url: https://www.breakingconvention.co.uk/
+    organiser: Breaking Convention
+  - id: fens
+    name: FENS Forum
+    url: https://fens.org/
+    organiser: Federation of European Neuroscience Societies
+  - id: sfn
+    name: SfN Neuroscience
+    url: https://www.sfn.org/meetings/neuroscience-2026
+    organiser: Society for Neuroscience
+  - id: ccn
+    name: CCN – Cognitive Computational Neuroscience
+    url: https://ccneuro.org/
+    organiser: CCN
+  - id: cosyne
+    name: Cosyne
+    url: https://www.cosyne.org/
+    organiser: Cosyne
+  - id: brain-stimulation
+    name: International Brain Stimulation Conference
+    url: https://www.brainstimjrnl.com/content/conferences
+    organiser: Brain Stimulation journal / Elsevier
+    disabled: true   # site blocks automated checks; covered by the monthly sweep

@@ -1,0 +1,107 @@
+# Funding watchlist. PsychoPal re-reads each page weekly; deadlines/status are extracted automatically when a page changes.
+# Fields: id, name, url, funder, notes (eligibility, typical cycle), eligibility {max_years_post_phd, requires_moving_country},
+# optional deadline: YYYY-MM-DD (manual override), disabled: true (stop tracking). Add new schemes freely.
+items:
+  # ---- UK ----
+  - id: wellcome-early-career
+    name: Wellcome Early-Career Awards
+    url: https://wellcome.org/research-funding/schemes/wellcome-early-career-awards
+    funder: Wellcome
+    notes: For early-career researchers ready to develop their own research identity; salary + up to £400k research expenses, usually 5 years. Normally no more than ~3 years of postdoctoral experience; UK/Ireland/LMIC-based.
+  - id: wellcome-career-development
+    name: Wellcome Career Development Awards
+    url: https://wellcome.org/research-funding/schemes/wellcome-career-development-awards
+    funder: Wellcome
+    notes: For mid-career researchers with a track record, to establish an independent research programme.
+  - id: mrc-cda
+    name: MRC Early Independence – Career Development Fellowship
+    url: https://www.ukri.org/opportunity/early-independence-career-development-fellowship/
+    funder: Medical Research Council (UKRI)
+    notes: Successor to the MRC Career Development Award; for postdocs moving to independence; MRC remit (incl. mental health and neuroscience).
+  - id: ukri-flf
+    name: UKRI Future Leaders Fellowships
+    url: https://www.ukri.org/opportunity/?keywords=future+leaders+fellowships
+    funder: UKRI
+    notes: Long (4+3 year) fellowships for early-career researchers; host institution must support the application (internal selection at Imperial).
+  - id: royal-society-urf
+    name: Royal Society University Research Fellowship
+    url: https://royalsociety.org/grants-schemes-awards/grants/university-research/
+    funder: The Royal Society
+    notes: For outstanding early-career scientists 3-8 years post-PhD aiming for independence.
+    eligibility: {max_years_post_phd: 8}
+  - id: leverhulme-ecf
+    name: Leverhulme Early Career Fellowships
+    url: https://www.leverhulme.ac.uk/early-career-fellowships
+    funder: The Leverhulme Trust
+    notes: 3-year fellowship, 50% match-funded by the host; for researchers within a few years of their PhD viva.
+    eligibility: {max_years_post_phd: 4}
+  - id: nihr-advanced-fellowship
+    name: NIHR funding opportunities (incl. Advanced Fellowship)
+    url: https://www.nihr.ac.uk/researchers/funding-opportunities
+    funder: NIHR
+    notes: For post-doctoral researchers moving to independence in applied health research.
+  - id: ams-starter-grants
+    name: Academy of Medical Sciences – funding schemes
+    url: https://acmedsci.ac.uk/grants-and-schemes
+    funder: Academy of Medical Sciences
+    notes: Springboard and other early-career schemes; several require a first independent or permanent post.
+    disabled: true   # site blocks automated checks (Cloudflare); the monthly sweep still looks for AMS calls
+  # ---- Europe ----
+  - id: msca-pf
+    name: MSCA Postdoctoral Fellowships
+    url: https://marie-sklodowska-curie-actions.ec.europa.eu/actions/postdoctoral-fellowships
+    funder: European Commission (Horizon Europe)
+    notes: European (12-24 months) or Global fellowships; ≤8 years post-PhD; mobility rule (≤12 months in the host country in the last 3 years). UK hosts are eligible.
+    eligibility: {max_years_post_phd: 8, requires_moving_country: true}
+  - id: erc-starting
+    name: ERC Starting Grant
+    url: https://erc.europa.eu/apply-grant/starting-grant
+    funder: European Research Council
+    notes: Up to €1.5M for 5 years; 2-7 years post-PhD; host in an EU/associated country (UK associated).
+    eligibility: {max_years_post_phd: 7}
+  - id: embo-postdoc
+    name: EMBO Postdoctoral Fellowships
+    url: https://www.embo.org/funding/fellowships-grants-and-career-support/postdoctoral-fellowships/
+    funder: EMBO
+    notes: Up to 2 years; requires moving to a lab in a different country; applications any time.
+    eligibility: {requires_moving_country: true}
+  - id: hfsp-postdoc
+    name: HFSP Postdoctoral Fellowships
+    url: https://www.hfsp.org/funding/hfsp-funding/postdoctoral-fellowships
+    funder: Human Frontier Science Program
+    notes: 3-year fellowships for moving to a new field and a new country; within 3 years of PhD at deadline.
+    eligibility: {max_years_post_phd: 3, requires_moving_country: true}
+  # ---- Mental health & psychedelic ----
+  - id: bbrf-young-investigator
+    name: BBRF Young Investigator Grants (NARSAD)
+    url: https://bbrfoundation.org/grants-prizes/bbrf-young-investigator-grants
+    funder: Brain & Behavior Research Foundation
+    notes: $35k/year for 2 years for early-career psychiatric research; international applicants eligible.
+  - id: mq-funding
+    name: MQ Mental Health Research – funding
+    url: https://www.mqmentalhealth.org/research/funding-opportunities/
+    funder: MQ Mental Health Research
+    notes: Fellowships and themed calls for mental health research.
+    disabled: true   # page is rendered by JavaScript, nothing to read; the monthly sweep covers MQ
+  - id: heffter
+    name: Heffter Research Institute – research funding
+    url: https://www.heffter.org/
+    funder: Heffter Research Institute
+    notes: Funds psychedelic research; calls are irregular.
+  - id: wellcome-mental-health
+    name: Wellcome Mental Health – funding calls
+    url: https://wellcome.org/what-we-do/mental-health
+    funder: Wellcome
+    notes: Strategic mental-health programme; time-limited calls appear here.
+  # ---- Imperial ----
+  - id: imperial-icrf
+    name: Imperial Research Fellowships (IRF, formerly ICRF)
+    url: https://www.imperial.ac.uk/research-and-innovation/support-for-staff/research-office/funder-information/research-fellowships/irf/
+    funder: Imperial College London
+    notes: Internal fellowships for early-career researchers becoming independent; PhD awarded within 5 years of the fellowship start.
+    eligibility: {max_years_post_phd: 5}
+  - id: imperial-funding-opps
+    name: Imperial Research Office – funding opportunities
+    url: https://www.imperial.ac.uk/research-and-innovation/support-for-staff/research-office/funder-information/funding-opportunities/
+    funder: Imperial College London
+    notes: Internal selection rounds and institutional calls (e.g. UKRI FLF, Wellcome, pump-priming).

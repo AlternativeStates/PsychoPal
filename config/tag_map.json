@@ -1,0 +1,369 @@
+{
+ "_readme": "Used by psychopal/build_archive.py to derive archive filter chips from each card's title + text (Python regexes on lowercased text). Edit freely.",
+ "modality_order": [
+  "EEG",
+  "MEG",
+  "TMS / TMS-EEG",
+  "fMRI",
+  "PET",
+  "MRI (structural/diffusion)",
+  "MRS"
+ ],
+ "modality_map": {
+  "EEG": [
+   "(?<![a-z])eeg\b",
+   "electroencephalog",
+   "event-related potential",
+   "\berps?\b"
+  ],
+  "MEG": [
+   "\bmeg\b",
+   "\bopm",
+   "magnetoencephalog",
+   "m/eeg"
+  ],
+  "TMS / TMS-EEG": [
+   "\btms\b",
+   "transcranial magnetic",
+   "tms-eeg"
+  ],
+  "fMRI": [
+   "\bfmri\b",
+   "\bbold\b",
+   "functional mri",
+   "functional magnetic resonance",
+   "functional connectivity"
+  ],
+  "PET": [
+   "\bpet\b",
+   "positron emission",
+   "radioligand",
+   "radiotracer"
+  ],
+  "MRI (structural/diffusion)": [
+   "\bdti\b",
+   "\bdwi\b",
+   "diffusion mri",
+   "diffusion[- ]weighted",
+   "tractograph",
+   "cortical thickness",
+   "structural mri",
+   "grey matter volume"
+  ],
+  "MRS": [
+   "\bmrs\b",
+   "magnetic resonance spectroscop"
+  ]
+ },
+ "disorder_map": {
+  "Depression (incl. TRD/MDD)": [
+   "(?<!anti)depress",
+   "\\btrd\\b",
+   "\\bmdd\\b"
+  ],
+  "Nicotine / smoking": [
+   "smok",
+   "nicotine",
+   "tobacco"
+  ],
+  "Opioid use disorder": [
+   "opioid",
+   "\\boud\\b"
+  ],
+  "Alcohol use disorder": [
+   "alcohol",
+   "\\baud\\b"
+  ],
+  "Food addiction": [
+   "food[- ]addiction"
+  ],
+  "Gambling": [
+   "gambl"
+  ],
+  "Substance use (other)": [
+   "substance use",
+   "\\bsud\\b",
+   "cocaine",
+   "cannabis",
+   "methamphetamine",
+   "stimulant use"
+  ],
+  "PTSD": [
+   "ptsd",
+   "post-traumatic"
+  ],
+  "Anxiety": [
+   "anxiety"
+  ],
+  "OCD": [
+   "\\bocd\\b",
+   "obsessive"
+  ],
+  "Eating disorders": [
+   "anorexia",
+   "bulimia",
+   "binge[- ]eating"
+  ],
+  "Psychosis / schizophrenia": [
+   "psychosis",
+   "schizophren"
+  ],
+  "Disorders of consciousness": [
+   "disorders? of consciousness",
+   "\\bcoma\\b",
+   "vegetative",
+   "minimally conscious"
+  ],
+  "Epilepsy": [
+   "epilep"
+  ],
+  "Dementia / Alzheimer's": [
+   "dementia",
+   "alzheimer"
+  ],
+  "Parkinson's": [
+   "parkinson"
+  ],
+  "Healthy volunteers": [
+   "healthy"
+  ]
+ },
+ "stage": {
+  "preclinical_patterns": [
+   "\\bmice\\b",
+   "\\bmouse\\b",
+   "\\brats?\\b",
+   "rodent",
+   "primate",
+   "macaque",
+   "zebrafish",
+   "in vitro",
+   "organoid",
+   "cell culture",
+   "in silico",
+   "simulation"
+  ],
+  "clinical_patterns": [
+   "healthy",
+   "patient",
+   "adults",
+   "people",
+   "participants",
+   "volunteers",
+   "veterans",
+   "smokers",
+   "couples",
+   "\\btrd\\b",
+   "children",
+   "adolescents",
+   "women",
+   "\\bmen\\b"
+  ],
+  "study_types": [
+   "paper",
+   "catchup",
+   "trial",
+   "tool_paper"
+  ],
+  "human_modalities": [
+   "EEG",
+   "MEG",
+   "TMS / TMS-EEG",
+   "fMRI",
+   "PET",
+   "MRI (structural/diffusion)",
+   "MRS"
+  ]
+ },
+ "overrides": {
+  "_readme": "Title prefix -> fields that win over derived values."
+ },
+ "method_map": {
+  "_readme": "Coarse method families for the graph view (method_groups). Python regexes on lowercased methods + topics. An item can be in several families.",
+  "Spectral / aperiodic / waveform": [
+   "spectral",
+   "aperiodic",
+   "\\b1/f\\b",
+   "oscillat",
+   "waveform",
+   "bycycle",
+   "alpha",
+   "gamma\\b",
+   "power\\b"
+  ],
+  "ERP / MMN / predictive coding": [
+   "\\berp",
+   "\\bmmn\\b",
+   "mismatch",
+   "\\bfrn\\b",
+   "predictive coding",
+   "vltp",
+   "evoked"
+  ],
+  "Connectivity / synchrony": [
+   "connectivity",
+   "synchron",
+   "hyperscanning",
+   "inter-subject",
+   "coherence",
+   "network"
+  ],
+  "Information theory / complexity": [
+   "informat",
+   "complexity",
+   "entropy",
+   "criticality",
+   "phi-id",
+   "synerg",
+   "lempel",
+   "global workspace",
+   "dynamical similarity"
+  ],
+  "Computational / whole-brain modelling": [
+   "(?<!foundation )(?<!language )models?\\b",
+   "modell?ing",
+   "\\bdcm\\b",
+   "eigenmode",
+   "connectome",
+   "neural mass",
+   "biophysical"
+  ],
+  "Travelling waves": [
+   "travel+ing wave",
+   "propagat"
+  ],
+  "Brain stimulation": [
+   "stimulation",
+   "\\btms",
+   "\\btis?\\b",
+   "\\btacs",
+   "\\btdcs",
+   "\\btes\\b"
+  ],
+  "Brain–body physiology": [
+   "ecg",
+   "\\bhrv",
+   "cardiac",
+   "heart",
+   "respirat",
+   "\\begg\\b",
+   "gastric",
+   "autonomic"
+  ],
+  "Preprocessing / source / tools": [
+   "artefact",
+   "artifact",
+   "denois",
+   "\\bica\\b",
+   "preprocess",
+   "mne",
+   "source imaging",
+   "parcellation",
+   "validation",
+   "toolbox",
+   "\\bhrf"
+  ],
+  "Machine learning / AI": [
+   "machine learning",
+   "foundation model",
+   "language model",
+   "deep learning",
+   "\\bbci\\b",
+   "benchmark",
+   "classif",
+   "decod"
+  ],
+  "Clinical trial / evidence synthesis": [
+   "\\brct\\b",
+   "trial",
+   "pooled",
+   "meta-analy",
+   "reanalysis",
+   "eligibility",
+   "systematic review"
+  ],
+  "Naturalistic paradigms": [
+   "naturalistic"
+  ],
+  "Pre-clinical / invasive": [
+   "agonism",
+   "plasticity assay",
+   "neuropixels",
+   "\\blfp\\b",
+   "pharmacology",
+   "rodent",
+   "in vitro",
+   "spine",
+   "intracranial"
+  ],
+  "Multimodal imaging (PET/DTI)": [
+   "\\bpet\\b",
+   "diffusion",
+   "\\bdti\\b",
+   "sv2a"
+  ]
+ },
+ "drug_map": {
+  "Psilocybin": [
+   "psilocyb",
+   "psilocin",
+   "comp360"
+  ],
+  "LSD": [
+   "\blsd\b",
+   "lysergic acid diethylamide",
+   "lysergide",
+   "mm120"
+  ],
+  "DMT": [
+   "\bdmt\b(?!s)",
+   "n,n-dimethyltryptamine",
+   "dimethyltryptamine",
+   "spl026"
+  ],
+  "5-MeO-DMT": [
+   "5-meo-dmt",
+   "mebufotenin",
+   "gh001",
+   "bpl-003"
+  ],
+  "Ayahuasca": [
+   "ayahuasca"
+  ],
+  "MDMA": [
+   "\bmdma\b",
+   "midomafetamine"
+  ],
+  "Mescaline": [
+   "mescaline"
+  ],
+  "Ibogaine": [
+   "ibogaine",
+   "noribogaine"
+  ],
+  "Ketamine / esketamine": [
+   "ketamine"
+  ],
+  "Nitrous oxide": [
+   "nitrous oxide"
+  ],
+  "Non-hallucinogenic analogues": [
+   "non-?hallucinogenic",
+   "tabernanthalog",
+   "zalsupindole",
+   "bol-148",
+   "2-br-lsd",
+   "psychoplastogen"
+  ],
+  "SSRIs / antidepressants": [
+   "\bssris?\b",
+   "escitalopram",
+   "sertraline",
+   "fluoxetine",
+   "antidepressant drug"
+  ],
+  "Psychedelics (general)": [
+   "psychedelic"
+  ]
+ }
+}
