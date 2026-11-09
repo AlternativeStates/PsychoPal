@@ -4,23 +4,23 @@
   "2026-11-02",
   "2026-11-08"
  ],
- "started": "2026-11-09T13:12:53",
+ "started": "2026-11-09T14:39:14",
  "preferences": {
   "liked": 0,
   "disliked": 0,
   "starred": 0
  },
  "stage_seconds": {
-  "papers": 8.2,
-  "buzz": 58.4,
-  "buzz_discover": 18.5,
+  "papers": 140.6,
+  "buzz": 56.4,
+  "buzz_discover": 13.6,
   "trials": 0.2,
-  "catchup": 2.1,
-  "tools": 0.8,
-  "opportunities": 18.3,
-  "summarise": 0.0,
+  "catchup": 179.7,
+  "tools": 9.1,
+  "opportunities": 33.2,
+  "summarise": 1.2,
   "opportunities_finalise": 0.0,
-  "archive": 0.1
+  "archive": 0.0
  },
  "papers": {
   "window": [
@@ -30,7 +30,7 @@
   "sources": {
    "pubmed": {
     "hits": 736,
-    "seconds": 28.7,
+    "seconds": 23.2,
     "queries": 33,
     "query_errors": [],
     "per_group": {
@@ -70,8 +70,8 @@
     }
    },
    "europepmc": {
-    "hits": 708,
-    "seconds": 129.7,
+    "hits": 707,
+    "seconds": 103.2,
     "queries": 33,
     "query_errors": [],
     "per_group": {
@@ -97,7 +97,7 @@
      "receptor_maps": 59,
      "neuro_top": 34,
      "biopsych_top": 17,
-     "psychiatry_imaging": 41,
+     "psychiatry_imaging": 40,
      "addiction_imaging": 19,
      "brain_body": 112,
      "interoception_psych": 71,
@@ -111,34 +111,34 @@
     }
    },
    "openalex": {
-    "hits": 533,
-    "seconds": 26.2,
+    "hits": 558,
+    "seconds": 117.3,
     "queries": 17,
     "query_errors": [],
     "per_group": {
-     "psychedelic_imaging": 9,
-     "psychedelic_any": 136,
-     "serotonin_pet": 6,
-     "ketamine_rapid": 94,
-     "plasticity": 36,
+     "psychedelic_imaging": 8,
+     "psychedelic_any": 143,
+     "serotonin_pet": 7,
+     "ketamine_rapid": 99,
+     "plasticity": 39,
      "tryptamine_comp_chem": 7,
      "pet_methods": 3,
      "tms_eeg": 8,
      "comp_modelling": 3,
      "dcm_wholebrain": 5,
-     "comp_psychiatry": 96,
+     "comp_psychiatry": 102,
      "receptor_maps": 7,
-     "brain_body": 29,
-     "eeg_dynamics": 66,
-     "info_theory_dynamics": 90,
+     "brain_body": 34,
+     "eeg_dynamics": 69,
+     "info_theory_dynamics": 95,
      "travelling_waves": 5,
-     "aperiodic_waveform": 18
+     "aperiodic_waveform": 19
     },
     "cost_usd": 0.017000000000000008
    },
    "biorxiv": {
     "hits": 292,
-    "seconds": 221.8,
+    "seconds": 124.0,
     "per_category": {
      "neuroscience": 267,
      "pharmacology_and_toxicology": 25
@@ -148,7 +148,7 @@
    },
    "medrxiv": {
     "hits": 73,
-    "seconds": 33.2,
+    "seconds": 13.8,
     "per_category": {
      "psychiatry_and_clinical_psychology": 21,
      "neurology": 41,
@@ -160,21 +160,21 @@
    },
    "arxiv": {
     "hits": 25,
-    "seconds": 3.1,
+    "seconds": 3.5,
     "per_category": {
      "q-bio.NC": 25
     }
    }
   },
-  "raw_hits": 2367,
-  "after_merge": 1925,
+  "raw_hits": 2391,
+  "after_merge": 1945,
   "dropped": {
    "already_shown": 0,
    "errata": 12,
    "outside_window": 0,
    "bulk_below_threshold": 291
   },
-  "scored_pool": 1622,
+  "scored_pool": 1642,
   "selected": 25,
   "tool_papers": 3,
   "per_stream": {
@@ -188,7 +188,7 @@
    "neurodynamics": 2,
    "tools": 0
   },
-  "seconds": 8.2
+  "seconds": 140.6
  },
  "buzz": {
   "checked": 25,
@@ -210,45 +210,43 @@
    "ayahuasca brain",
    "psychedelic mystical experience"
   ],
-  "pool": 73
+  "pool": 48
  },
  "tools": {
-  "releases": 0,
+  "releases": 2,
   "joss": 0,
-  "errors": [
-   "nipreps/fmriprep: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
-   "nipreps/petprep: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
-   "nipreps/mriqc: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
-   "PennLINC/qsiprep: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
-   "PennLINC/xcp_d: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
-   "ME-ICA/tedana: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
-   "nipy/nipype: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
-   "nipy/nibabel: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
-   "nilearn/nilearn: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207.",
-   "ANTsX/ANTs: HTTP 403: {\"message\":\"API rate limit exceeded for 103.7.207."
-  ]
+  "errors": []
  },
  "opportunities": {
   "watched": 44,
-  "fetched": 44,
-  "fetch_failed": [],
+  "fetched": 42,
+  "fetch_failed": [
+   "leverhulme-ecf: HTTP 403: <!DOCTYPE html><html lang=\"en-US\"><head><title>Just a moment...</title",
+   "nihr-advanced-fellowship: HTTP 405: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"utf-8\">\n   "
+  ],
   "changed": 0,
   "new": 44,
   "hidden_ineligible": 0,
   "ukri": 1
  },
  "llm": {
-  "skipped": "no ANTHROPIC_API_KEY or llm disabled",
-  "items": 79
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "requests": 8,
+  "batch": true,
+  "error": "AuthenticationError: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'Invalid bearer token'}, 'request_id': 'req_011CgsY2ckz1TD688VR7wcm3'}"
  },
  "cards": {
   "catchup": 2,
   "conference": 2,
-  "funding": 4,
+  "funding": 3,
   "paper": 26,
   "tool_paper": 3,
+  "tool_release": 2,
   "trial": 3
  },
- "finished": "2026-11-09T13:14:40",
- "health": []
+ "finished": "2026-11-09T14:46:28",
+ "health": [
+  "card text fell back to abstracts for some items (Claude unavailable)"
+ ]
 }
