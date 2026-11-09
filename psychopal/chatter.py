@@ -122,10 +122,34 @@ def check(c, since, errors):
 DISCOVER_DOMAINS = ["biorxiv.org", "medrxiv.org", "nature.com", "science.org", "cell.com", "pnas.org", "elifesciences.org", "arxiv.org"]
 NEURO_RE = re.compile(r"neuro|brain|cortex|cortical|eeg|fmri|psychedel|psilocyb|neuron|cogniti|conscious|addict|synap|hippocamp|mental|psychiat", re.I)
 
-def discover(since, errors, queries=("neuroscience", "brain", "psychedelic", "EEG", "neurons")):
+DOI_RE = re.compile(r"(10\.\d{4,9}/[^\s?#&]+)")
+def link_doi(link):
+    """DOI behind a publisher / preprint link, or None (news pieces, editorials and unknown sites).
+    nature.com/articles/s41586-026-01234-5 -> 10.1038/s41586-026-01234-5; elifesciences.org/articles/101234 -> 10.7554/eLife.101234;
+    arxiv.org/abs/2611.01234 -> 10.48550/arXiv.2611.01234; anything containing a DOI (bioRxiv, science.org, pnas.org, plos.org...) -> that DOI."""
+    link = (link or "").strip()
+    m = re.search(r"nature\.com/articles/(s\d{5}-\d{3}-\d{4,6}-\w)", link, re.I)
+    if m:
+        return "10.1038/" + m.group(1).lower()
+    if re.search(r"nature\.com/articles/d\d{5}", link, re.I):
+        return None                              # Nature news / comment, not a research paper
+    m = re.search(r"elifesciences\.org/(?:reviewed-preprints|articles)/(\d{5,7})", link, re.I)
+    if m:
+        return f"10.7554/elife.{m.group(1)}"
+    m = re.search(r"arxiv\.org/(?:abs|pdf)/(\d{4}\.\d{4,5})", link, re.I)
+    if m:
+        return f"10.48550/arxiv.{m.group(1)}"
+    m = DOI_RE.search(link)
+    if not m:
+        return None
+    doi = re.sub(r"(\.full(-text)?|\.abstract|\.pdf|\.supplementary-material)$", "", m.group(1).rstrip("/.").lower())
+    doi = re.sub(r"(?<=\d)v\d+$", "", doi)          # bioRxiv/medRxiv version suffix
+    return doi
+
+def discover(since, errors, queries=("neuroscience", "brain", "psychedelic", "EEG", "neurons"), domains=None):
     agg = defaultdict(lambda: {"posts": {}, "link": None})
     calls = 0
-    for dom in DISCOVER_DOMAINS:
+    for dom in domains or DISCOVER_DOMAINS:
         for q in queries:
             calls += 1
             for p in bsky({"q": q, "domain": dom, "since": f"{since}T00:00:00Z", "sort": "top"}, errors):
@@ -143,7 +167,8 @@ def discover(since, errors, queries=("neuroscience", "brain", "psychedelic", "EE
             p["bot"] = False
         score, authors, eng = buzz_score(ps, [])
         text = " ".join(p["text"] for p in ps)
-        rows.append({"link": key, "buzz": score, "posters": authors, "engagement": eng, "neuro_text": bool(NEURO_RE.search(text) or NEURO_RE.search(key)),
+        rows.append({"link": key, "raw_link": v["link"], "doi": link_doi(v["link"]) or link_doi(key),
+                     "buzz": score, "posters": authors, "engagement": eng, "neuro_text": bool(NEURO_RE.search(text) or NEURO_RE.search(key)),
                      "sample_post": max(ps, key=lambda p: p["likes"])["url"], "sample_text": max(ps, key=lambda p: p["likes"])["text"][:200]})
     rows.sort(key=lambda r: -r["buzz"])
     return rows, calls

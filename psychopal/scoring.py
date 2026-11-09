@@ -15,6 +15,16 @@ DROP_RE = re.compile(r"^(abstracts? (of|from)|proceedings of|abstract book|corre
                      r"peer review|decision letter|response to reviewers)", re.I)
 DROP_PT = {"Congress", "Published Erratum", "Retraction of Publication", "Retracted Publication", "Expression of Concern", "erratum", "retraction", "paratext"}
 LOW_PT = {"Editorial", "Comment", "Letter", "News", "editorial", "letter", "comment", "Interview", "Biography"}
+CASE_RE = re.compile(r"\bcase (report|series)\b|\ba case of\b|:\s*a case\b|\bcase study of an?\b|\bin an? \d+[- ]year[- ]old\b", re.I)
+CASE_PT = {"Case Reports", "case-report"}
+SYSTEMATIC_RE = re.compile(r"systematic|meta-analy|umbrella review|pooled analysis", re.I)
+# tools/methods: worm, fly, fish and rodent-only toolboxes are off-target for a human EEG/MEG/fMRI/PET reader
+NONHUMAN_RE = re.compile(r"c\. elegans|caenorhabditis|drosophila|zebrafish|\bmice\b|\bmouse\b|\brats?\b|rodent|murine|macaque|marmoset|"
+                         r"organoid|cell culture|in vitro|calcium imaging|two-photon", re.I)
+NEURO_TOOL_RE = re.compile(r"\bbrains?\b|\bneur|\bcortex\b|\bcortical\b|\beeg\b|\bmeg\b|\bfmri\b|\bcereb|\bcogniti|\bpsychiatr|\bhippocamp|"
+                           r"\bconnectom|\belectrophysiolog|\bmagnetoencephalograph|\belectroencephalograph|\bintracranial|\bwhite matter\b|"
+                           r"\bgr[ae]y matter\b|\btractograph|\bspinal cord\b", re.I)
+HUMAN_RE = re.compile(r"\bhuman|participants|patients|volunteers|\bpeople\b|healthy (adults|controls)|clinical", re.I)
 ADDICTION_RE = re.compile(r"addict|substance use|gambling|alcohol|nicotine|smok|cocaine|opioid|methamphetamine|craving|tobacco", re.I)
 
 def load_config(path=None):
@@ -134,8 +144,45 @@ def is_review(rec):
         return True
     return bool(REVIEW_ABS_RE.search((rec.get("abstract") or "")[:600]))
 
+def is_case_report(rec):
+    return bool(CASE_RE.search(rec.get("title") or "") or set(rec.get("pubtypes") or []) & CASE_PT)
+
+def is_narrative_review(rec):
+    """A review that is not systematic / meta-analytic (those keep their value wherever they are published)."""
+    return is_review(rec) and not SYSTEMATIC_RE.search((rec.get("title") or "") + " " + " ".join(rec.get("pubtypes") or []))
+
 def is_dropped(rec):
     return bool(DROP_RE.search(rec.get("title") or "") or (set(rec.get("pubtypes") or []) & DROP_PT))
+
+WORD_RE = re.compile(r"[\w\-]+", re.U)
+def matched_terms(cfg, rec, groups, n=2):
+    """The words that made a record match its strongest keyword groups (title first), e.g. ['psilocybin', 'SV2A']."""
+    title, abst = rec.get("title") or "", rec.get("abstract") or ""
+    out = []
+    for g in groups:
+        for text in (title, abst):
+            for k in cfg["_byname"][g].get("_kw", []):
+                m = k.search(text)
+                if not m:
+                    continue
+                a, b = m.start(), m.end()          # widen the match to whole words: 'psilocyb' -> 'psilocybin'
+                while a > 0 and (text[a - 1].isalnum() or text[a - 1] == "-"):
+                    a -= 1
+                while b < len(text) and (text[b].isalnum() or text[b] == "-"):
+                    b += 1
+                w = text[a:b].strip(" -")
+                if len(w) > 32 or len(w) < 3:
+                    continue
+                w = w if (w.isupper() or re.search(r"[A-Z].*[A-Z]|\d", w)) else w.lower()
+                if w.lower() not in {x.lower() for x in out}:
+                    out.append(w)
+                break
+            else:
+                continue
+            break
+        if len(out) >= n:
+            break
+    return out
 
 # ---------------- TF-IDF profile model ----------------
 STOP = set("the a an of and or in on for to with by from at as is are was were be been this that these those we our their its into than not no "
@@ -170,10 +217,16 @@ class Profile:
     def __init__(self, corpus_texts, liked_texts=(), disliked_texts=()):
         prof = load_json(os.path.join(CONFIG, "profile_papers.json"), default={"papers": []})["papers"]
         self.profile_texts = [(p.get("title") or "") + " " + (p.get("abstract") or "") for p in prof]
+        self.profile_titles = [(p.get("title") or "") if not p.get("manual") else "" for p in prof]   # manual interest seeds are not papers
         self.tf = Tfidf(self.profile_texts + list(liked_texts) + list(disliked_texts) + list(corpus_texts))
         self.pv = [self.tf.vec(t) for t in self.profile_texts]
         self.lv = [self.tf.vec(t) for t in liked_texts]
         self.dv = [self.tf.vec(t) for t in disliked_texts]
+    def nearest(self, text):
+        """(similarity, title) of the closest of Claudio's own papers."""
+        v = self.tf.vec(text)
+        best = max(((Tfidf.cos(v, x), i) for i, x in enumerate(self.pv) if self.profile_titles[i]), default=(0.0, -1))
+        return (best[0], self.profile_titles[best[1]]) if best[1] >= 0 else (0.0, "")
     def sims(self, text):
         v = self.tf.vec(text)
         mx = lambda vs: max((Tfidf.cos(v, x) for x in vs), default=0.0)
@@ -218,8 +271,18 @@ def score_record(cfg, r, prof, start=None):
     if anchored and not (clean_venue(r.get("venue")) in cfg["_anchor"] and max(psim, lsim) >= sc.get("anchored_min_profile_sim", 0.06)):
         for g in anchored:
             gs.pop(g)
-        kw = sum(v * (decay[i] if i < len(decay) else decay[-1]) for i, v in enumerate(sorted(gs.values(), reverse=True)))
-        parts["keywords"] = round(kw, 2)
+    # the broad-journal ("Wider science") group only decides the stream when nothing else matched; a broad-journal paper that is
+    # also on one of the reader's topics competes as a normal paper (its journal already earns the venue bonus)
+    wider = [g for g in gs if cfg["_byname"][g].get("stream") == "wider"]
+    if wider and len(wider) < len(gs):
+        for g in wider:
+            gs.pop(g)
+    kw = sum(v * (decay[i] if i < len(decay) else decay[-1]) for i, v in enumerate(sorted(gs.values(), reverse=True)))
+    parts["keywords"] = round(kw, 2)
+    if is_case_report(r):
+        parts["case_report"] = sc.get("case_report_penalty", -4.0)
+    elif is_narrative_review(r) and not venue_bonus(cfg, r.get("venue")):
+        parts["weak_review"] = sc.get("weak_review_penalty", -2.5)    # narrative reviews outside strong journals
     low = sc.get("low_quality_venues", [])
     if any(x in (r.get("venue") or "").lower() for x in low):
         parts["low_quality_venue"] = sc.get("low_quality_penalty", -3.0)
@@ -233,5 +296,9 @@ def score_record(cfg, r, prof, start=None):
             rest = {k: v for k, v in gs.items() if cfg["_byname"][k]["stream"] != "tools"}
             if rest and max(rest.values()) >= gs[top]:
                 stream = cfg["_byname"][max(rest, key=lambda k: rest[k])]["stream"]
+    if stream == "tools" and NONHUMAN_RE.search(text) and not HUMAN_RE.search(text):
+        parts["nonhuman_tool"] = sc.get("nonhuman_tool_penalty", -4.0)
+    if stream == "tools" and not NEURO_TOOL_RE.search(text):
+        parts["not_neuro_tool"] = sc.get("not_neuro_tool_penalty", -6.0)   # e.g. prostate or cardiac MRI software
     return {"score": round(sum(parts.values()), 2), "parts": parts, "groups": sorted(gs, key=lambda k: -gs[k]),
-            "stream": stream, "modality": mod, "named": named, "profile_sim": round(psim, 3)}
+            "stream": stream, "modality": mod, "named": named, "profile_sim": round(psim, 3), "liked_sim": round(lsim, 3)}

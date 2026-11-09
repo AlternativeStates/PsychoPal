@@ -10,7 +10,14 @@ top_for_you: 5              # pinned "Top 5 for you"
 min_per_stream: 2           # every stream gets at least this many (if it has candidates above min_paper_score)
 max_per_stream: 8
 min_paper_score: 4.0
-tool_papers_max: 3          # methods/software papers shown as Tools cards
+max_similarity: 0.22        # variety rule: skip a paper this similar (TF-IDF of title or abstract, 0-1) to one already picked
+tool_papers_max: 4          # methods/software papers shown as Tools & methods cards
+
+# Wider science: low-priority cards from broad journals and much-discussed papers in any field (never in Top 5)
+wider:
+  cards: 4                  # 0 = off
+  max_seconds: 150          # time budget for the Bluesky attention check
+  max_resolve: 12           # discussed papers looked up on OpenAlex per week
 
 # Extras
 trials_max: 5               # newly registered psychedelic trials (ClinicalTrials.gov)
@@ -35,6 +42,7 @@ llm:
   items_per_request: 10
   max_items_to_llm: 80      # hard cap per week
   effort: low
+  key_expires: null         # expiry date of the ANTHROPIC_API_KEY, e.g. 2027-11-09: the feed shows a warning 3 weeks before
 sweep:
   enabled: true             # monthly web-search sweep for new funding / conferences / courses
   model: claude-sonnet-5-5

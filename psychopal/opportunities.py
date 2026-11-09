@@ -126,7 +126,7 @@ def collect(start, end, settings, week, shown_ids, disliked):
         if rec.get("card_id") in disliked:      # 👎 on this entry's card = stop showing it
             continue
         snippet, h = None, None
-        if e.get("url"):
+        if e.get("url") and not e.get("no_fetch"):     # no_fetch: the site blocks automated checks; dates come from the YAML
             try:
                 snippet = relevant(page_text(e["url"]))
                 h = digest(snippet)
@@ -234,7 +234,7 @@ def finalise(items, ctx, settings, shown_ids):
                     cdid = item_id(it["kind"], f"{key}|countdown|{w}|{it['deadline'][:10]}")
                     if cdid not in shown_ids:
                         prev = cache.get(rec.get("card_id") or "", {})   # reuse the text written for this entry's page version
-                        it = {**it, "id": cdid, "reason": f"DEADLINE IN {w} WEEKS", "post": it.get("post") or prev.get("post", ""),
+                        it = {**it, "id": cdid, "reason": f"DEADLINE IN {w} WEEKS", "post": it.get("post") or prev.get("post") or it.get("notes", ""),
                               "why_you": it.get("why_you") or prev.get("why_you", ""), "ai_tags": it.get("ai_tags") or prev.get("tags", [])}
                         show = True
                     break
@@ -261,6 +261,8 @@ if __name__ == "__main__":
     import sys
     if "--check" in sys.argv:
         for e in load_watchlist():
+            if e.get("no_fetch"):
+                print(f"SKIP {e['kind']:10} {e['id']:28} (no_fetch: dates entered by hand, deadline {e.get('deadline') or '-'})"); continue
             try:
                 t = relevant(page_text(e["url"]))
                 print(f"OK   {e['kind']:10} {e['id']:28} {len(t):5} chars  {t[:90]!r}")

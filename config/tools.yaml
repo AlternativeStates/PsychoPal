@@ -1,7 +1,13 @@
 # Software watchlist: new GitHub releases in the week become Tools cards (patch releases x.y.Z are skipped unless major_only: false).
 # Add or remove repos freely ("owner/name" as in the GitHub URL).
+# A 👍 or ☆ on a tool card that has a GitHub repo adds that repo to this watch automatically (no need to edit this file).
 major_only: true
 joss_keywords: "neuro|eeg|meg|fmri|\\bmri\\b|\\bpet\\b|brain|neural|cortex|electrophysiolog|tms|connectom|psychiatr|bids"
+# Brand-new repositories (created in the last new_repo_days) under these GitHub topics, ranked by stars: up to new_repos_max cards a week.
+new_repo_topics: [neuroimaging, eeg, meg, fmri, bids, brain-imaging, pet-imaging, electrophysiology, computational-neuroscience, mne-python, connectomics, eeg-analysis]
+new_repo_days: 60
+new_repo_min_stars: 10
+new_repos_max: 2
 repos:
   # imaging pipelines
   - nipreps/fmriprep

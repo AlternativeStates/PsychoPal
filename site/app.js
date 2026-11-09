@@ -11,8 +11,11 @@ const STREAMS = {
   bio_psychiatry:   {label: "Biological psychiatry",      c: "#d6457a", i: "✚"},
   brain_body:       {label: "Brain–body coupling",        c: "#e0604a", i: "♥︎"},
   neurodynamics:    {label: "Neurodynamics",              c: "#6f9e1e", i: "∿"},
+  wider:            {label: "Wider science",              c: "#64748b", i: "✦"},
   tools:            {label: "Tools & methods",            c: "#b8860b", i: "⚙︎"},
 };
+const SIDE = ["wider", "tools"];   // shown after your streams, never in "For you" stream sections
+const TOOL_KINDS = ["tool_release", "tool_paper", "tool_repo"];
 const KINDS = {
   paper:        {label: "Paper",       c: null,      i: null},
   trial:        {label: "New trial",   c: "#8b5cf6", i: "⊕"},
@@ -22,6 +25,7 @@ const KINDS = {
   training:     {label: "Training",    c: "#2e8b57", i: "✎︎"},
   tool_release: {label: "New release", c: "#b8860b", i: "⚙︎"},
   tool_paper:   {label: "Methods",     c: "#b8860b", i: "⚙︎"},
+  tool_repo:    {label: "New on GitHub", c: "#b8860b", i: "⚙︎"},
 };
 const TABS = [
   ["all", "For you", () => true],
@@ -29,7 +33,7 @@ const TABS = [
   ["funding", "Funding", c => c.kind === "funding"],
   ["events", "Events", c => c.kind === "conference"],
   ["training", "Training", c => c.kind === "training"],
-  ["tools", "Tools", c => c.kind === "tool_release" || c.kind === "tool_paper"],
+  ["tools", "Tools & methods", c => TOOL_KINDS.includes(c.kind)],
   ["saved", "★ Saved", c => !!M.star[c.id]],
 ];
 const ICON = {
@@ -39,7 +43,9 @@ const ICON = {
   starOn: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg>',
   share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 8l5-5 5 5M5 14v6h14v-6"/></svg>',
   open: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg>',
+  claude: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/></svg>',
 };
+const ASKABLE = ["paper", "catchup", "tool_paper", "trial"];
 const $ = id => document.getElementById(id);
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
 const safeUrl = u => /^https?:\/\//i.test(u || "") ? u : "";
@@ -153,13 +159,15 @@ function card(c) {
   <div class="ch"><div class="av" aria-hidden="true">${L.i}</div><div><div class="who">${esc(L.label)}</div><div class="when">${sub(c)}</div></div></div>
   <h3>${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(c.title)}</a>` : esc(c.title)}</h3>
   ${c.post ? `<p class="post">${esc(c.post)}</p>` : ""}
-  ${c.why_you ? `<p class="why"><b>Why it matters for you:</b> ${esc(c.why_you)}</p>` : ""}
+  ${c.why_you ? `<p class="why"><b>${c.stream === "wider" ? "Why it's interesting" : "Why it matters for you"}:</b> ${esc(c.why_you)}</p>` : ""}
+  ${c.why_picked ? `<p class="pick">Picked for: ${esc(c.why_picked)}</p>` : ""}
   ${authors(c)}${badges(c)}
   <div class="acts">
     <button class="like${M.like[c.id] ? " on" : ""}" data-like="${c.id}" aria-pressed="${!!M.like[c.id]}" title="More like this">${ICON.like}</button>
     <button class="dis" data-dis="${c.id}" title="Not for me (hides it, and similar items rank lower)">${ICON.dis}</button>
     <button class="star${M.star[c.id] ? " on" : ""}" data-star="${c.id}" aria-pressed="${!!M.star[c.id]}" title="Save">${M.star[c.id] ? ICON.starOn : ICON.star}</button>
     <button data-share="${c.id}" title="Share">${ICON.share}</button>
+    ${ASKABLE.includes(c.kind) && url ? `<button class="ask" data-ask="${c.id}" title="Ask Claude about this paper (opens the share menu: pick the Claude app)">${ICON.claude}</button>` : ""}
     ${url ? `<a class="open" href="${esc(url)}" target="_blank" rel="noopener">${ICON.open} Open</a>` : ""}
   </div></article>`;
 }
@@ -181,16 +189,19 @@ function weekHTML(w, first) {
   const f = TABS.find(t => t[0] === S.tab)[2];
   const vis = cards.filter(f);
   const n = k => cards.filter(c => c.kind === k).length;
-  let h = `<div class="edition"><b>${esc(w.label || w.week)}</b> · ${esc(fmtDate(w.start))} – ${esc(fmtDate(w.end))}<br>${n("paper")} papers · ${n("funding") + n("conference") + n("training")} opportunities · ${n("tool_release") + n("tool_paper")} tools${n("trial") ? ` · ${n("trial")} new trials` : ""}</div>`;
+  const tools = cards.filter(c => TOOL_KINDS.includes(c.kind)).length;
+  let h = (first && (w.alerts || []).length) ? `<div class="alert" role="status">${w.alerts.map(a => `<p>⚠︎ ${esc(a)}</p>`).join("")}</div>` : "";
+  h += `<div class="edition"><b>${esc(w.label || w.week)}</b> · ${esc(fmtDate(w.start))} – ${esc(fmtDate(w.end))}<br>${n("paper")} papers · ${n("funding") + n("conference") + n("training")} opportunities · ${tools} tools${n("trial") ? ` · ${n("trial")} new trials` : ""}</div>`;
   if (w.error) return h + '<p class="empty">Could not load this week.</p>';
   if (S.tab === "all") {
     h += section("Top 5 for you", vis.filter(c => c.top), "var(--accent)");
     if (first) h += strip(w);
     h += section("Funding, events & training", vis.filter(c => ["funding", "conference", "training"].includes(c.kind)), "#c98a1b");
-    for (const s of Object.keys(STREAMS)) if (s !== "tools") h += section(STREAMS[s].label, vis.filter(c => c.kind === "paper" && !c.top && c.stream === s), STREAMS[s].c);
+    for (const s of Object.keys(STREAMS)) if (!SIDE.includes(s)) h += section(STREAMS[s].label, vis.filter(c => c.kind === "paper" && !c.top && c.stream === s), STREAMS[s].c);
     h += section("New psychedelic trials", vis.filter(c => c.kind === "trial"), KINDS.trial.c);
     h += section("Catch-up: classics worth knowing", vis.filter(c => c.kind === "catchup"), KINDS.catchup.c);
-    h += section("Tools & methods", vis.filter(c => c.kind === "tool_release" || c.kind === "tool_paper"), STREAMS.tools.c);
+    h += section("Tools & methods", vis.filter(c => TOOL_KINDS.includes(c.kind)), STREAMS.tools.c);
+    h += section("Wider science", vis.filter(c => c.kind === "paper" && !c.top && c.stream === "wider"), STREAMS.wider.c);
     if (w.health && w.health.length) h += `<div class="health">Run notes: ${w.health.map(esc).join(" · ")}</div>`;
   } else if (S.tab === "papers") {
     const ps = vis.filter(c => !S.stream || c.stream === S.stream);
@@ -210,7 +221,9 @@ function render() {
   tabsHTML();
   if (!S.loaded.length) return;
   let h = S.loaded.map((w, i) => weekHTML(w, i === 0)).join("");
-  if (S.tab === "saved") h = (h || '<p class="empty">Nothing saved yet. Tap ☆ on a card to keep it.</p>') + '<p class="foot"><a href="archive/?view=star">All saved items in the archive →</a></p>';
+  if (S.tab === "saved") h = (h || '<p class="empty">Nothing saved yet. Tap ☆ on a card to keep it.</p>') +
+    '<p class="foot"><a href="archive/?view=star">All saved items in the archive →</a></p>' +
+    (Object.keys(M.star).length ? '<p class="foot"><button class="exp" data-export="ris">Export all saved papers for Zotero (.ris)</button></p>' : "");
   if (S.loaded.length < S.weeks.length) h += `<button class="more" data-more="1">Load previous week (${esc(S.weeks[S.loaded.length].label || S.weeks[S.loaded.length].week)})</button>`;
   else h += '<p class="foot">That\'s every edition. <a href="archive/">Search the archive →</a></p>';
   h += `<p class="foot">PsychoPal · <a href="archive/">Archive</a> · <a href="archive/search.html">Literature search</a> · <a href="#" data-sync-open>Sync</a></p>`;
@@ -235,9 +248,58 @@ document.addEventListener("click", async e => {
     try { if (navigator.share) await navigator.share({title: c.title, text: c.post || c.title, url}); else { await navigator.clipboard.writeText(`${c.title} ${url}`); b.title = "Link copied"; } } catch (x) {}
     return;
   }
+  else if (d.ask) { const c = byId(d.ask); if (c) await askClaude(c); return; }
+  else if (d.export) { await exportRIS(); return; }
   else if (d.more) { loadNext(); return; }
   else return;
   render();
 });
+
+// ---- "Ask Claude": hand the paper to the Claude app through the share menu (or copy the prompt on a computer) ----
+function toast(msg) {
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+function claudePrompt(c) {
+  const what = c.kind === "trial" ? "registered clinical trial" : "paper";
+  const au = (c.authors || []).length ? c.authors[0] + (c.authors.length > 1 ? " et al." : "") : "";
+  const link = c.doi ? `https://doi.org/${c.doi}` : safeUrl(c.url);
+  const ref = [c.title, [au, c.venue, String(c.date || "").slice(0, 4)].filter(Boolean).join(", "), link].filter(Boolean).join("\n");
+  return `Please read this ${what} and summarise it for me: the research question, the design and sample, the main results ` +
+    `(with effect sizes or key numbers), the main limitations, and how it fits with the existing literature. ` +
+    `I am a postdoc in psychedelic neuroscience (PET, EEG, fMRI; psilocybin, DMT, ketamine), so point out anything relevant to that.\n\n${ref}`;
+}
+async function askClaude(c) {
+  const text = claudePrompt(c);
+  try {
+    if (navigator.share) { await navigator.share({text}); return; }
+    await navigator.clipboard.writeText(text); toast("Prompt copied: paste it into Claude");
+  } catch (e) { if (e && e.name !== "AbortError") toast("Could not open the share menu"); }
+}
+
+// ---- export saved papers as RIS (Zotero, EndNote, Mendeley all import it) ----
+async function exportRIS() {
+  let items = [];
+  try { items = await getJSON("archive/items.json"); } catch (e) { toast("Could not load the archive (offline?)"); return; }
+  const saved = items.filter(i => M.star[i.id] && ["paper", "catchup", "tool_paper", "trial"].includes(i.kind));
+  if (!saved.length) { toast("No saved papers to export yet"); return; }
+  const line = (k, v) => v ? `${k}  - ${String(v).replace(/\s+/g, " ").trim()}\r\n` : "";
+  const ris = saved.map(i => {
+    const d = String(i.date || ""), pre = i.pub_status === "Preprint";
+    let r = line("TY", i.kind === "trial" ? "GEN" : pre ? "UNPB" : "JOUR") + line("TI", i.title);
+    for (const a of i.authors || []) { const p = String(a).trim().split(/\s+/); r += line("AU", p.length > 1 ? `${p.pop()}, ${p.join(" ")}` : a); }
+    r += line("T2", i.venue_clean || i.venue) + line("PY", d.slice(0, 4)) + line("DA", d.length >= 10 ? d.slice(0, 10).replace(/-/g, "/") : "") +
+      line("DO", i.doi) + line("UR", i.url) + line("AB", i.post) + line("KW", "PsychoPal") + line("N1", `Saved in PsychoPal (${i.week || ""})`);
+    return r + "ER  - \r\n";
+  }).join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([ris], {type: "application/x-research-info-systems"}));
+  a.download = `psychopal-saved-${new Date().toISOString().slice(0, 10)}.ris`;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast(`${saved.length} saved papers exported`);
+}
+
+// offline reading: the service worker keeps the app and recently opened weeks
+if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 boot();
 })();

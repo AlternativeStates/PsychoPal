@@ -33,13 +33,20 @@ items:
     name: Leverhulme Early Career Fellowships
     url: https://www.leverhulme.ac.uk/early-career-fellowships
     funder: The Leverhulme Trust
-    notes: 3-year fellowship, 50% match-funded by the host; for researchers within a few years of their PhD viva.
+    notes: >-
+      3-year fellowship, 50% match-funded by the host department, which must commit before the deadline (Imperial's internal
+      deadline is earlier). Opens 1 Jan 2027, closes 18 Feb 2027 at 4pm; for applicants whose viva was within 4 years of the closing date.
     eligibility: {max_years_post_phd: 4}
+    deadline: "2027-02-18"   # entered by hand: the Leverhulme site blocks automated checks (verified Nov 2026 via university pages)
+    no_fetch: true
   - id: nihr-advanced-fellowship
-    name: NIHR funding opportunities (incl. Advanced Fellowship)
+    name: NIHR Postdoctoral Award (successor to the Advanced Fellowship)
     url: https://www.nihr.ac.uk/researchers/funding-opportunities
     funder: NIHR
-    notes: For post-doctoral researchers moving to independence in applied health research.
+    notes: >-
+      2-5 years of salaried postdoctoral research plus training in applied health research. Calls usually open in October and April,
+      with submission in January and June; check the NIHR page for the exact dates.
+    no_fetch: true           # the NIHR site blocks automated checks; the monthly Claude sweep looks for new NIHR calls
   - id: ams-starter-grants
     name: Academy of Medical Sciences – funding schemes
     url: https://acmedsci.ac.uk/grants-and-schemes

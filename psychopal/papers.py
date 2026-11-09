@@ -5,7 +5,7 @@ import datetime as dt, json, os, re, time
 from concurrent.futures import ThreadPoolExecutor
 from . import sources
 from .common import OUT, STATE, norm_doi, norm_title, load_jsonl, daterange_ok, item_id, log
-from .scoring import load_config, score_record, is_review, is_dropped, Profile, rec_text
+from .scoring import load_config, score_record, is_review, is_dropped, Profile, Tfidf, rec_text
 
 ALL_SOURCES = ["pubmed", "europepmc", "openalex", "biorxiv", "medrxiv", "arxiv"]
 SOURCE_PREF = {"pubmed": 0, "europepmc": 1, "openalex": 2, "biorxiv": 3, "medrxiv": 3, "europepmc-preprint": 4, "arxiv": 3}
@@ -83,32 +83,74 @@ def fetch_all(cfg, start, end, want):
                 recs += rr
     return recs, stats
 
+SIDE_STREAMS = ("tools", "wider")    # picked separately (Tools & methods cards; low-priority Wider science)
+
+def similarity(a, b):
+    """Topic overlap of two scored papers: the larger of title and abstract TF-IDF cosine (vectors precomputed in run())."""
+    from .scoring import Tfidf
+    return max(Tfidf.cos(a.get("_tv") or {}, b.get("_tv") or {}), Tfidf.cos(a.get("_av") or {}, b.get("_av") or {}))
+
+def too_similar(x, chosen, thr):
+    return any(similarity(x, c) >= thr for c in chosen)
+
 def select(cfg, scored, settings):
-    """Top N for you, then guarantee min_per_stream for each stream, then fill to papers_total by score."""
+    """Top N for you, then guarantee min_per_stream for each stream, then fill to papers_total by score.
+    Variety rule: after the Top 5, a paper that is very similar to one already picked is skipped (the next one in line gets the slot)."""
     total, top_n, min_per = settings.get("papers_total", 25), settings.get("top_for_you", 5), settings.get("min_per_stream", 2)
     max_per = settings.get("max_per_stream", 8)
     min_score = settings.get("min_paper_score", 4.0)
-    papers = [x for x in scored if x["stream"] and x["stream"] != "tools" and x["score"] >= min_score]
+    thr = settings.get("max_similarity", 0.22)
+    papers = [x for x in scored if x["stream"] and x["stream"] not in SIDE_STREAMS and x["score"] >= min_score]
     papers.sort(key=lambda x: -x["score"])
-    chosen, ids, per = [], set(), {}
+    chosen, ids, per, skipped = [], set(), {}, set()
     def take(x, top=False):
         x["top"] = top
         chosen.append(x); ids.add(x["id"]); per[x["stream"]] = per.get(x["stream"], 0) + 1
+    def ok(x):
+        if x["id"] in ids or x["id"] in skipped:
+            return False
+        if too_similar(x, chosen, thr):
+            skipped.add(x["id"]); return False
+        return True
     for x in papers[:top_n]:
         take(x, True)
     for s in cfg["streams"]:
-        if s == "tools":
+        if s in SIDE_STREAMS:
             continue
-        for x in [p for p in papers if p["stream"] == s and p["id"] not in ids][: max(0, min_per - per.get(s, 0))]:
-            take(x)
+        for x in papers:
+            if per.get(s, 0) >= min_per:
+                break
+            if x["stream"] == s and ok(x):
+                take(x)
     for x in papers:
         if len(chosen) >= total:
             break
-        if x["id"] not in ids and per.get(x["stream"], 0) < max_per:
+        if per.get(x["stream"], 0) < max_per and ok(x):
             take(x)
-    tools = [x for x in scored if x["stream"] == "tools" and x["score"] >= min_score and x["id"] not in ids]
-    tools.sort(key=lambda x: -x["score"])
-    return chosen, tools[: settings.get("tool_papers_max", 3)]
+    tools = []
+    for x in sorted((x for x in scored if x["stream"] == "tools" and x["score"] >= min_score and x["id"] not in ids), key=lambda x: -x["score"]):
+        if len(tools) < settings.get("tool_papers_max", 4) and not too_similar(x, tools, thr):
+            tools.append(x)
+    wider = [x for x in scored if x["stream"] == "wider" and x["id"] not in ids]
+    return chosen, tools, wider, len(skipped)
+
+GITHUB_RE = re.compile(r"github\.com/([A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)")
+
+def why_picked(cfg, x, rec, prof):
+    """One scripted line explaining the pick, e.g. 'psilocybin · SV2A · PET · close to your paper “Synaptic density…”'."""
+    from .scoring import matched_terms, rec_text
+    bits = matched_terms(cfg, rec, [g for g in x["matched"] if cfg["_byname"][g].get("keywords")])
+    if x.get("modality") and x["modality"].lower() not in {b.lower() for b in bits}:
+        bits.append(x["modality"])
+    if x.get("named"):
+        bits.append("by " + ", ".join(x["named"][:2]))
+    sim, title = prof.nearest(rec_text(rec))
+    if sim >= cfg["scoring"].get("why_near_min_sim", 0.12) and title:
+        t = title if len(title) <= 60 else title[:57].rsplit(" ", 1)[0] + "…"
+        bits.append(f"close to your paper “{t}”")
+    elif x.get("liked_sim", 0) >= 0.2:
+        bits.append("like papers you 👍")
+    return " · ".join(bits)
 
 def run(start, end, settings, user_state=None, want=None, outdir=None, reuse_raw=False):
     """Returns dict(papers=[...], tool_papers=[...], stats={...}). Each paper is a card-ready dict (kind='paper')."""
@@ -141,8 +183,9 @@ def run(start, end, settings, user_state=None, want=None, outdir=None, reuse_raw
             drops["outside_window"] += 1; continue
         kept.append(r)
     prof = Profile([rec_text(r) for r in kept], us.get("liked_texts", []), us.get("disliked_texts", []))
+    ttf = Tfidf([r["title"] for r in kept])      # title-only vectors for the variety rule
     bulk_min = cfg["bulk_sources"]["min_keyword_score"]
-    scored = []
+    scored, recs = [], {}
     for r in kept:
         s = score_record(cfg, r, prof, start)
         if r["source"] in ("biorxiv", "medrxiv", "arxiv") and not set(r["sources"]) & {"pubmed", "europepmc", "openalex", "europepmc-preprint"}:
@@ -155,10 +198,22 @@ def run(start, end, settings, user_state=None, want=None, outdir=None, reuse_raw
                        "doi": doi, "url": r.get("url"), "abstract": r.get("abstract") or "", "affiliations": r.get("affiliations", ""),
                        "is_review": is_review(r), "is_preprint": pre, "modality": s["modality"], "named": s["named"],
                        "score": s["score"], "score_parts": s["parts"], "matched": s["groups"], "profile_sim": s["profile_sim"],
-                       "sources": r["sources"], "pubtypes": r.get("pubtypes") or []})
-    papers, tool_papers = select(cfg, scored, settings)
+                       "liked_sim": s["liked_sim"], "sources": r["sources"], "pubtypes": r.get("pubtypes") or [],
+                       "_tv": ttf.vec(r["title"]), "_av": prof.tf.vec(rec_text(r))})
+        recs[scored[-1]["id"]] = r
+    papers, tool_papers, wider, n_similar = select(cfg, scored, settings)
+    for x in papers + tool_papers:
+        x["why_picked"] = why_picked(cfg, x, recs[x["id"]], prof)
+        if x["stream"] == "tools":
+            m = GITHUB_RE.search(recs[x["id"]].get("abstract") or "")
+            if m:
+                x["repo"] = m.group(1).rstrip(".")
+            x["reason"] = "SOFTWARE" if "tools_papers" in x["matched"] else "NEW METHOD"
+    for x in scored:
+        x.pop("_tv", None); x.pop("_av", None)
     stats = {"window": [str(start), str(end)], "sources": src_stats, "raw_hits": len(raw), "after_merge": len(merged),
              "dropped": drops, "scored_pool": len(scored), "selected": len(papers), "tool_papers": len(tool_papers),
+             "skipped_too_similar": n_similar, "wider_candidates": len(wider),
              "per_stream": {s: sum(1 for p in papers if p["stream"] == s) for s in cfg["streams"]},
              "seconds": round(time.time() - t0, 1)}
     if outdir:
@@ -167,8 +222,9 @@ def run(start, end, settings, user_state=None, want=None, outdir=None, reuse_raw
             for x in sorted(scored, key=lambda x: -x["score"]):
                 f.write(json.dumps({k: x[k] for k in ("score", "stream", "title", "venue", "date", "doi", "matched", "score_parts", "profile_sim")},
                                    ensure_ascii=False) + "\n")
-    log(f"papers: {len(raw)} raw -> {len(merged)} merged -> {len(scored)} scored -> {len(papers)} selected + {len(tool_papers)} tool papers")
-    return {"papers": papers, "tool_papers": tool_papers, "stats": stats, "cfg_streams": cfg["streams"]}
+    log(f"papers: {len(raw)} raw -> {len(merged)} merged -> {len(scored)} scored -> {len(papers)} selected + {len(tool_papers)} tool papers "
+        f"({n_similar} skipped as too similar; {len(wider)} wider-science candidates)")
+    return {"papers": papers, "tool_papers": tool_papers, "wider": wider, "stats": stats, "cfg_streams": cfg["streams"]}
 
 if __name__ == "__main__":
     import argparse

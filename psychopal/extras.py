@@ -85,14 +85,14 @@ def catchup(settings, week, prof_texts=None):
         r["stream"] = s["stream"] or "psychedelics"
         r["rank"] = s["parts"]["profile_sim"] + s["parts"]["keywords"] * 0.3 + math.log10(max(10, r["citations"]))
     pool.sort(key=lambda r: -r["rank"])
-    out, seen = [], set()
+    out, seen, topics_used = [], set(), set()
     for r in pool:
         if len(out) >= settings.get("catchup_per_week", 2):
             break
         key = r["doi"] or norm_title(r["title"])
-        if key in seen or len(r["abstract"]) < 200:
+        if key in seen or len(r["abstract"]) < 200 or r["topic"] in topics_used:   # one classic per topic, so the picks differ
             continue
-        seen.add(key)
+        seen.add(key); topics_used.add(r["topic"])
         out.append({"id": item_id("paper", key), "kind": "catchup", "stream": r["stream"], "title": r["title"], "url": r["url"], "doi": r["doi"],
                     "venue": r["venue"], "date": r["date"], "authors": r["authors"], "abstract": r["abstract"], "citations": r["citations"],
                     "reason": "CATCH-UP"})
@@ -135,10 +135,9 @@ def buzz_discover(start, settings, week, chosen_dois):
     shown, sdois, _ = _shown(week)
     cands = []
     for row in [r for r in rows if r["neuro_text"] and r["posters"] >= 3][:25]:
-        m = DOI_IN_URL.search(row["link"])
-        if not m:
+        if not row.get("doi"):
             continue
-        doi = norm_doi(re.sub(r"(v\d+)$", "", m.group(1)))
+        doi = norm_doi(row["doi"])
         if doi in sdois or doi in chosen_dois:
             continue
         try:

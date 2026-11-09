@@ -8,7 +8,7 @@ Every stage is isolated: a failure is recorded as a run note and the edition sti
   python -m psychopal.run_weekly --reuse-papers         # re-score cached paper search results (tuning)
 """
 import argparse, datetime as dt, json, os, time, traceback
-from . import papers, extras, opportunities, tools_watch, build_site, build_archive
+from . import papers, extras, opportunities, tools_watch, build_site, build_archive, wider
 from .summarise import summarise
 from .common import STATE, OUT, load_jsonl, append_jsonl, load_json, write_json, load_yaml, week_id, last_full_week, log
 
@@ -47,6 +47,33 @@ def preference_texts(us):
     liked = [txt(items[i]) for i in (us["liked"] | us["starred"]) if i in items and items[i].get("kind") in ("paper", "catchup", "trial")]
     disliked = [txt(items[i]) for i in us["disliked"] if i in items and items[i].get("kind") in ("paper", "catchup")]
     return liked + us.get("search_saved", []), disliked
+
+def claude_alerts(llm, settings, no_llm=False, today=None):
+    """Problems worth a banner at the top of the feed (minor ones stay in the 'Run notes' at the bottom)."""
+    out, today = [], today or dt.date.today()
+    err = llm.get("error") or ""
+    if err and ("401" in err or "Authentication" in err):
+        out.append("Claude rejected the API key, so cards show abstract excerpts this week. Replace the ANTHROPIC_API_KEY secret on GitHub, "
+                   "then re-run the workflow for this week.")
+    elif err and ("credit" in err.lower() or "billing" in err.lower()):
+        out.append("The Claude account has run out of credits, so cards show abstract excerpts this week.")
+    elif err:
+        out.append("Claude was unavailable, so some cards show abstract excerpts this week. They are rewritten next week.")
+    elif llm.get("skipped") and not no_llm and (settings.get("llm") or {}).get("enabled", True):
+        out.append("No Claude API key is set, so cards show abstract excerpts. Add the ANTHROPIC_API_KEY secret on GitHub.")
+    exp = (settings.get("llm") or {}).get("key_expires")
+    if exp:
+        try:
+            days = (dt.date.fromisoformat(str(exp)[:10]) - today).days
+        except ValueError:
+            days = None
+        if days is not None and days < 0:
+            out.append(f"The Claude API key expired on {exp}. Create a new one and update the ANTHROPIC_API_KEY secret on GitHub "
+                       "(and llm.key_expires in config/settings.yaml).")
+        elif days is not None and days <= 21:
+            out.append(f"The Claude API key expires in {days} days ({exp}). Create a new one and update the ANTHROPIC_API_KEY secret on "
+                       "GitHub, and llm.key_expires in config/settings.yaml.")
+    return out
 
 def stage(name, health, stats, fn, *a, **kw):
     t0 = time.time()
@@ -87,7 +114,7 @@ def main():
     prev = load_jsonl(os.path.join(STATE, "items.jsonl"))
     shown_before = {r["id"] for r in prev if r.get("week") != week}
 
-    cards = []
+    cards, alerts, res = [], [], None
     if "papers" not in skip:
         res = stage("papers", health, stats, papers.run, start, end, settings,
                     {"liked_texts": liked_t, "disliked_texts": disliked_t}, outdir=outdir, reuse_raw=a.reuse_papers)
@@ -98,6 +125,10 @@ def main():
             failed = [k for k, v in res["stats"]["sources"].items() if v.get("error")]
             if failed:
                 health.append("paper sources unavailable: " + ", ".join(failed))
+            if len(failed) >= 3 or not res["papers"]:
+                alerts.append("Few or no papers this week: the literature databases could not be reached (" + (", ".join(failed) or "no results") + ").")
+        else:
+            alerts.append("The paper search failed this week, so there are no papers in this edition.")
     chosen_dois = {c.get("doi") for c in cards if c.get("doi")}
     if "buzz" not in skip:
         b = stage("buzz", health, stats, extras.buzz, [c for c in cards if c["kind"] == "paper"], start, settings)
@@ -106,6 +137,10 @@ def main():
         d = stage("buzz_discover", health, stats, extras.buzz_discover, start, settings, week, chosen_dois)
         if d:
             cards += d[0]; stats["buzz_discover"] = d[1]
+    if "wider" not in skip and res:
+        wd = stage("wider", health, stats, wider.pick, res.get("wider", []), cards, settings, start, week)
+        if wd:
+            cards += wd[0]; stats["wider"] = wd[1]
     if "trials" not in skip:
         t = stage("trials", health, stats, extras.trials, start, end, settings, week)
         if t:
@@ -115,7 +150,7 @@ def main():
         if c:
             cards += c[0]; stats["catchup"] = c[1]
     if "tools" not in skip:
-        t = stage("tools", health, stats, tools_watch.run, start, end, settings)
+        t = stage("tools", health, stats, tools_watch.run, start, end, settings, us["liked"] | us["starred"], shown_before)
         if t:
             cards += t[0]; stats["tools"] = t[1]
     opp_items, opp_ctx = [], None
@@ -141,6 +176,7 @@ def main():
     stage("summarise", health, stats, summarise, to_write, llm_cfg, stats, limit=a.llm_limit)
     if stats.get("llm", {}).get("error"):
         health.append("card text fell back to abstracts for some items (Claude unavailable)")
+    alerts += claude_alerts(stats.get("llm", {}), settings, a.no_llm)
 
     deadlines = []
     if opp_ctx:
@@ -149,7 +185,8 @@ def main():
             opp_cards, deadlines = r
             cards = opp_cards + cards
     edition = {"week": week, "label": f"Week {int(week.split('W')[1])}, {start.year}", "start": str(start), "end": str(end),
-               "generated": dt.datetime.now().isoformat(timespec="seconds"), "cards": cards, "deadlines": deadlines, "health": health}
+               "generated": dt.datetime.now().isoformat(timespec="seconds"), "cards": cards, "deadlines": deadlines, "health": health,
+               "alerts": alerts}
     n = build_site.write_edition(edition, settings)
 
     # archive state: one row per card per week (idempotent on re-runs of the same week)
@@ -168,6 +205,7 @@ def main():
     stats["cards"] = {k: sum(1 for c in cards if c["kind"] == k) for k in sorted({c["kind"] for c in cards})}
     stats["finished"] = dt.datetime.now().isoformat(timespec="seconds")
     stats["health"] = health
+    stats["alerts"] = alerts
     write_json(os.path.join(STATE, "stats.json"), stats)
     append_jsonl(os.path.join(STATE, "runs.jsonl"), [{"week": week, "finished": stats["finished"], "cards": stats["cards"],
                                                      "llm": stats.get("llm", {}), "failures": stats.get("failures", {})}])

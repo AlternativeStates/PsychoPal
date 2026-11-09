@@ -15,6 +15,9 @@ For each item return:
   Neutral and accurate; no hype, no exclamation marks, no emojis, no hashtags. UK English. Do not repeat the title.
 - why_you: one sentence, at most 25 words, on why this matters for THIS reader specifically (link it to his work or plans). Be concrete,
   never generic. If it is only loosely relevant, say so honestly.
+  Items marked "section: wider science" are deliberately outside his fields: there, why_you says in at most 20 words why a
+  neuroscientist might find the result interesting; do not force a link to his own work.
+- tool_repo items are brand-new GitHub repositories: say what the software does, for which data or modality, and how mature it looks.
 - tags: 1-3 short lowercase topic tags (e.g. "psilocybin", "pet", "eeg complexity", "fellowship").
 - deadline / event_dates / status: only for funding, conference and training items; use "" for anything else or if not stated.
   deadline = next application/abstract deadline as YYYY-MM-DD; event_dates = e.g. "12-15 Jun 2027"; status = open|upcoming|closed|unknown.
@@ -38,6 +41,8 @@ def item_text(it):
     """Compact, model-facing description of one item (trimmed to keep tokens low)."""
     k = it["kind"]
     lines = [f"id: {it['id']}", f"type: {k}", f"title: {it.get('title', '')}"]
+    if it.get("stream") == "wider":
+        lines.append("section: wider science")
     for key, label in (("venue", "venue"), ("date", "date"), ("organiser", "organiser"), ("funder", "funder"),
                        ("location", "location"), ("event_dates", "dates"), ("deadline", "deadline"), ("amount", "amount"),
                        ("version", "version"), ("repo", "repository")):
