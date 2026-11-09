@@ -36,29 +36,52 @@ calls, conferences and courses that are not on your lists yet, and adds them as 
 **Expected cost:** about $0.10 a week for card text, plus about $0.30 a month for the sweep, so **about $8–10 a year**.
 GitHub hosting and Actions are free. Token usage is logged in `state/stats.json` and `state/runs.jsonl`.
 
-## One-time setup (≈15 minutes)
+## One-time setup (≈20 minutes)
 
-1. **Publish the repo.** In GitHub Desktop: *File › Add local repository* › `C:\Users\claud\Desktop\PsychoPal`, then *Publish repository*.
-   Name it `PsychoPal` and untick "Keep this code private" (free GitHub Pages needs a public repo).
-2. **Turn on Pages.** On github.com, open the repo › *Settings › Pages › Source*: **GitHub Actions**.
-3. **Add your Claude API key.** Create a key at [console.anthropic.com](https://console.anthropic.com/) (this is separate from a
-   Claude.ai subscription; about $10 of credit lasts roughly a year). Then go to the repo › *Settings › Secrets and variables ›
-   Actions › New repository secret*, with name `ANTHROPIC_API_KEY`.
-   Optional:
-   - a *variable* `PSYCHOPAL_MAILTO`: a contact email that PubMed and OpenAlex ask polite clients to send;
-   - a secret `NCBI_API_KEY`: a free key from your NCBI account, for higher PubMed rate limits.
-4. **First run.** Open the *Actions* tab › **Weekly PsychoPal** › *Run workflow*. Leave the fields empty, or set `week_end` to
-   `2026-11-08` to rebuild the preview week with Claude text. It takes 10–40 minutes; most of that is waiting for the batch.
-5. **Phone.** Open `https://alternativestates.github.io/PsychoPal/`, then *Share › Add to Home Screen* (iPhone) or
-   *⋮ › Install app* (Android).
-6. **Sync your likes across devices** (optional, but it makes the ranking learn from you):
-   1. Tap the "local only · connect sync" pill at the bottom right and follow the link.
-   2. Create a fine-grained token with access to **only** this repo and *Contents: Read and write*.
-   3. Paste it in. Do this once per device.
+### A. Publish the repo (GitHub Desktop)
+1. GitHub Desktop › **File › Add local repository…** › *Choose…* › `C:\Users\claud\Desktop\PsychoPal` › **Add repository**.
+2. Check the account: **File › Options › Accounts** must show the GitHub account you want (e.g. `AlternativeStates`).
+3. Click **Publish repository** (top bar). Name `PsychoPal`, **untick "Keep this code private"**, Organization: *None*
+   (your personal account) › **Publish repository**.
+4. **Repository › View on GitHub** (Ctrl+Shift+G) opens the repo page in your browser.
+   If the account or repo name differs from `AlternativeStates/PsychoPal`, edit `github_repo` and `site_url` in
+   `config/settings.yaml`, then commit and push.
 
-   Your marks are saved to the `user-state` branch, and the weekly run reads them.
-7. **Fill in your eligibility.** In `config/profile.yaml`, add your PhD award date, nationality and the countries you have lived in
-   recently. Until then, fellowships with eligibility limits show a "check eligibility" note instead of being filtered.
+### B. Turn on GitHub Pages
+On the **repo page** (not your profile settings): the **⚙ Settings** tab at the right of the tab row (*Code · Issues ·
+Pull requests · Actions · …*). Hidden on a narrow window? Click **…** at the end of the row. Left sidebar › section
+*Code and automation* › **Pages** › *Build and deployment* › **Source: GitHub Actions**. Do not pick a suggested workflow:
+the repo already has one (`.github/workflows/weekly.yml`).
+
+### C. Get a Claude API key (Claude Console, platform.claude.com)
+- **If your lab has a Claude Team plan:** the plan includes monthly API credits ($20 per Standard seat, $100 per Premium seat,
+  pooled, max $500). An Owner claims them on claude.ai › **Organization settings › Billing › API credits**, by linking a Console
+  organization (you can create one during the claim). The link can't be changed later, so pick the lab's Console org.
+  Enterprise plans are not eligible; buy credits on the Console **Billing** page instead (≈$10 lasts about a year).
+- In the Console (as Admin): **Settings › Workspaces › Create workspace** named `PsychoPal`; select it › **Spend limits** ›
+  e.g. $5/month.
+- **Settings › API keys › Create key**: name `PsychoPal GitHub`, Linked account = you (or a service account), **Workspace =
+  PsychoPal**, expiration *Never* if offered, else the longest allowed. Copy the `sk-ant-api…` key (shown once).
+  A key **not** tied to a workspace needs the workspace ID too: add it as a second secret `ANTHROPIC_WORKSPACE_ID` (`wrkspc_…`).
+
+### D. Add the key to GitHub
+Repo › **Settings** › sidebar *Security* › **Secrets and variables › Actions** › **New repository secret** › Name
+`ANTHROPIC_API_KEY`, Secret = the key › **Add secret**. Optional: tab **Variables** › `PSYCHOPAL_MAILTO` (contact email for
+PubMed/OpenAlex); secret `NCBI_API_KEY` (free, from your NCBI account).
+
+### E. First run
+Repo › **Actions** tab › **Weekly PsychoPal** (left list) › **Run workflow** › `week_end` = `2026-11-08` › **Run workflow**.
+Wait 10–40 min, open the run: the **summary** shows "Claude key: OK", the cards and the token cost. The `deploy` job shows the
+site address.
+
+### F. Phone, sync and eligibility
+- Open `https://<your-user-name-in-lowercase>.github.io/PsychoPal/` › iPhone: Share › **Add to Home Screen**; Android: ⋮ ›
+  **Install app**.
+- Sync likes across devices: tap the "local only · connect sync" pill and follow it (fine-grained token, only this repo,
+  *Contents: Read and write*), once per device.
+- Fill in `config/profile.yaml` (PhD date, nationality, recent countries) so fellowships you can't apply for are hidden.
+
+Check a key locally: `$env:ANTHROPIC_API_KEY="sk-ant-..."; .\.venv\Scripts\python -m psychopal.check_claude`
 
 ## Tuning (edit the files on github.com or locally; no code changes needed)
 

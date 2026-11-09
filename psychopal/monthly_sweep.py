@@ -6,7 +6,7 @@ they then appear in the feed with a "NEW ON YOUR RADAR" badge. 👎 on such a ca
   python -m psychopal.monthly_sweep --force --dry-run
 Cost: ~8 web searches ($0.08) + ~60-100k tokens on Sonnet 5.5 (~$0.20-0.30) per month."""
 import argparse, datetime as dt, json, os, re
-from .common import CONFIG, STATE, load_yaml, append_jsonl, log
+from .common import CONFIG, STATE, load_yaml, append_jsonl, log, anthropic_client
 from .opportunities import load_watchlist, page_text, KIND_FILES
 
 ASK = """You are helping a researcher keep a watchlist of opportunities. His profile:
@@ -45,7 +45,7 @@ def run_sweep(cfg, dry=False):
     tracked = "\n".join(f"- [{e['kind']}] {e['name']} ({e.get('url', '')})" for e in wl)
     with open(os.path.join(CONFIG, "profile.md"), encoding="utf-8") as f:
         profile = f.read()
-    client = anthropic.Anthropic()
+    client = anthropic_client()
     tools = [{"type": "web_search_20260209", "name": "web_search", "max_uses": cfg.get("max_searches", 8)}]
     messages = [{"role": "user", "content": ASK.format(profile=profile, tracked=tracked, today=today)}]
     usage = {"input_tokens": 0, "output_tokens": 0, "web_searches": 0}

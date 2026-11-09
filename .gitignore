@@ -6,3 +6,4 @@ out/
 *.tmp
 # your synced likes are fetched from the user-state branch at run time; never commit a copy to main
 state/user_state.json
+claude_check.txt

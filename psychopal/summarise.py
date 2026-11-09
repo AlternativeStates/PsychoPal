@@ -4,7 +4,7 @@
 - Structured JSON output (one object per item): post, why_you, tags (+ deadline/status/event_dates for opportunity pages).
 - Any failure (no key, refusal, timeout, bad JSON) -> extractive fallback from the abstract/description, retried next week."""
 import json, os, re, time, datetime as dt
-from .common import CONFIG, STATE, load_jsonl, append_jsonl, log
+from .common import CONFIG, STATE, load_jsonl, append_jsonl, log, anthropic_client
 
 CACHE = os.path.join(STATE, "summaries.jsonl")
 
@@ -111,7 +111,7 @@ def _direct(client, model, effort, profile, chunk, i, out, usage):
 
 def call_claude(items, cfg, stats):
     import anthropic
-    client = anthropic.Anthropic()
+    client = anthropic_client()
     with open(os.path.join(CONFIG, "profile.md"), encoding="utf-8") as f:
         profile = f.read()
     n = cfg.get("items_per_request", 10)

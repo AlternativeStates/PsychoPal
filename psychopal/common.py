@@ -151,5 +151,12 @@ def item_id(kind, key):
     h = hashlib.sha1(f"{kind}|{(key or '').lower().strip()}".encode("utf-8")).hexdigest()[:10]
     return f"{kind[:2]}-{h}"
 
+def anthropic_client():
+    """Claude API client. Reads ANTHROPIC_API_KEY; if the key is not scoped to a Console workspace, set ANTHROPIC_WORKSPACE_ID
+    (wrkspc_...) and it is sent on every request as the anthropic-workspace-id header."""
+    import anthropic
+    ws = (os.environ.get("ANTHROPIC_WORKSPACE_ID") or "").strip()
+    return anthropic.Anthropic(default_headers={"anthropic-workspace-id": ws}) if ws else anthropic.Anthropic()
+
 def log(*a):
     print(time.strftime("%H:%M:%S"), *a, file=sys.stderr, flush=True)
