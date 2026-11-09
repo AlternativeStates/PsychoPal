@@ -6,7 +6,7 @@ from .common import SITE, load_json, write_json
 # fields copied to the public card (everything else, e.g. full abstracts and score internals, stays in state/)
 CARD_FIELDS = ("id", "kind", "stream", "title", "url", "venue", "date", "authors", "post", "why_you", "ai_tags", "ai", "top",
                "is_preprint", "is_review", "modality", "buzz", "phase", "status", "citations", "deadline", "event_dates", "location",
-               "funder", "reason", "eligibility_note", "doi", "repo", "version", "why_picked", "stars")
+               "funder", "reason", "eligibility_note", "doi", "repo", "version", "why_picked", "stars", "sections")
 
 def public_card(c):
     out = {k: c[k] for k in CARD_FIELDS if c.get(k) not in (None, "", [], False)}

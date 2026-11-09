@@ -25,17 +25,20 @@ catchup_per_week: 2         # older, highly cited must-reads
 buzz_top: 30                # how many of the week's papers to check on Bluesky / Hacker News
 buzz_discover: 3            # extra "being discussed" papers found on Bluesky (0 = off)
 
-# Opportunities (funding, conferences, training)
-countdown_weeks: [8, 4, 2]  # show a reminder card this many weeks before a deadline
-deadline_strip_days: 90     # "Upcoming deadlines" strip horizon
+# Opportunities (funding, conferences, training): a card when an entry is new, its page changes, or UKRI posts a matching call
+deadlines: false            # true = deadline countdown cards, "Upcoming deadlines" strip and days-left badges (off: deadlines live in your calendar)
+countdown_weeks: [8, 4, 2]  # (deadlines: true) reminder card this many weeks before a deadline
+deadline_strip_days: 90     # (deadlines: true) "Upcoming deadlines" strip horizon
 ukri_max: 6                 # max new UKRI opportunities per week
 
 # Tools
 tool_releases_max: 6        # max new software releases per week
 
-# Claude (card text). Only NEW items are sent; text is cached in state/summaries.jsonl forever.
+# Claude. SWITCHED OFF: the app runs without an API key. Paper cards get a scripted Aim / Methods / Results / Conclusion summary
+# of the abstract (psychopal/abstracts.py). To switch Claude card text back on: enabled: true + the ANTHROPIC_API_KEY secret on GitHub.
+# Only NEW items are then sent; Claude text is cached in state/summaries.jsonl forever.
 llm:
-  enabled: true
+  enabled: false
   model: claude-sonnet-5-5
   use_batch: true           # Message Batches API: 50% cheaper, results within minutes (max wait below)
   batch_max_wait_min: 60
@@ -44,6 +47,6 @@ llm:
   effort: low
   key_expires: null         # expiry date of the ANTHROPIC_API_KEY, e.g. 2027-11-09: the feed shows a warning 3 weeks before
 sweep:
-  enabled: true             # monthly web-search sweep for new funding / conferences / courses
+  enabled: false            # monthly Claude web-search sweep for new funding / conferences / courses (needs the API key)
   model: claude-sonnet-5-5
   max_searches: 8

@@ -63,6 +63,13 @@ button{font-family:inherit}
 .card h3 a{text-decoration:none}
 .card h3 a:hover{text-decoration:underline}
 .post{margin:0 0 8px;font-size:15.5px}
+/* structured abstract summary: Aim / Methods / Results / Conclusion */
+.abs{margin:0 0 8px;font-size:14.5px;line-height:1.45}
+.abs div{display:grid;grid-template-columns:5.9em 1fr;gap:0 8px;padding:3px 0}
+.abs dt{font-size:11px;font-weight:650;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);padding-top:2px}
+.abs dd{margin:0}
+.abs .results dd{font-weight:500}
+.abs .results dt{color:var(--c)}
 .why{margin:0 0 8px;font-size:14.5px;padding:8px 10px;border-radius:10px;background:var(--panel2);border-left:3px solid var(--c)}
 .why b{font-weight:600}
 .au{font-size:13px;color:var(--mut);margin:0 0 6px}

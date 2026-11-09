@@ -2,7 +2,9 @@
 Sources: config/funding.yaml, conferences.yaml, training.yaml (curated watchlists, extended by the monthly sweep) + the UKRI funding RSS feed.
 Each watched page is fetched weekly; the deadline-relevant text is hashed. A NEW entry or a CHANGED page becomes an item for Claude
 (extracts deadline / dates / status + writes the card); the extracted facts are kept in state/opportunities.json.
-Cards (no spam): new entry, page updated, or 8/4/2 weeks before a deadline. Everything with a known deadline feeds the deadline strip."""
+Cards (no spam): new entry, page updated, or 8/4/2 weeks before a deadline. Everything with a known deadline feeds the deadline strip.
+With Claude off (llm.enabled false) the card text is the curated `notes`; with `deadlines: false` in settings.yaml there are no
+countdown cards, strip or deadline badges, so a card appears only when an entry is new or its page changed (or a new UKRI call)."""
 import datetime as dt, hashlib, html, os, re, xml.etree.ElementTree as ET
 from .common import STATE, CONFIG, get, load_json, write_json, load_yaml, item_id, clean, log, parse_date
 
@@ -201,7 +203,11 @@ def finalise(items, ctx, settings, shown_ids):
     cache = load_cache()
     st, today, week = ctx["state"], ctx["today"], ctx["week"]
     first_run = not st.get("first_run_done")
-    any_ai = False
+    any_read = False
+    # deadlines: false (settings.yaml) = no countdown cards, no "Upcoming deadlines" strip, no deadline badges
+    use_deadlines = settings.get("deadlines", True)
+    # without Claude the curated note is the card text, so a page counts as read once it has been shown (else it is "new" every week)
+    llm_on = settings.get("_llm_on", True)
     cd = sorted(settings.get("countdown_weeks", [8, 4, 2]), reverse=True)
     cards, strip = [], []
     for it in items:
@@ -213,11 +219,13 @@ def finalise(items, ctx, settings, shown_ids):
                     if it.get(k):
                         rec[k] = it[k]
                 rec["card_id"] = it["id"]
-                if it.get("ai"):
+                if it.get("ai") or not llm_on:
                     rec["extracted"] = True
-                    any_ai = True
+                    any_read = True
             it["deadline"] = it.get("deadline") or rec.get("deadline", "")
             it["event_dates"] = it.get("event_dates") or rec.get("event_dates", "")
+        if not use_deadlines:
+            it["deadline"] = ""
         days = _days(it.get("deadline"), today)
         if days is not None and 0 <= days <= settings.get("deadline_strip_days", 90):
             strip.append({"id": it["id"], "name": it["title"], "kind": it["kind"], "deadline": it["deadline"][:10], "url": it.get("url", ""),
@@ -242,7 +250,7 @@ def finalise(items, ctx, settings, shown_ids):
             show = False      # already closed
         if show:
             cards.append(it)
-    if any_ai:
+    if any_read:
         st["first_run_done"] = True
     write_json(STATE_FILE, st)
     order = {"funding": 0, "conference": 1, "training": 2}

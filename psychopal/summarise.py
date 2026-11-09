@@ -1,10 +1,13 @@
-"""Card text writer. The ONLY weekly Claude call.
+"""Card text writer. The ONLY weekly Claude call (switched off by default: llm.enabled false in config/settings.yaml).
+- Without Claude, papers get a scripted Aim / Methods / Results / Conclusion summary of their abstract (psychopal/abstracts.py),
+  recomputed every run (free, so improvements to the script apply to old cards too) and never cached.
 - Sends only items that have no cached text in state/summaries.jsonl (so recurring funding/conference cards cost 0 after the first week).
 - Groups items 10 per request and submits them as one Message Batch (50% cheaper); falls back to direct calls if batching is off.
 - Structured JSON output (one object per item): post, why_you, tags (+ deadline/status/event_dates for opportunity pages).
 - Any failure (no key, refusal, timeout, bad JSON) -> extractive fallback from the abstract/description, retried next week."""
 import json, os, re, time, datetime as dt
 from .common import CONFIG, STATE, load_jsonl, append_jsonl, log, anthropic_client
+from .abstracts import structure, as_text
 
 CACHE = os.path.join(STATE, "summaries.jsonl")
 
@@ -55,11 +58,17 @@ def item_text(it):
     lines.append("text: " + re.sub(r"\s+", " ", body)[:1500])
     return "\n".join(lines)
 
+PAPER_KINDS = ("paper", "catchup", "tool_paper")
+
 def extractive(it):
-    """No-LLM fallback: first sentences of the abstract/description, ~55 words."""
+    """No-LLM card text: a structured summary of a paper's abstract, else the first sentences (~55 words) of the description."""
     if it.get("page_text") is not None:   # watched pages: raw page text reads badly, use the curated note instead
         note = (it.get("notes") or "").strip()
         return {"id": it["id"], "post": note or "Check the page for current dates and details.", "why_you": "", "tags": [], "ai": False}
+    if it.get("kind") in PAPER_KINDS and it.get("abstract"):
+        parts = structure(it["abstract"])
+        if parts:
+            return {"id": it["id"], "post": as_text(parts), "sections": parts, "why_you": "", "tags": [], "ai": False}
     body = re.sub(r"\s+", " ", it.get("abstract") or it.get("summary") or it.get("description") or it.get("notes") or "").strip()
     body = re.sub(r"^(abstract|background|introduction|objectives?|aims?)[:.\s]+", "", body, flags=re.I)
     sents = re.split(r"(?<=[.!?])\s+(?=[A-Z])", body)
@@ -168,17 +177,20 @@ def call_claude(items, cfg, stats):
 def summarise(items, cfg, stats, limit=None):
     """Attach post / why_you / tags to every item (in place). Returns the list."""
     cache = load_cache()
-    todo = [it for it in items if it["id"] not in cache or (not cache[it["id"]].get("ai") and cfg.get("enabled", True))]
+    on = bool(cfg.get("enabled", True))
+    todo = [it for it in items if on and not cache.get(it["id"], {}).get("ai")]
     todo = todo[: min(limit or 10 ** 9, cfg.get("max_items_to_llm", 80))]
     fresh = {}
-    if todo and cfg.get("enabled", True) and os.environ.get("ANTHROPIC_API_KEY"):
+    if not on:
+        stats["llm"] = {"off": True}
+    elif todo and os.environ.get("ANTHROPIC_API_KEY"):
         try:
             fresh = call_claude(todo, cfg, stats)
         except Exception as e:
             stats["llm"] = {**stats.get("llm", {}), "error": f"{type(e).__name__}: {str(e)[:300]}"}
             log("llm: FAILED " + stats["llm"]["error"])
     elif todo:
-        stats["llm"] = {"skipped": "no ANTHROPIC_API_KEY or llm disabled", "items": len(todo)}
+        stats["llm"] = {"skipped": "no ANTHROPIC_API_KEY", "items": len(todo)}
     today, model = str(dt.date.today()), cfg.get("model")
     new_rows = []
     for it in items:
@@ -188,13 +200,12 @@ def summarise(items, cfg, stats, limit=None):
                    "deadline": r.get("deadline", ""), "event_dates": r.get("event_dates", ""), "status": r.get("status", ""),
                    "ai": True, "model": model, "written": today}
             new_rows.append(row); cache[it["id"]] = row
-        elif it["id"] not in cache or (it.get("refresh_text") and not cache[it["id"]].get("ai")):
-            row = {**extractive(it), "written": today}
-            if it["id"] not in cache:
-                new_rows.append(row)
-            cache[it["id"]] = row
-        c = cache[it["id"]]
+        c = cache.get(it["id"])
+        if not (c and c.get("ai")):
+            c = extractive(it)            # scripted text: recomputed every run, never cached
         it["post"], it["why_you"], it["ai_tags"], it["ai"] = c.get("post", ""), c.get("why_you", ""), c.get("tags", []), c.get("ai", False)
+        if c.get("sections"):
+            it["sections"] = c["sections"]
         for k in ("deadline", "event_dates", "status"):
             if c.get(k) and not it.get(k):
                 it[k] = c[k]

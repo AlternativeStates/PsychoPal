@@ -10,7 +10,7 @@ on:
         required: false
         default: ""
       no_llm:
-        description: "Skip Claude (abstract excerpts only, zero tokens)"
+        description: "Skip Claude this run (only matters if llm.enabled is true in settings.yaml)"
         type: boolean
         default: false
 
@@ -51,7 +51,7 @@ jobs:
             echo "no user-state branch yet (sync not connected) - fine"
           fi
 
-      - name: Check the Claude API key (non-fatal; cards fall back to abstract text if it fails)
+      - name: Check the Claude API key (non-fatal; prints OFF while Claude is switched off in settings.yaml)
         id: claude
         continue-on-error: true
         env:
@@ -59,7 +59,7 @@ jobs:
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
         run: python -m psychopal.check_claude | tee claude_check.txt
 
-      - name: Monthly discovery sweep (first Monday of the month only)
+      - name: Monthly discovery sweep (first Monday of the month only; skipped while sweep.enabled is false)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
@@ -94,10 +94,12 @@ jobs:
           print(f"\n**Week:** {s.get('week')} ({' to '.join(s.get('window', []))})")
           print("\n**Cards:** " + ", ".join(f"{k} {v}" for k, v in (s.get('cards') or {}).items()))
           llm = s.get("llm", {})
-          if llm.get("input_tokens") is not None and "skipped" not in llm:
+          if llm.get("off"):
+              print("\n**Card text:** scripted abstract summaries (Claude switched off)")
+          elif llm.get("input_tokens") is not None and "skipped" not in llm:
               cost = (llm.get("input_tokens", 0) * 2 + llm.get("output_tokens", 0) * 10) / 1e6 * (0.5 if llm.get("batch") else 1)
               print(f"\n**Claude:** {llm.get('input_tokens', 0):,} input + {llm.get('output_tokens', 0):,} output tokens (about ${cost:.2f})")
-          if llm.get("skipped") or llm.get("error") or llm.get("errors"):
+          if not llm.get("off") and (llm.get("skipped") or llm.get("error") or llm.get("errors")):
               print(f"\n**Claude problems:** {llm.get('skipped') or llm.get('error') or llm.get('errors')}")
           for al in s.get("alerts", []):
               print(f"\n> **⚠ {al}**")

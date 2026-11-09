@@ -26,7 +26,7 @@ select{background:var(--panel2);color:var(--tx);border:1px solid var(--line);bor
 .sb{font-size:12px;font-weight:600;color:var(--c)}.ty{font-size:12px;color:var(--dim);margin-left:6px}
 .pst{font-size:11px;font-weight:600;letter-spacing:.03em;border:1px solid var(--line);border-radius:6px;color:var(--mut);padding:1px 6px;margin-left:6px}.pst.pre{color:var(--bad)}
 .meta{color:var(--mut);font-size:13px}.tags{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}.tags .chipf{font-size:11.5px;padding:2px 8px}
-.acard p{margin:6px 0;font-size:15px}.acard .why{font-size:14px}
+.acard p{margin:6px 0;font-size:15px}.acard .sx{font-size:14.5px}.sx b{display:inline-block;min-width:5.6em;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}.acard .why{font-size:14px}
 .aacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
 .aacts button,.aacts a{cursor:pointer;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--mut);font-size:13px;padding:5px 9px;text-decoration:none}
 .aacts button.on{color:var(--tx);border-color:var(--warn)}.aacts .det{margin-left:auto;background:none;border:0}
@@ -119,7 +119,7 @@ function card(i){const s=secOf(i.section),u=safe(i.url);
  return `<article class="acard" style="--c:${s[3]}">${i.zotero&&(i.doi||i.url)?`<span class="Z3988" title="${esc(coins(i))}"></span>`:""}<span class="sb">${s[2]} ${esc(s[1])}</span>${i.pub_status?`<span class="pst${i.pub_status==="Preprint"?" pre":""}">${esc(i.pub_status)}</span>`:""}<span class="ty">${esc(i.week||"")}</span>
  <h3>${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(i.title)}</a>`:esc(i.title)}</h3>
  ${auT?`<div class="meta">${esc(auT)}</div>`:""}<div class="meta">${esc(i.venue||i.funder||"")}${i.date?" · "+esc(i.date):""}${i.deadline?" · deadline "+esc(i.deadline):""}</div>
- ${tags?`<div class="tags">${tags}</div>`:""}${i.post?`<p>${esc(i.post)}</p>`:""}${i.why_you?`<p class="why" style="--c:${s[3]}"><b>Why it matters for you:</b> ${esc(i.why_you)}</p>`:""}
+ ${tags?`<div class="tags">${tags}</div>`:""}${i.sections?i.sections.map(([k,v])=>`<p class="sx"><b>${esc(k)}</b> ${esc(v)}</p>`).join(""):i.post?`<p>${esc(i.post)}</p>`:""}${i.why_you?`<p class="why" style="--c:${s[3]}"><b>Why it matters for you:</b> ${esc(i.why_you)}</p>`:""}
  <div class="aacts">${P.dislike[i.id]?`<button data-restore="${i.id}">↺ Restore</button>`:""}<button data-star="${i.id}" class="${P.star[i.id]?"on":""}">${P.star[i.id]?"★ Saved":"☆ Save"}</button>
  <button data-like="${i.id}" class="${P.like[i.id]?"on":""}">👍${P.like[i.id]?" Liked":""}</button>
  <button data-st="${i.id}|toread" class="${P.status[i.id]==="toread"?"on":""}">To read</button><button data-st="${i.id}|read" class="${P.status[i.id]==="read"?"on":""}">Read</button>

@@ -6,6 +6,9 @@ import os, sys
 from .common import anthropic_client, load_yaml
 
 def main():
+    if not (load_yaml("settings.yaml").get("llm") or {}).get("enabled", True):
+        print("OFF: Claude is switched off (llm.enabled: false in config/settings.yaml); cards use scripted abstract summaries.")
+        return 0
     if not os.environ.get("ANTHROPIC_API_KEY"):
         print("FAIL: ANTHROPIC_API_KEY is not set (GitHub: add it under Settings > Secrets and variables > Actions).")
         return 1

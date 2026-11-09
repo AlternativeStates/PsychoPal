@@ -1,4 +1,6 @@
-"""PsychoPal weekly run: papers + extras + opportunities + tools -> Claude card text (new items only) -> static site + archive.
+"""PsychoPal weekly run: papers + extras + opportunities + tools -> card text -> static site + archive.
+Card text is scripted (structured abstract summaries) while Claude is switched off (llm.enabled: false in config/settings.yaml);
+switched on, Claude writes it for new items only.
 Every stage is isolated: a failure is recorded as a run note and the edition still publishes.
 
   python -m psychopal.run_weekly                        # previous Monday-Sunday
@@ -51,6 +53,8 @@ def preference_texts(us):
 def claude_alerts(llm, settings, no_llm=False, today=None):
     """Problems worth a banner at the top of the feed (minor ones stay in the 'Run notes' at the bottom)."""
     out, today = [], today or dt.date.today()
+    if not (settings.get("llm") or {}).get("enabled", True):
+        return out                      # Claude switched off: no key in use, nothing to warn about
     err = llm.get("error") or ""
     if err and ("401" in err or "Authentication" in err):
         out.append("Claude rejected the API key, so cards show abstract excerpts this week. Replace the ANTHROPIC_API_KEY secret on GitHub, "
@@ -172,6 +176,7 @@ def main():
     llm_cfg = dict(settings.get("llm") or {})
     if a.no_llm:
         llm_cfg["enabled"] = False
+    settings["_llm_on"] = bool(llm_cfg.get("enabled", True))
     to_write = cards + [i for i in opp_items if i.get("_extract") or i.get("_ukri")]
     stage("summarise", health, stats, summarise, to_write, llm_cfg, stats, limit=a.llm_limit)
     if stats.get("llm", {}).get("error"):

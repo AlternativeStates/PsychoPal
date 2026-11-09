@@ -95,7 +95,12 @@ def similar(rows, k=6, thr=0.08):
         rows[i]["similar_w"] = [round(s, 3) for s, _ in top]
 
 E = lambda x: H.escape(str(x or ""), quote=True)
-PAGE_CSS = (":root{--bg:#f6f5f2;--panel:#fff;--line:#e2dfd8;--tx:#1d2024;--mut:#5c636b;--accent:#6d4bd8}"
+def sections_html(r):
+    """Structured abstract summary (Aim / Methods / Results / Conclusion) as a definition list."""
+    return "".join(f'<p class="sx"><b>{E(k)}</b> {E(v)}</p>' for k, v in r.get("sections") or [])
+
+PAGE_CSS = (".sx{margin:6px 0}.sx b{display:inline-block;min-width:5.6em;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}"
+            ":root{--bg:#f6f5f2;--panel:#fff;--line:#e2dfd8;--tx:#1d2024;--mut:#5c636b;--accent:#6d4bd8}"
             "@media (prefers-color-scheme:dark){:root{--bg:#0f1216;--panel:#171b21;--line:#2a3038;--tx:#e8eaed;--mut:#a2a9b1;--accent:#a78bfa}}"
             "body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.55}"
             "main{max-width:720px;margin:0 auto;padding:24px 16px 60px}a{color:var(--accent)}.m{color:var(--mut);font-size:14px}"
@@ -138,7 +143,7 @@ def item_pages(rows, settings):
 <h1>{E(r.get("title"))}</h1>
 {f'<div class="au">{E(au)}</div>' if au else ''}<div class="m">{E(r.get("venue"))}{(" · " + E(r.get("date"))) if r.get("date") else ""}{(" · doi:" + E(r.get("doi"))) if r.get("doi") else ""}{(" · deadline " + E(r.get("deadline"))) if r.get("deadline") else ""}</div>
 <div class="tags" style="margin:12px 0">{"".join(f"<span>{E(t)}</span>" for t in tags)}</div>
-{f'<p>{E(r.get("post"))}</p>' if r.get("post") else ''}{f'<p class="why"><b>Why it matters for you:</b> {E(r.get("why_you"))}</p>' if r.get("why_you") else ''}
+{sections_html(r) or (f'<p>{E(r.get("post"))}</p>' if r.get("post") else '')}{f'<p class="why"><b>Why it matters for you:</b> {E(r.get("why_you"))}</p>' if r.get("why_you") else ''}
 {'<div class="z">Zotero: click the Zotero Connector button in your browser toolbar to save this item.</div>' if zot else ''}
 <p>{f'<a href="{E(url)}" target="_blank" rel="noopener">Open the {"paper" if zot else "page"} →</a>' if url else ''}</p>
 </main></body></html>
@@ -164,7 +169,7 @@ def build(settings=None):
     similar(rows)
     item_pages(rows, settings or {})
     keep = ("id", "kind", "stream", "section", "week", "title", "authors", "venue", "venue_clean", "date", "url", "doi", "post", "why_you",
-            "ai_tags", "deadline", "event_dates", "location", "funder", "is_preprint", "is_review", "top", "drug_groups", "modality_groups",
+            "ai_tags", "sections", "deadline", "event_dates", "location", "funder", "is_preprint", "is_review", "top", "drug_groups", "modality_groups",
             "disorders", "method_groups", "stage", "pub_status", "similar", "similar_w", "zotero", "detail_url", "citations", "buzz")
     out = [{k: r[k] for k in keep if r.get(k) not in (None, "", [], False)} for r in rows]
     write_json(os.path.join(SITE, "archive", "items.json"), out, indent=None)

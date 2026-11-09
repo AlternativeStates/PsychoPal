@@ -10,25 +10,28 @@ A weekly, phone-friendly feed that keeps you on top of:
   similarity to your work. Never in the Top 5.
 - **Funding** for your career stage (Wellcome, MRC, UKRI, Royal Society, Leverhulme, MSCA, ERC, EMBO, HFSP, BBRF, Imperial…)
   plus new UKRI calls.
-- **Conferences** (Psychedelic Science, INSIGHT, ICPR, ASSC, OHBM, IPEG, NRM, ECNP…) and **training** (SPM, FSL, TMS-EEG, CPC Zurich…),
-  each with a deadline countdown.
+- **Conferences** (Psychedelic Science, INSIGHT, ICPR, ASSC, OHBM, IPEG, NRM, ECNP…) and **training** (SPM, FSL, TMS-EEG, CPC Zurich…).
+  A card appears when an entry is new or its web page changes. Deadline countdowns are switched off (`deadlines: false` in
+  `config/settings.yaml`): deadlines live in your own calendar.
 - **Tools & methods**: new releases of neuroimaging software you use (one card per tool), brand-new GitHub repositories under neuro
   topics (ranked by stars), papers presenting software (including JOSS, the Journal of Open Source Software) and papers presenting
   new analysis methods (NeuroImage, Imaging Neuroscience, J Neurosci Methods, Nature Methods, HBM…). A 👍 or ☆ on a tool card with
   a GitHub repo adds that repo to the release watch.
 - Extras: newly registered psychedelic trials, 1–2 "Catch-up" classics, and 🔥 Buzz (papers being discussed on Bluesky).
 
-Each item is a short card, like a post: 2–3 sentences plus "Why it matters for you", and a small "Picked for" line that says why the
-script chose it (keywords, modality, the closest of your own papers). You can 👍, 👎 (hide), ☆ save and share cards. The ✳ button
+Each item is a short card, like a post. A paper card summarises its abstract in a standard structure, **Aim · Methods · Results ·
+Conclusion**, one or two sentences each, plus a small "Picked for" line that says why the script chose it (keywords, modality, the
+closest of your own papers). You can 👍, 👎 (hide), ☆ save and share cards. The ✳ button
 sends a paper to the Claude app (through the share menu) with a ready-made prompt asking for design, sample, results and limitations.
 All your marks feed back into next week's ranking. The **Saved** tab exports all saved papers as one `.ris` file for Zotero.
 The app works offline for the weeks you have opened (and the latest three). A warning banner appears at the top when something
-went wrong that week (e.g. Claude rejected the key) or the key is about to expire. There is also a searchable **archive** with
+went wrong that week (e.g. the literature databases could not be reached). There is also a searchable **archive** with
 filters, a graph view and a literature search page. It is adapted from Patrick's Neurodynamics Digest.
 
-## How it works (and why it is cheap)
+## How it works (free: no API key needed)
 
-Every Monday at 05:30 UTC, GitHub Actions runs a set of Python scripts:
+Every Monday at 05:30 UTC, GitHub Actions runs a set of Python scripts. **No AI model is used**: Claude support is built in but
+switched off (see "Optional: Claude" below).
 
 1. `psychopal/papers.py` queries PubMed, Europe PMC, OpenAlex, bioRxiv/medRxiv and arXiv, then removes duplicates. It scores papers
    by keyword groups (`config/queries.json`), imaging modality, named researchers, journal, and similarity to **your own papers**
@@ -36,18 +39,25 @@ Every Monday at 05:30 UTC, GitHub Actions runs a set of Python scripts:
 2. `psychopal/extras.py` adds trials from ClinicalTrials.gov, Catch-up classics from OpenAlex (one per topic), and Buzz from Bluesky
    and Hacker News. `psychopal/wider.py` picks the Wider science cards.
 3. `psychopal/opportunities.py` re-reads every watched funding, conference and training page and spots changes. It also adds new UKRI calls.
-   Pages that block automated checks are marked `no_fetch: true` in the YAML and use the deadline entered there.
+   Pages that block automated checks are marked `no_fetch: true` in the YAML. The card text is the `notes` written in the YAML.
 4. `psychopal/tools_watch.py` collects new GitHub releases, new neuro repositories and new JOSS papers.
-5. `psychopal/summarise.py` is **the only Claude call**. It sends only items that have **never been written before** to Claude
-   (Sonnet 5.5) in one batch, which costs 50% less. Card text is cached for good. For watched pages, Claude also reads the deadline
-   and dates. If Claude is unavailable, cards fall back to sentences from the abstract and the site still publishes.
+5. `psychopal/abstracts.py` writes the paper summaries. Structured abstracts (labelled Background / Methods / Results /
+   Conclusions…) are mapped onto the four parts directly. For unstructured ones, each sentence is scored on cue phrases ("here we",
+   "we recruited", "p < 0.05", "these findings suggest") and position, and the best labelling in reading order is chosen.
+   Limitation sentences are left out. Abstracts under 60 words keep their plain text.
 6. `psychopal/build_site.py` and `build_archive.py` write the static site in `site/`, which is deployed to GitHub Pages.
 
-On the first Monday of each month, `psychopal/monthly_sweep.py` makes one extra Claude call with web search. It looks for funding
-calls, conferences and courses that are not on your lists yet, and adds them as "NEW ON YOUR RADAR".
+**Cost:** nothing. GitHub hosting and Actions are free.
 
-**Expected cost:** about $0.10 a week for card text, plus about $0.30 a month for the sweep, so **about $8–10 a year**.
-GitHub hosting and Actions are free. Token usage is logged in `state/stats.json` and `state/runs.jsonl`.
+### Optional: Claude (switched off)
+The code for two Claude features is kept, ready to switch on later:
+- `psychopal/summarise.py`: Claude writes the card text (2–3 sentences plus "Why it matters for you") for new items only, in one
+  batch (Sonnet 5.5, 50% batch discount), cached for good. Watched pages also get their deadline and dates read.
+- `psychopal/monthly_sweep.py`: on the first Monday of each month, one Claude call with web search looks for funding calls,
+  conferences and courses not on your lists yet.
+
+To switch on: in `config/settings.yaml` set `llm: enabled: true` (and `sweep: enabled: true` for the sweep), then do steps C and D
+of the setup below. Expected cost about $8–10 a year.
 
 ## One-time setup (≈20 minutes)
 
@@ -66,7 +76,7 @@ Pull requests · Actions · …*). Hidden on a narrow window? Click **…** at t
 *Code and automation* › **Pages** › *Build and deployment* › **Source: GitHub Actions**. Do not pick a suggested workflow:
 the repo already has one (`.github/workflows/weekly.yml`).
 
-### C. Get a Claude API key (Claude Console, platform.claude.com)
+### C. (Only if you switch Claude on) Get a Claude API key (Claude Console, platform.claude.com)
 - **If your lab has a Claude Team plan:** the plan includes monthly API credits ($20 per Standard seat, $100 per Premium seat,
   pooled, max $500). An Owner claims them on claude.ai › **Organization settings › Billing › API credits**, by linking a Console
   organization (you can create one during the claim). The link can't be changed later, so pick the lab's Console org.
@@ -79,15 +89,15 @@ the repo already has one (`.github/workflows/weekly.yml`).
   The key lives only in GitHub's encrypted Secrets, never in the public code; the workspace spend limit caps any misuse.
   A key **not** tied to a workspace needs the workspace ID too: add it as a second secret `ANTHROPIC_WORKSPACE_ID` (`wrkspc_…`).
 
-### D. Add the key to GitHub
-Repo › **Settings** › sidebar *Security* › **Secrets and variables › Actions** › **New repository secret** › Name
-`ANTHROPIC_API_KEY`, Secret = the key › **Add secret**. Optional: tab **Variables** › `PSYCHOPAL_MAILTO` (contact email for
-PubMed/OpenAlex); secret `NCBI_API_KEY` (free, from your NCBI account).
+### D. GitHub secrets and variables
+Repo › **Settings** › sidebar *Security* › **Secrets and variables › Actions**. Optional: tab **Variables** › `PSYCHOPAL_MAILTO`
+(contact email for PubMed/OpenAlex); secret `NCBI_API_KEY` (free, from your NCBI account). Only if Claude is switched on:
+**New repository secret** › Name `ANTHROPIC_API_KEY`, Secret = the key › **Add secret**.
 
 ### E. First run
 Repo › **Actions** tab › **Weekly PsychoPal** (left list) › **Run workflow** › `week_end` = `2026-11-08` › **Run workflow**.
-Wait 10–40 min, open the run: the **summary** shows "Claude key: OK", the cards and the token cost. The `deploy` job shows the
-site address.
+Wait 10–40 min, open the run: the **summary** shows the cards ("Claude key: OFF" while Claude is switched off). The `deploy`
+job shows the site address.
 
 ### F. Phone, sync and eligibility
 - Open `https://<your-user-name-in-lowercase>.github.io/PsychoPal/` › iPhone: Share › **Add to Home Screen**; Android: ⋮ ›
@@ -103,8 +113,9 @@ Check a key locally: `$env:ANTHROPIC_API_KEY="sk-ant-..."; .\.venv\Scripts\pytho
 | What | File |
 |---|---|
 | Topics, keywords, weights, journals, named researchers; Wider science journals, tiers and Bluesky queries (`wider`) | `config/queries.json` |
-| Papers per week, stream minimums, variety threshold (`max_similarity`), Wider science cards, countdown weeks, Claude model, caps and key expiry | `config/settings.yaml` |
-| Who you are (what Claude uses for "Why it matters for you") | `config/profile.md` |
+| Papers per week, stream minimums, variety threshold (`max_similarity`), Wider science cards, deadlines on/off, Claude on/off, model, caps and key expiry | `config/settings.yaml` |
+| Summary parts and their length (words per part, `LIMITS`) | `psychopal/abstracts.py` |
+| Who you are (what Claude uses for "Why it matters for you", if switched on) | `config/profile.md` |
 | Eligibility facts | `config/profile.yaml` |
 | Funding / conferences / training lists | `config/funding.yaml`, `conferences.yaml`, `training.yaml` (add `disabled: true` to stop tracking an entry; `no_fetch: true` + `deadline:` for sites that block automated checks) |
 | Software to watch; GitHub topics for new repositories | `config/tools.yaml` |
@@ -116,8 +127,8 @@ Check a key locally: `$env:ANTHROPIC_API_KEY="sk-ant-..."; .\.venv\Scripts\pytho
 ```powershell
 python -m venv .venv; .\.venv\Scripts\pip install -r requirements.txt
 .\.venv\Scripts\python -m pytest -q
-.\.venv\Scripts\python -m psychopal.run_weekly --no-llm            # last full week, no Claude
-$env:ANTHROPIC_API_KEY="sk-ant-..."; .\.venv\Scripts\python -m psychopal.run_weekly --llm-limit 5   # try Claude on 5 cards
+.\.venv\Scripts\python -m psychopal.run_weekly                     # last full week
+$env:ANTHROPIC_API_KEY="sk-ant-..."; .\.venv\Scripts\python -m psychopal.run_weekly --llm-limit 5   # (Claude on) try Claude on 5 cards
 .\.venv\Scripts\python -m http.server 8000 --directory site       # then open http://localhost:8000
 .\.venv\Scripts\python -m psychopal.opportunities --check         # are all watched pages reachable?
 ```

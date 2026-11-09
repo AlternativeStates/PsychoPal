@@ -158,7 +158,8 @@ function card(c) {
   return `<article class="card${c.top ? " top5" : ""}" style="--c:${L.c}">
   <div class="ch"><div class="av" aria-hidden="true">${L.i}</div><div><div class="who">${esc(L.label)}</div><div class="when">${sub(c)}</div></div></div>
   <h3>${url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(c.title)}</a>` : esc(c.title)}</h3>
-  ${c.post ? `<p class="post">${esc(c.post)}</p>` : ""}
+  ${(c.sections || []).length ? `<dl class="abs">${c.sections.map(([k, v]) => `<div class="${esc(k.toLowerCase())}"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>`
+    : c.post ? `<p class="post">${esc(c.post)}</p>` : ""}
   ${c.why_you ? `<p class="why"><b>${c.stream === "wider" ? "Why it's interesting" : "Why it matters for you"}:</b> ${esc(c.why_you)}</p>` : ""}
   ${c.why_picked ? `<p class="pick">Picked for: ${esc(c.why_picked)}</p>` : ""}
   ${authors(c)}${badges(c)}

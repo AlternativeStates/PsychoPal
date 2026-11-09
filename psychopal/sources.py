@@ -27,6 +27,18 @@ def _ncbi_params(extra):
         p["api_key"] = os.environ["NCBI_API_KEY"]
     return p
 
+def _labelled_part(x):
+    """One <AbstractText>, keeping its section label ("Methods: ...") so card summaries can use the abstract's own structure."""
+    t = clean("".join(x.itertext()))
+    lab = (x.get("Label") or "").strip()
+    if not lab or not t or lab.upper() in ("UNLABELLED", "UNASSIGNED"):
+        return t
+    return f"{lab.capitalize() if lab.isupper() else lab}: {t}"
+
+def headings(html):
+    """Europe PMC marks abstract sections with <h4>Methods</h4>: turn them into 'Methods: ' before the tags are stripped."""
+    return re.sub(r"<(h[1-6]|b|strong)>\s*([^<]{2,60}?)\s*:?\s*</\1>", r" \2: ", html or "")
+
 def pubmed(cfg, start, end, log):
     info = {"queries": 0, "query_errors": []}
     pmid_groups = {}
@@ -68,7 +80,7 @@ def pubmed(cfg, start, end, log):
             if a is None:
                 continue
             title = clean("".join(a.find("ArticleTitle").itertext()) if a.find("ArticleTitle") is not None else "")
-            abst = " ".join(clean("".join(x.itertext())) for x in a.findall(".//Abstract/AbstractText"))
+            abst = " ".join(_labelled_part(x) for x in a.findall(".//Abstract/AbstractText")).strip()
             authors = []
             for au in a.findall(".//AuthorList/Author"):
                 ln, fn = au.findtext("LastName"), au.findtext("ForeName") or au.findtext("Initials") or ""
@@ -141,7 +153,7 @@ def europepmc(cfg, start, end, log):
                     out[key] = {"title": clean(x.get("title")), "authors": authors, "venue": venue,
                                 "date": x.get("firstPublicationDate", ""), "doi": doi,
                                 "url": f"https://doi.org/{doi}" if doi else f'https://europepmc.org/article/{x.get("source")}/{x.get("id")}',
-                                "abstract": clean(x.get("abstractText")), "source": "europepmc" + ("-preprint" if x.get("source") == "PPR" else ""),
+                                "abstract": clean(headings(x.get("abstractText"))), "source": "europepmc" + ("-preprint" if x.get("source") == "PPR" else ""),
                                 "pmid": x.get("pmid"), "pubtypes": pts, "affiliations": affs, "groups": {name}}
                 nxt = r.get("nextCursorMark")
                 if not nxt or nxt == cursor or len(r.get("resultList", {}).get("result", [])) < 200:
