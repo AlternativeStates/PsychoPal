@@ -4,23 +4,24 @@
   "2026-11-02",
   "2026-11-08"
  ],
- "started": "2026-11-09T14:39:14",
+ "started": "2026-11-09T22:57:42",
  "preferences": {
   "liked": 0,
   "disliked": 0,
   "starred": 0
  },
  "stage_seconds": {
-  "papers": 140.6,
-  "buzz": 56.4,
-  "buzz_discover": 13.6,
+  "papers": 526.3,
+  "buzz": 60.7,
+  "buzz_discover": 15.1,
+  "wider": 17.5,
   "trials": 0.2,
-  "catchup": 179.7,
-  "tools": 9.1,
-  "opportunities": 33.2,
-  "summarise": 1.2,
+  "catchup": 1.2,
+  "tools": 15.0,
+  "opportunities": 28.6,
+  "summarise": 0.1,
   "opportunities_finalise": 0.0,
-  "archive": 0.0
+  "archive": 0.1
  },
  "papers": {
   "window": [
@@ -29,9 +30,9 @@
   ],
   "sources": {
    "pubmed": {
-    "hits": 736,
-    "seconds": 23.2,
-    "queries": 33,
+    "hits": 928,
+    "seconds": 24.3,
+    "queries": 34,
     "query_errors": [],
     "per_group": {
      "psychedelic_imaging": 2,
@@ -39,7 +40,7 @@
      "psychedelic_clinical": 22,
      "preclinical_psychedelic": 5,
      "own_centre": 1,
-     "altered_states_nondrug": 4,
+     "altered_states_nondrug": 7,
      "serotonin_pet": 2,
      "ketamine_rapid": 61,
      "plasticity": 37,
@@ -53,8 +54,7 @@
      "comp_modelling": 1,
      "dcm_wholebrain": 3,
      "comp_psychiatry": 19,
-     "receptor_maps": 19,
-     "neuro_top": 169,
+     "receptor_maps": 20,
      "biopsych_top": 56,
      "psychiatry_imaging": 33,
      "addiction_imaging": 24,
@@ -65,14 +65,16 @@
      "travelling_waves": 2,
      "aperiodic_waveform": 4,
      "consciousness_dynamics": 33,
+     "wider_journals": 313,
      "tools_papers": 9,
+     "methods_papers": 43,
      "named_researchers": 4
     }
    },
    "europepmc": {
-    "hits": 707,
-    "seconds": 103.2,
-    "queries": 33,
+    "hits": 673,
+    "seconds": 50.1,
+    "queries": 32,
     "query_errors": [],
     "per_group": {
      "psychedelic_imaging": 8,
@@ -95,9 +97,8 @@
      "dcm_wholebrain": 4,
      "comp_psychiatry": 26,
      "receptor_maps": 59,
-     "neuro_top": 34,
      "biopsych_top": 17,
-     "psychiatry_imaging": 40,
+     "psychiatry_imaging": 41,
      "addiction_imaging": 19,
      "brain_body": 112,
      "interoception_psych": 71,
@@ -112,7 +113,7 @@
    },
    "openalex": {
     "hits": 558,
-    "seconds": 117.3,
+    "seconds": 25.3,
     "queries": 17,
     "query_errors": [],
     "per_group": {
@@ -138,7 +139,7 @@
    },
    "biorxiv": {
     "hits": 292,
-    "seconds": 124.0,
+    "seconds": 509.8,
     "per_category": {
      "neuroscience": 267,
      "pharmacology_and_toxicology": 25
@@ -148,7 +149,7 @@
    },
    "medrxiv": {
     "hits": 73,
-    "seconds": 13.8,
+    "seconds": 25.0,
     "per_category": {
      "psychiatry_and_clinical_psychology": 21,
      "neurology": 41,
@@ -159,46 +160,58 @@
     "query_errors": []
    },
    "arxiv": {
-    "hits": 25,
-    "seconds": 3.5,
+    "hits": 48,
+    "seconds": 6.7,
     "per_category": {
-     "q-bio.NC": 25
+     "q-bio.NC": 25,
+     "q-bio.QM": 23
     }
    }
   },
-  "raw_hits": 2391,
-  "after_merge": 1945,
+  "raw_hits": 2572,
+  "after_merge": 2164,
   "dropped": {
    "already_shown": 0,
-   "errata": 12,
+   "errata": 5,
    "outside_window": 0,
-   "bulk_below_threshold": 291
+   "bulk_below_threshold": 311
   },
-  "scored_pool": 1642,
+  "scored_pool": 1848,
   "selected": 25,
-  "tool_papers": 3,
+  "tool_papers": 4,
+  "skipped_too_similar": 2,
+  "wider_candidates": 303,
   "per_stream": {
-   "psychedelics": 8,
-   "neuropsychopharm": 5,
-   "neuroimaging": 2,
+   "psychedelics": 7,
+   "neuropsychopharm": 6,
+   "neuroimaging": 4,
    "comp_neuro": 2,
-   "neuroscience": 2,
    "bio_psychiatry": 2,
    "brain_body": 2,
    "neurodynamics": 2,
+   "wider": 0,
    "tools": 0
   },
-  "seconds": 140.6
+  "seconds": 526.3
  },
  "buzz": {
   "checked": 25,
-  "with_chatter": 4,
+  "with_chatter": 2,
   "errors": 0
  },
  "buzz_discover": {
   "calls": 40,
-  "candidates": 1,
-  "kept": 1
+  "candidates": 3,
+  "kept": 0
+ },
+ "wider": {
+  "journal_candidates": 219,
+  "discussed_links": 320,
+  "resolved": 6,
+  "bsky_calls": 45,
+  "bsky_errors": 0,
+  "life_science_candidates": 206,
+  "picked": 4
  },
  "trials": {
   "registered": 4,
@@ -210,43 +223,37 @@
    "ayahuasca brain",
    "psychedelic mystical experience"
   ],
-  "pool": 48
+  "pool": 73
  },
  "tools": {
-  "releases": 2,
+  "releases": 1,
+  "learned_repos": [],
   "joss": 0,
+  "new_repos": 2,
   "errors": []
  },
  "opportunities": {
   "watched": 44,
   "fetched": 42,
-  "fetch_failed": [
-   "leverhulme-ecf: HTTP 403: <!DOCTYPE html><html lang=\"en-US\"><head><title>Just a moment...</title",
-   "nihr-advanced-fellowship: HTTP 405: <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"utf-8\">\n   "
-  ],
+  "fetch_failed": [],
   "changed": 0,
   "new": 44,
   "hidden_ineligible": 0,
   "ukri": 1
  },
  "llm": {
-  "input_tokens": 0,
-  "output_tokens": 0,
-  "requests": 8,
-  "batch": true,
-  "error": "AuthenticationError: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'Invalid bearer token'}, 'request_id': 'req_011CgsY2ckz1TD688VR7wcm3'}"
+  "off": true
  },
  "cards": {
   "catchup": 2,
-  "conference": 2,
-  "funding": 3,
-  "paper": 26,
-  "tool_paper": 3,
-  "tool_release": 2,
+  "funding": 1,
+  "paper": 29,
+  "tool_paper": 4,
+  "tool_release": 1,
+  "tool_repo": 2,
   "trial": 3
  },
- "finished": "2026-11-09T14:46:28",
- "health": [
-  "card text fell back to abstracts for some items (Claude unavailable)"
- ]
+ "finished": "2026-11-09T23:08:46",
+ "health": [],
+ "alerts": []
 }

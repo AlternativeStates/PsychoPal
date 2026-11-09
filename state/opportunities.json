@@ -4,32 +4,37 @@
    "hash": "e03652d9d01e",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "fu-b884feb9df"
+   "card_id": "fu-b884feb9df",
+   "extracted": true
   },
   "funding:wellcome-career-development": {
    "hash": "2f529aeb7a3a",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "fu-ba6c93efac"
+   "card_id": "fu-ba6c93efac",
+   "extracted": true
   },
   "funding:mrc-cda": {
    "hash": "4452d271f044",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "fu-ea51702fcb"
+   "card_id": "fu-ea51702fcb",
+   "extracted": true
   },
   "funding:ukri-flf": {
    "hash": "39559df2a4ad",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
    "deadline": "2027-01-07",
-   "card_id": "fu-8be8056ba0"
+   "card_id": "fu-8be8056ba0",
+   "extracted": true
   },
   "funding:royal-society-urf": {
    "hash": "4bd3e1766430",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "fu-ddf0e289b5"
+   "card_id": "fu-ddf0e289b5",
+   "extracted": true
   },
   "funding:leverhulme-ecf": {
    "hash": "e9bd99dd7fac",
@@ -49,227 +54,264 @@
    "hash": "66917941c063",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "fu-ec431b8dba"
+   "card_id": "fu-ec431b8dba",
+   "extracted": true
   },
   "funding:erc-starting": {
    "hash": "2058701e18ce",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "fu-b9ee714b98"
+   "card_id": "fu-b9ee714b98",
+   "extracted": true
   },
   "funding:embo-postdoc": {
    "hash": "fadaf1ccd0c4",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
    "deadline": "2027-01-22",
-   "card_id": "fu-065b108e4c"
+   "card_id": "fu-065b108e4c",
+   "extracted": true
   },
   "funding:hfsp-postdoc": {
    "hash": "7a26904055d8",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "fu-3bdb8749cc"
+   "card_id": "fu-3bdb8749cc",
+   "extracted": true
   },
   "funding:bbrf-young-investigator": {
    "hash": "9304a14a3634",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "fu-3e807b5239"
+   "card_id": "fu-3e807b5239",
+   "extracted": true
   },
   "funding:heffter": {
    "hash": "6d4f677005cf",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "fu-25c299a260"
+   "card_id": "fu-25c299a260",
+   "extracted": true
   },
   "funding:wellcome-mental-health": {
    "hash": "18c1d7c5359d",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "fu-02b805cb79"
+   "card_id": "fu-02b805cb79",
+   "extracted": true
   },
   "funding:imperial-icrf": {
    "hash": "7fbf72528c89",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "fu-33c7d121e7"
+   "card_id": "fu-33c7d121e7",
+   "extracted": true
   },
   "funding:imperial-funding-opps": {
    "hash": "a594f5fbd8a0",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "fu-5ff677cae7"
+   "card_id": "fu-5ff677cae7",
+   "extracted": true
   },
   "conference:psychedelic-science": {
    "hash": "ce6e7ad51331",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-25dd9417e4"
+   "card_id": "co-25dd9417e4",
+   "extracted": true
   },
   "conference:insight": {
    "hash": "d78fa95a3eaa",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-5dd07aa8fc"
+   "card_id": "co-5dd07aa8fc",
+   "extracted": true
   },
   "conference:icpr": {
    "hash": "ef5706d9ec02",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-fcaf7cb566"
+   "card_id": "co-fcaf7cb566",
+   "extracted": true
   },
   "conference:assc": {
    "hash": "759b9dd968d6",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-a7afa2df31"
+   "card_id": "co-a7afa2df31",
+   "extracted": true
   },
   "conference:ohbm": {
    "hash": "4b7e8d09dece",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-b201fedfff"
+   "card_id": "co-b201fedfff",
+   "extracted": true
   },
   "conference:ipeg": {
    "hash": "c2a71e80a354",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-9b6b102534"
+   "card_id": "co-9b6b102534",
+   "extracted": true
   },
   "conference:nrm": {
    "hash": "8dbcea3f49ac",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-8b46676562"
+   "card_id": "co-8b46676562",
+   "extracted": true
   },
   "conference:brainpet": {
    "hash": "0c099db9a389",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-c808c2505c"
+   "card_id": "co-c808c2505c",
+   "extracted": true
   },
   "conference:ecnp": {
    "hash": "cabcf8163ad5",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-d2bcc47ae3"
+   "card_id": "co-d2bcc47ae3",
+   "extracted": true
   },
   "conference:cinp": {
    "hash": "72579c4b7c51",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-c1b2466e4a"
+   "card_id": "co-c1b2466e4a",
+   "extracted": true
   },
   "conference:acnp": {
    "hash": "c0a95f8c7d18",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
    "deadline": "2026-11-19",
-   "card_id": "co-bf9ceef5e8"
+   "card_id": "co-bf9ceef5e8",
+   "extracted": true
   },
   "conference:sobp": {
    "hash": "a9635fdce424",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-dfe0ee64a4"
+   "card_id": "co-dfe0ee64a4",
+   "extracted": true
   },
   "conference:bap": {
    "hash": "4b9473562487",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-65653fca2c"
+   "card_id": "co-65653fca2c",
+   "extracted": true
   },
   "conference:breaking-convention": {
    "hash": "1a087ce89596",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-1c6ded33e6"
+   "card_id": "co-1c6ded33e6",
+   "extracted": true
   },
   "conference:fens": {
    "hash": "1f83fa399027",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-d292b2356e"
+   "card_id": "co-d292b2356e",
+   "extracted": true
   },
   "conference:sfn": {
-   "hash": "f9ac8a064467",
+   "hash": "d56869070f31",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-475a6760f1"
+   "card_id": "co-86d93177fa",
+   "extracted": true
   },
   "conference:ccn": {
    "hash": "17bdd51cb359",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
    "deadline": "2027-02-04",
-   "card_id": "co-29a2c8cf49"
+   "card_id": "co-29a2c8cf49",
+   "extracted": true
   },
   "conference:cosyne": {
    "hash": "169fb2ad735d",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "co-2900527c4e"
+   "card_id": "co-2900527c4e",
+   "extracted": true
   },
   "training:spm-course": {
    "hash": "8568c5ffd539",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "tr-3d996d4215"
+   "card_id": "tr-3d996d4215",
+   "extracted": true
   },
   "training:fsl-course": {
    "hash": "0b37c8317f73",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "tr-52be515346"
+   "card_id": "tr-52be515346",
+   "extracted": true
   },
   "training:fieldtrip-workshops": {
    "hash": "3bf16b035fd8",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "tr-475b805f5b"
+   "card_id": "tr-475b805f5b",
+   "extracted": true
   },
   "training:eeglab-workshops": {
    "hash": "6098d139a7ba",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "tr-03d039551f"
+   "card_id": "tr-03d039551f",
+   "extracted": true
   },
   "training:tms-eeg-summer-school": {
    "hash": "c6eabeaf7d5e",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "tr-3a91f178dc"
+   "card_id": "tr-3a91f178dc",
+   "extracted": true
   },
   "training:neuromatch": {
    "hash": "ee7514f2af2e",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "tr-d6306859c4"
+   "card_id": "tr-d6306859c4",
+   "extracted": true
   },
   "training:cpc-zurich": {
    "hash": "63278dcdd638",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "tr-f96725dc9f"
+   "card_id": "tr-f96725dc9f",
+   "extracted": true
   },
   "training:woods-hole-mcn": {
    "hash": "9d15aec73a26",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "tr-7a08af8d2f"
+   "card_id": "tr-7a08af8d2f",
+   "extracted": true
   },
   "training:brainhack": {
    "hash": "915f533c0426",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "tr-7708b04241"
+   "card_id": "tr-7708b04241",
+   "extracted": true
   },
   "training:turku-pet-course": {
    "hash": "1d20ce67e9ba",
    "hash_week": "2026-W45",
    "seen": "2026-11-09",
-   "card_id": "tr-c51d1a408f"
+   "card_id": "tr-c51d1a408f",
+   "extracted": true
   }
  },
- "first_run_done": false
+ "first_run_done": true
 }
