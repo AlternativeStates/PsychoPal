@@ -8,7 +8,9 @@ Weekly literature/funding/events feed for Claudio Agnorelli (Centre for Psychede
   a scripted Aim/Methods/Results/Conclusion summary (`psychopal/abstracts.py`, field `sections`, recomputed every run, never cached).
   Deadline countdowns/strip/badges are off (`deadlines: false`). Keep new features scripted first.
 - Entry point: `python -m psychopal.run_weekly` (flags: `--week-end`, `--no-llm`, `--llm-limit`, `--reuse-papers`, `--skip`).
-- Config lives in `config/` (queries.json = topics/weights; settings.yaml; watchlist YAMLs). State in `state/` (committed by CI).
+- Config lives in `config/` (queries.json = topics/weights; settings.yaml; watchlist YAMLs). Topics are ranked (Nov 2026):
+  psychedelics > neuroimaging (incl. brain stimulation) > neuropsychopharm > bio_psychiatry > neurodynamics (merged with the old
+  comp_neuro) > brain_body; quotas in settings `stream_quota`, ranking tilt in queries.json `scoring.stream_bonus`/`primary_stream`. State in `state/` (committed by CI).
 - Site: `site/` static (feed: index.html/app.js/styles.css, sw.js = offline cache, network-first; archive/: index, search, graph, sync.js).
   Edition JSON has `alerts` (top banner) and `health` (run notes). Streams "wider" and "tools" are side streams (never Top 5). Marks = localStorage `pp-marks`,
   synced to the `user-state` branch; never write that branch from automation.

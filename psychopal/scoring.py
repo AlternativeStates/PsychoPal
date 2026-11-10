@@ -47,6 +47,9 @@ def compile_cfg(cfg):
     cfg["_byname"] = {g["name"]: g for g in cfg["groups"]}
     eng = cfg["scoring"].get("engineering_re")
     cfg["_eng"] = re.compile(eng, re.I) if eng else None
+    for key in ("off_field_re", "alt_medicine_re"):
+        rx = cfg["scoring"].get(key)
+        cfg["_" + key] = re.compile(rx, re.I) if rx else None
 
 def _hit(cfg, k, s, full):
     if not k.search(s):
@@ -296,6 +299,18 @@ def score_record(cfg, r, prof, start=None):
             rest = {k: v for k, v in gs.items() if cfg["_byname"][k]["stream"] != "tools"}
             if rest and max(rest.values()) >= gs[top]:
                 stream = cfg["_byname"][max(rest, key=lambda k: rest[k])]["stream"]
+    # the main topic claims every paper with one of its keywords in the TITLE (e.g. "Ketamine versus psilocybin ..." -> psychedelics)
+    primary, pgroup = sc.get("primary_stream"), cfg["_byname"].get(sc.get("primary_title_group", "psychedelic_any"))
+    if primary and stream and stream != primary and pgroup and gs.get(pgroup["name"]) and kw_hit(cfg, pgroup, r.get("title") or "", "") == 1.0:
+        stream = primary
+    if stream and sc.get("stream_bonus", {}).get(stream):
+        parts["topic_priority"] = sc["stream_bonus"][stream]     # higher-priority topics rank a little higher (also in Top 5)
+    off = cfg.get("_off_field_re")
+    if off and stream not in (primary, "wider") and (off.search(r.get("title") or "") or len(off.findall(r.get("abstract") or "")) >= 2):
+        parts["off_field"] = sc.get("off_field_penalty", -5.0)   # e.g. glioma PET tracers, cannabidiol in cancer cells
+    alt = cfg.get("_alt_medicine_re")
+    if alt and alt.search(text):
+        parts["alt_medicine"] = sc.get("alt_medicine_penalty", -4.0)
     if stream == "tools" and NONHUMAN_RE.search(text) and not HUMAN_RE.search(text):
         parts["nonhuman_tool"] = sc.get("nonhuman_tool_penalty", -4.0)
     if stream == "tools" and not NEURO_TOOL_RE.search(text):

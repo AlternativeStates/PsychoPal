@@ -2,9 +2,22 @@
 
 A weekly, phone-friendly feed that keeps you on top of:
 
-- **Papers** in 7 streams: psychedelic research, neuropsychopharmacology, neuroimaging, computational neuroscience,
-  biological psychiatry, brain–body coupling and neurodynamics. About 25 a week: a pinned "Top 5 for you", then at least 2 per stream.
-  A variety rule skips papers that are near-duplicates of one already picked; case reports and narrative reviews in weaker journals rank lower.
+- **Papers** in 6 topics, in order of importance (papers per week, minimum–maximum):
+  1. **Psychedelic research** (7–10): every aspect of the field, including clinical, preclinical, imaging, pharmacology and chemistry,
+     experience and phenomenology, safety, epidemiology, policy and ethics. Any paper with a psychedelic in its title goes here.
+  2. **Neuroimaging & brain stimulation** (4–7): technical EEG/MEG, fMRI, PET and MRI methods; TMS, TMS-EEG, tDCS/tACS, ultrasound, DBS.
+  3. **Neuropsychopharmacology** (3–6): ketamine, stimulants (cocaine, amphetamine, methylphenidate), cannabis, serotonin PET and
+     other psychopharmacology.
+  4. **Biological psychiatry** (3–5): depression, addiction and PTSD, mainly preclinical (stress, fear and drug-seeking models),
+     plus key human biology (biomarkers, genetics, post-mortem, imaging).
+  5. **Neural dynamics & computational neuroscience** (2–5): EEG complexity, criticality, waves, aperiodic activity, information
+     theory, whole-brain and neural-mass models, DCM, computational psychiatry.
+  6. **Brain–body coupling** (2–4): heart, breath and gut rhythms and the brain; interoception.
+
+  About 25 a week: a pinned "Top 5 for you", then each topic's minimum (one paper per sub-area first, e.g. ketamine, stimulants,
+  cannabis), then the best of the rest. Higher topics get a small ranking bonus, so the Top 5 also leans towards psychedelics. A variety
+  rule skips near-duplicates of a paper already picked; case reports, narrative reviews in weaker journals, oncology papers (outside
+  psychedelics) and acupuncture/herbal-medicine papers rank lower.
 - **Wider science** (low priority): 4 cards a week from broad journals (Nature, Science, Cell, PNAS, eLife…) and papers or preprints
   from any field that many people are posting about on Bluesky. Ranked by journal, attention and brain/behaviour topics, not by
   similarity to your work. Never in the Top 5.
@@ -112,8 +125,9 @@ Check a key locally: `$env:ANTHROPIC_API_KEY="sk-ant-..."; .\.venv\Scripts\pytho
 
 | What | File |
 |---|---|
-| Topics, keywords, weights, journals, named researchers; Wider science journals, tiers and Bluesky queries (`wider`) | `config/queries.json` |
-| Papers per week, stream minimums, variety threshold (`max_similarity`), Wider science cards, deadlines on/off, Claude on/off, model, caps and key expiry | `config/settings.yaml` |
+| Topics, keywords, weights, journals, named researchers; Wider science journals, tiers and Bluesky queries (`wider`). Within a topic, keyword groups are listed in priority order: each topic's minimum takes one paper per sub-area in that order (e.g. ketamine, stimulants, cannabis) | `config/queries.json` |
+| Papers per week, papers per topic (`stream_quota`, in order of importance), variety threshold (`max_similarity`), Wider science cards, deadlines on/off, Claude on/off, model, caps and key expiry | `config/settings.yaml` |
+| Topic ranking bonus (`scoring.stream_bonus`) and the "psychedelic in the title" rule (`scoring.primary_stream`) | `config/queries.json` |
 | Summary parts and their length (words per part, `LIMITS`) | `psychopal/abstracts.py` |
 | Who you are (what Claude uses for "Why it matters for you", if switched on) | `config/profile.md` |
 | Eligibility facts | `config/profile.yaml` |

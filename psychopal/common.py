@@ -1,6 +1,7 @@
 """Shared helpers for PsychoPal (HTTP with retries, normalisation, I/O). Ported from the Neurodynamics Digest pipeline."""
 import json, os, re, sys, time, random, hashlib, unicodedata, datetime as dt
 import requests
+from urllib.parse import urlparse
 
 for _s in (sys.stdout, sys.stderr):   # Windows consoles default to cp1252; never crash on ★ or Greek letters
     try:
@@ -28,14 +29,24 @@ def session():
 class FetchError(Exception):
     pass
 
+QUOTA_WAIT = 120     # a 429 asking us to wait longer than this means a used-up quota, not a brief rate limit
+_QUOTA_HIT = {}      # host -> reason: that service is not asked again during this run (else every query retries for minutes)
+
 def http(method, url, *, params=None, data=None, timeout=30, retries=4, backoff=1.5, expect="json", headers=None, log=None):
-    """GET/POST with retries + exponential backoff on timeouts, 429 and 5xx. Raises FetchError after the last try."""
+    """GET/POST with retries + exponential backoff on timeouts, 429 and 5xx. Raises FetchError after the last try.
+    A 429 with a long Retry-After (e.g. OpenAlex's daily budget used up) fails at once and blocks that host for the rest of the run."""
+    host = urlparse(url).netloc
+    if host in _QUOTA_HIT:
+        raise FetchError(_QUOTA_HIT[host])
     last = None
     for attempt in range(retries + 1):
         try:
             r = session().request(method, url, params=params, data=data, timeout=timeout, headers=headers)
             if r.status_code == 429 or r.status_code >= 500:
                 ra = r.headers.get("Retry-After")
+                if r.status_code == 429 and ra and ra.isdigit() and float(ra) > QUOTA_WAIT:
+                    _QUOTA_HIT[host] = f"HTTP 429: {host} quota used up for now (retry after {ra}s); skipped for the rest of this run"
+                    raise FetchError(_QUOTA_HIT[host])
                 wait = float(ra) if ra and ra.isdigit() else backoff * (2 ** attempt) + random.random()
                 last = f"HTTP {r.status_code}"
                 if attempt < retries:

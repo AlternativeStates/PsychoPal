@@ -6,8 +6,17 @@ github_repo: "AlternativeStates/PsychoPal"     # used by sync.js for likes/saves
 
 # Papers
 papers_total: 25            # papers per weekly edition
-top_for_you: 5              # pinned "Top 5 for you"
-min_per_stream: 2           # every stream gets at least this many (if it has candidates above min_paper_score)
+top_for_you: 5              # pinned "Top 5 for you" (counts towards the topic quotas below)
+# Topics in order of importance (also their order in the feed): [minimum, maximum] papers per week. The minimum is filled only
+# with papers above min_paper_score; the rest of papers_total goes to the best-scoring papers within each maximum.
+stream_quota:
+  psychedelics: [7, 10]       # all aspects of psychedelic research
+  neuroimaging: [4, 7]        # technical EEG/MEG, fMRI, PET, MRI methods and brain stimulation
+  neuropsychopharm: [3, 6]    # ketamine, stimulants (cocaine, amphetamine), cannabis, serotonin PET, other psychopharmacology
+  bio_psychiatry: [3, 5]      # depression, addiction, PTSD: mainly preclinical, plus key human biology
+  neurodynamics: [2, 5]       # neural dynamics & computational neuroscience
+  brain_body: [2, 4]          # brain–body coupling
+min_per_stream: 2           # for any topic not listed in stream_quota
 max_per_stream: 8
 min_paper_score: 4.0
 max_similarity: 0.22        # variety rule: skip a paper this similar (TF-IDF of title or abstract, 0-1) to one already picked

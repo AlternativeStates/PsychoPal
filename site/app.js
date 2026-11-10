@@ -2,15 +2,16 @@
    Marks (like / dislike / star) live in localStorage "pp-marks", shared with the archive and synced by archive/sync.js. */
 (() => {
 "use strict";
+// topics in order of importance (= order of the sections in the feed); comp_neuro and neuroscience only appear in old weeks
 const STREAMS = {
   psychedelics:     {label: "Psychedelic research",       c: "#8b5cf6", i: "✺"},
+  neuroimaging:     {label: "Neuroimaging & brain stimulation", short: "Neuroimaging", c: "#0f9f95", i: "◉"},
   neuropsychopharm: {label: "Neuropsychopharmacology",    c: "#e07b2a", i: "⚗︎"},
-  neuroimaging:     {label: "Neuroimaging",               c: "#0f9f95", i: "◉"},
-  comp_neuro:       {label: "Computational neuroscience", c: "#2f86d0", i: "∑"},
-  neuroscience:     {label: "Neuroscience",               c: "#5b6fd6", i: "✧"},
   bio_psychiatry:   {label: "Biological psychiatry",      c: "#d6457a", i: "✚"},
+  neurodynamics:    {label: "Neural dynamics & computational neuroscience", short: "Dynamics & comp neuro", c: "#2f86d0", i: "∿"},
   brain_body:       {label: "Brain–body coupling",        c: "#e0604a", i: "♥︎"},
-  neurodynamics:    {label: "Neurodynamics",              c: "#6f9e1e", i: "∿"},
+  comp_neuro:       {label: "Neural dynamics & computational neuroscience", short: "Dynamics & comp neuro", c: "#2f86d0", i: "∑"},
+  neuroscience:     {label: "Neuroscience",               c: "#5b6fd6", i: "✧"},
   wider:            {label: "Wider science",              c: "#64748b", i: "✦"},
   tools:            {label: "Tools & methods",            c: "#b8860b", i: "⚙︎"},
 };
@@ -107,7 +108,7 @@ function tabsHTML() {
     const papers = all.filter(c => c.kind === "paper" && !M.dislike[c.id]);
     const present = Object.keys(STREAMS).filter(s => papers.some(c => c.stream === s));
     sb.innerHTML = `<button class="chip${!S.stream ? " on" : ""}" data-stream="">All topics</button>` + present.map(s =>
-      `<button class="chip${S.stream === s ? " on" : ""}" data-stream="${s}" style="--c:${STREAMS[s].c}"><span class="dot"></span>${esc(STREAMS[s].label)}<span class="n">${papers.filter(c => c.stream === s).length}</span></button>`).join("");
+      `<button class="chip${S.stream === s ? " on" : ""}" data-stream="${s}" style="--c:${STREAMS[s].c}"><span class="dot"></span>${esc(STREAMS[s].short || STREAMS[s].label)}<span class="n">${papers.filter(c => c.stream === s).length}</span></button>`).join("");
     sb.hidden = false;
   } else sb.hidden = true;
   const w = S.loaded[0];

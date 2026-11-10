@@ -71,9 +71,10 @@ details.set{background:var(--panel);border:1px solid var(--line);padding:6px 12p
 </main>
 <script>
 // ---- Config ----
-const SECTIONS=[["Psychedelic research","Psychedelics","✺","#a78bfa"],["Neuropsychopharmacology","Neuropsychopharm","⚗\uFE0E","#f0a35e"],["Neuroimaging","Neuroimaging","◉","#5fc9bf"],
-["Computational neuroscience","Comp neuro","∑","#7fc0ee"],["Neuroscience","Neuroscience","✧","#9fb4f2"],["Biological psychiatry","Bio psychiatry","✚","#f095ad"],
-["Brain–body coupling","Brain–body","♥\uFE0E","#f39a85"],["Neurodynamics","Neurodynamics","∿","#b9d86a"],["Wider science","Wider science","✦","#94a3b8"],["New psychedelic trials","Trials","⊕","#c3a6f0"],
+const SECTIONS=[["Psychedelic research","Psychedelics","✺","#a78bfa"],["Neuroimaging & brain stimulation","Neuroimaging","◉","#5fc9bf"],["Neuroimaging","Neuroimaging (old)","◉","#5fc9bf"],
+["Neuropsychopharmacology","Neuropsychopharm","⚗\uFE0E","#f0a35e"],["Biological psychiatry","Bio psychiatry","✚","#f095ad"],
+["Neural dynamics & computational neuroscience","Dynamics & comp neuro","∿","#7fc0ee"],["Brain–body coupling","Brain–body","♥\uFE0E","#f39a85"],
+["Computational neuroscience","Comp neuro (old)","∑","#7fc0ee"],["Neurodynamics","Neurodynamics (old)","∿","#b9d86a"],["Neuroscience","Neuroscience","✧","#9fb4f2"],["Wider science","Wider science","✦","#94a3b8"],["New psychedelic trials","Trials","⊕","#c3a6f0"],
 ["Catch-up","Catch-up","↺","#d0a882"],["Funding","Funding","£","#e7b97a"],["Conferences","Conferences","◎","#e6d27a"],["Training","Training","✎\uFE0E","#a6dc8f"],["Tools & methods","Tools","⚙\uFE0E","#e8c15a"]];
 const secOf=n=>SECTIONS.find(s=>s[0]===n)||[n,n,"◆","#c3a6f0"];
 const MODS=["EEG","MEG","TMS / TMS-EEG","fMRI","PET","MRI (structural/diffusion)","MRS"],MCOL={"EEG":"#5fc9bf","MEG":"#7fc0ee","TMS / TMS-EEG":"#e3a5e0","fMRI":"#c3a6f0","PET":"#f0a35e","MRI (structural/diffusion)":"#b9d86a","MRS":"#e6d27a"},OTHER="#6b7c8a";

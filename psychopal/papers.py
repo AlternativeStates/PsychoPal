@@ -93,11 +93,25 @@ def similarity(a, b):
 def too_similar(x, chosen, thr):
     return any(similarity(x, c) >= thr for c in chosen)
 
+def quotas(cfg, settings):
+    """{stream: (min, max)} in order of importance: settings.yaml stream_quota first, then any other paper stream with the
+    generic min_per_stream / max_per_stream."""
+    q = {}
+    for s, v in (settings.get("stream_quota") or {}).items():
+        if s in cfg["streams"] and s not in SIDE_STREAMS:
+            lo, hi = (v, v) if isinstance(v, int) else (v[0], v[1])
+            q[s] = (int(lo), int(hi))
+    for s in cfg["streams"]:
+        if s not in SIDE_STREAMS and s not in q:
+            q[s] = (settings.get("min_per_stream", 2), settings.get("max_per_stream", 8))
+    return q
+
 def select(cfg, scored, settings):
-    """Top N for you, then guarantee min_per_stream for each stream, then fill to papers_total by score.
+    """Top N for you, then each stream's minimum (stream_quota in settings.yaml, in order of importance), then fill to papers_total
+    by score without exceeding any stream's maximum.
     Variety rule: after the Top 5, a paper that is very similar to one already picked is skipped (the next one in line gets the slot)."""
-    total, top_n, min_per = settings.get("papers_total", 25), settings.get("top_for_you", 5), settings.get("min_per_stream", 2)
-    max_per = settings.get("max_per_stream", 8)
+    total, top_n = settings.get("papers_total", 25), settings.get("top_for_you", 5)
+    quota = quotas(cfg, settings)
     min_score = settings.get("min_paper_score", 4.0)
     thr = settings.get("max_similarity", 0.22)
     papers = [x for x in scored if x["stream"] and x["stream"] not in SIDE_STREAMS and x["score"] >= min_score]
@@ -114,18 +128,38 @@ def select(cfg, scored, settings):
         return True
     for x in papers[:top_n]:
         take(x, True)
-    for s in cfg["streams"]:
-        if s in SIDE_STREAMS:
+    # each topic's minimum: first the best paper of each sub-area, taking the topic's groups in config order (= priority, e.g.
+    # ketamine, stimulants, cannabis), if it scores at least variety_min_fraction of the topic's best; then the best remaining papers
+    generic = set(cfg["scoring"].get("generic_groups", []))
+    frac = cfg["scoring"].get("variety_min_fraction", 0.6)
+    def sub(x):
+        own = [g for g in x.get("matched") or [] if g not in generic and cfg["_byname"].get(g, {}).get("stream") == x["stream"]]
+        return own[0] if own else ((x.get("matched") or [""])[0])
+    for s, (lo, hi) in quota.items():
+        cands = [x for x in papers if x["stream"] == s]
+        if not cands:
             continue
-        for x in papers:
-            if per.get(s, 0) >= min_per:
+        floor, used = frac * cands[0]["score"], {sub(x) for x in chosen if x["stream"] == s}
+        for g in (g["name"] for g in cfg["groups"] if g["stream"] == s and g["name"] not in generic):
+            if per.get(s, 0) >= lo:
                 break
-            if x["stream"] == s and ok(x):
+            if g in used:
+                continue
+            for x in cands:
+                if x["score"] < floor:
+                    break
+                if sub(x) == g and ok(x):
+                    take(x); used.add(g)
+                    break
+        for x in cands:
+            if per.get(s, 0) >= lo:
+                break
+            if ok(x):
                 take(x)
     for x in papers:
         if len(chosen) >= total:
             break
-        if per.get(x["stream"], 0) < max_per and ok(x):
+        if per.get(x["stream"], 0) < quota.get(x["stream"], (0, 0))[1] and ok(x):
             take(x)
     tools = []
     for x in sorted((x for x in scored if x["stream"] == "tools" and x["score"] >= min_score and x["id"] not in ids), key=lambda x: -x["score"]):

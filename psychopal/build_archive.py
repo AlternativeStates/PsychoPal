@@ -9,9 +9,10 @@ from .common import STATE, SITE, CONFIG, load_jsonl, write_json, log
 SECTION = {"trial": "New psychedelic trials", "catchup": "Catch-up", "funding": "Funding", "conference": "Conferences",
            "training": "Training", "tool_release": "Tools & methods", "tool_paper": "Tools & methods",
            "tool_repo": "Tools & methods"}
-STREAM_LABEL = {"psychedelics": "Psychedelic research", "neuropsychopharm": "Neuropsychopharmacology", "neuroimaging": "Neuroimaging",
-                "comp_neuro": "Computational neuroscience", "neuroscience": "Neuroscience", "bio_psychiatry": "Biological psychiatry",
-                "brain_body": "Brain–body coupling", "neurodynamics": "Neurodynamics", "wider": "Wider science", "tools": "Tools & methods"}
+STREAM_LABEL = {"psychedelics": "Psychedelic research", "neuroimaging": "Neuroimaging & brain stimulation", "neuropsychopharm": "Neuropsychopharmacology",
+                "bio_psychiatry": "Biological psychiatry", "neurodynamics": "Neural dynamics & computational neuroscience",
+                "comp_neuro": "Neural dynamics & computational neuroscience", "brain_body": "Brain–body coupling", "neuroscience": "Neuroscience",
+                "wider": "Wider science", "tools": "Tools & methods"}   # comp_neuro was merged into neurodynamics (Nov 2026)
 STOP = set("a an the and or of in on for to with by from at as is are was were be this that these those its it into vs via than not no "
            "we our their using use used based study studies new two one can may also".split())
 
