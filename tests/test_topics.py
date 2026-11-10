@@ -93,3 +93,43 @@ def test_topic_minimum_takes_sub_areas_in_priority_order(cfg):
     settings = {"papers_total": 3, "top_for_you": 0, "stream_quota": {"neuropsychopharm": [3, 6]}, "min_per_stream": 0}
     chosen, *_ = papers.select(cfg, pool, settings)
     assert [x["id"] for x in chosen] == ["np-1", "np-5", "np-6"]      # ketamine, then stimulants, then cannabis (all >= 60% of best)
+
+# --- Tools & methods: only papers ABOUT a tool or method, from any topic when not already picked as a paper ---
+
+@pytest.mark.parametrize("title,abstract,expected", [
+    ("Resting-state EEG graph analysis reveals enhanced alpha-band integration in high-IQ individuals",
+     "We used an open-source analysis pipeline to compute graph metrics.", False),
+    ("The association of MRI-derived tissue bridge morphometrics with recovery after spinal cord injury",
+     "Images were processed with an automated analysis pipeline.", False),
+    ("Respiratory phase orchestrates human olfactory cortical dynamics", "We provide an open-source olfactometer.", False),
+    ("Characterising cortical perturbation-recovery dynamics using TMS-EEG: the Brain Dynamic Toolbox", "", True),
+    ("Counteracting effect-size inflation in brain-wide association studies using cross-validation", "", True),
+    ("Next generation Human Neocortical Neurosolver model", "Code is available at github.com/example/hnn-core.", True),
+])
+def test_tool_paper_needs_tool_title_or_code_link(title, abstract, expected):
+    assert scoring.is_tool_paper({"title": title, "abstract": abstract}) is expected
+
+def test_findings_paper_loses_tool_keywords(cfg, prof):
+    s = scoring.score_record(cfg, rec("Resting-state EEG graph analysis reveals enhanced alpha-band integration in high-IQ adults",
+        "We recorded resting-state EEG in 200 healthy adults and used an open-source analysis pipeline to compute graph metrics."), prof)
+    assert "tools_papers" not in s["groups"] and not s["tool"] and s["stream"] != "tools"
+
+def test_on_topic_toolbox_is_a_tool_candidate(cfg, prof):
+    s = scoring.score_record(cfg, rec("Characterising cortical perturbation-recovery dynamics using TMS-EEG: the Brain Dynamic Toolbox",
+        "We present an open-source toolbox for TMS-EEG in 30 healthy participants, quantifying cortical perturbation and recovery."), prof)
+    assert s["tool"] and s["stream"] == "neuroimaging"
+
+def test_tools_cards_come_from_any_topic_but_not_editorials(cfg):
+    def p(i, stream, score, tool=False, title=None, low=False):
+        return {"id": f"x-{i}", "title": title or f"paper {i}", "abstract": "", "stream": stream, "score": score, "tool": tool,
+                "is_review": False, "score_parts": {"low_type": -2.0} if low else {}, "matched": [], "modality": "", "named": [],
+                "_av": {f"w{i}": 1.0}, "_tv": {f"w{i}": 1.0}}
+    pool = [p(1, "neuroimaging", 20, tool=True),                     # picked as a paper: not repeated as a tool card
+            p(2, "neuroimaging", 15, tool=True),                     # missed the quota: becomes a Tools card
+            p(3, "neurodynamics", 14),                               # not a tool paper
+            p(4, "neuroimaging", 13, tool=True, title="Editorial: methods in brain imaging", low=True),
+            p(5, "tools", 9, tool=True), p(6, "tools", 8)]
+    settings = {"papers_total": 1, "top_for_you": 0, "stream_quota": {"neuroimaging": [1, 1]}, "min_per_stream": 0, "max_per_stream": 0}
+    chosen, tools, *_ = papers.select(cfg, pool, settings)
+    assert [x["id"] for x in chosen] == ["x-1"]
+    assert [x["id"] for x in tools] == ["x-2", "x-5"]

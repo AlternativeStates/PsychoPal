@@ -25,6 +25,29 @@ NEURO_TOOL_RE = re.compile(r"\bbrains?\b|\bneur|\bcortex\b|\bcortical\b|\beeg\b|
                            r"\bconnectom|\belectrophysiolog|\bmagnetoencephalograph|\belectroencephalograph|\bintracranial|\bwhite matter\b|"
                            r"\bgr[ae]y matter\b|\btractograph|\bspinal cord\b", re.I)
 HUMAN_RE = re.compile(r"\bhuman|participants|patients|volunteers|\bpeople\b|healthy (adults|controls)|clinical", re.I)
+# A Tools & methods card must be ABOUT a tool or method: mentioning "an analysis pipeline" or "open-source" software in a findings
+# paper is not enough. Software words in the title always count; method words or a code link only when the title states no finding.
+TOOL_TITLE_RE = re.compile(r"\b(toolbox|toolkit|tools?|open[- ]source|software|packages?|library|pipelines?|platform|framework|plug-?in|"
+                           r"bids[- ]apps?|web app\w*|atlas|templates?|datasets?|database|resource)\b", re.I)
+METHOD_TITLE_RE = re.compile(r"\b(methods?|methodolog\w*|approach(es)?|technique|algorithm|estimators?|metrics?|benchmark\w*|"
+                             r"validation|validating|comparison|comparative|evaluation|evaluating|reliability|reproducib\w*|robustness|"
+                             r"multiverse|test-retest|harmoni[sz]\w*|correction|denois\w*|segmentation|registration|reconstruction|"
+                             r"parcellation|preprocessing|quantification|kinetic model\w*|simulat\w*|normative model\w*|brain charts?)\b", re.I)
+CODE_LINK_RE = re.compile(r"github\.com|gitlab|bitbucket\.org|osf\.io|zenodo|pypi|huggingface\.co|open[- ]source|"
+                          r"(code|software|toolbox|package|pipeline|scripts?|implementation)s? (is|are) (freely |publicly |openly )?"
+                          r"(available|released|shared)", re.I)
+FINDINGS_TITLE_RE = re.compile(r"\b(reveals?|revealed|distinguish(es)?|predicts?|predicted|associated with|association (of|between)|"
+                               r"linked to|correlates? (with|of)|underl(ie|ies|ying)|orchestrat\w+|increases?|decreases?|"
+                               r"in (patients|individuals|people|adults|children|women|men) with)\b", re.I)
+
+def is_tool_paper(r):
+    """True when the title names a tool/resource, or names a method / the abstract links code AND the title reports no finding."""
+    title = r.get("title") or ""
+    if TOOL_TITLE_RE.search(title):
+        return True
+    if FINDINGS_TITLE_RE.search(title):
+        return False
+    return bool(METHOD_TITLE_RE.search(title) or CODE_LINK_RE.search(r.get("abstract") or ""))
 ADDICTION_RE = re.compile(r"addict|substance use|gambling|alcohol|nicotine|smok|cocaine|opioid|methamphetamine|craving|tobacco", re.I)
 
 def load_config(path=None):
@@ -241,6 +264,12 @@ def score_record(cfg, r, prof, start=None):
     sc = cfg["scoring"]
     text = rec_text(r)
     gs = group_scores(cfg, r)
+    tool_groups = [g for g in gs if cfg["_byname"][g]["stream"] == "tools"]
+    if tool_groups and not is_tool_paper(r):      # e.g. "EEG graph analysis reveals ... in high-IQ individuals" is not a tool paper
+        for g in tool_groups:
+            gs.pop(g)
+    # a tool paper from ANY topic can fill a Tools & methods slot if it is not picked as a paper (human neuro tools only)
+    neuro_tool = bool(NEURO_TOOL_RE.search(text)) and not (NONHUMAN_RE.search(text) and not HUMAN_RE.search(text))
     mod, mbonus = modality(cfg, r.get("title") or "", text)
     decay = sc.get("group_decay", [1.0])
     kw = sum(v * (decay[i] if i < len(decay) else decay[-1]) for i, v in enumerate(sorted(gs.values(), reverse=True)))
@@ -316,4 +345,5 @@ def score_record(cfg, r, prof, start=None):
     if stream == "tools" and not NEURO_TOOL_RE.search(text):
         parts["not_neuro_tool"] = sc.get("not_neuro_tool_penalty", -6.0)   # e.g. prostate or cardiac MRI software
     return {"score": round(sum(parts.values()), 2), "parts": parts, "groups": sorted(gs, key=lambda k: -gs[k]),
-            "stream": stream, "modality": mod, "named": named, "profile_sim": round(psim, 3), "liked_sim": round(lsim, 3)}
+            "stream": stream, "modality": mod, "named": named, "profile_sim": round(psim, 3), "liked_sim": round(lsim, 3),
+            "tool": neuro_tool and any(cfg["_byname"][g]["stream"] == "tools" for g in gs)}

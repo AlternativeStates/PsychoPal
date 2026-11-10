@@ -28,8 +28,12 @@ A weekly, phone-friendly feed that keeps you on top of:
   `config/settings.yaml`): deadlines live in your own calendar.
 - **Tools & methods**: new releases of neuroimaging software you use (one card per tool), brand-new GitHub repositories under neuro
   topics (ranked by stars), papers presenting software (including JOSS, the Journal of Open Source Software) and papers presenting
-  new analysis methods (NeuroImage, Imaging Neuroscience, J Neurosci Methods, Nature Methods, HBM…). A 👍 or ☆ on a tool card with
-  a GitHub repo adds that repo to the release watch.
+  new analysis methods (NeuroImage, Imaging Neuroscience, J Neurosci Methods, Nature Methods, HBM…). A paper counts as a tool or
+  method paper only if its title names a tool or resource (toolbox, pipeline, package, dataset…), or names a method (benchmark,
+  validation, segmentation…) or the abstract links code, with no finding stated in the title ("… reveals …" is a findings paper).
+  The 4 Tools cards (`tool_papers_max`) go to the best such papers from any topic that were not already picked as papers, so a
+  TMS-EEG toolbox that misses the neuroimaging quota still shows up here. Human neuro only; no reviews or editorials.
+  A 👍 or ☆ on a tool card with a GitHub repo adds that repo to the release watch.
 - Extras: newly registered psychedelic trials, 1–2 "Catch-up" classics, and 🔥 Buzz (papers being discussed on Bluesky).
 
 Each item is a short card, like a post. A paper card summarises its abstract in a standard structure, **Aim · Methods · Results ·

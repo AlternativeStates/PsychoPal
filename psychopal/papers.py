@@ -161,8 +161,15 @@ def select(cfg, scored, settings):
             break
         if per.get(x["stream"], 0) < quota.get(x["stream"], (0, 0))[1] and ok(x):
             take(x)
+    # Tools & methods: papers ABOUT a tool or method (scoring.is_tool_paper), from the tools stream or from any topic when that
+    # paper was not picked as a normal paper (e.g. a TMS-EEG toolbox that missed the neuroimaging quota). Reviews, editorials,
+    # comments and letters are left out.
     tools = []
-    for x in sorted((x for x in scored if x["stream"] == "tools" and x["score"] >= min_score and x["id"] not in ids), key=lambda x: -x["score"]):
+    def tool_ok(x):
+        return (x.get("tool") and not x.get("is_review") and not (x.get("score_parts") or {}).get("low_type")
+                and not re.match(r"(editorial|comment|commentary|letter)\b", x["title"], re.I))
+    pool = (x for x in scored if tool_ok(x) and x["score"] >= min_score and x["id"] not in ids)
+    for x in sorted(pool, key=lambda x: -x["score"]):
         if len(tools) < settings.get("tool_papers_max", 4) and not too_similar(x, tools, thr):
             tools.append(x)
     wider = [x for x in scored if x["stream"] == "wider" and x["id"] not in ids]
@@ -232,17 +239,17 @@ def run(start, end, settings, user_state=None, want=None, outdir=None, reuse_raw
                        "doi": doi, "url": r.get("url"), "abstract": r.get("abstract") or "", "affiliations": r.get("affiliations", ""),
                        "is_review": is_review(r), "is_preprint": pre, "modality": s["modality"], "named": s["named"],
                        "score": s["score"], "score_parts": s["parts"], "matched": s["groups"], "profile_sim": s["profile_sim"],
-                       "liked_sim": s["liked_sim"], "sources": r["sources"], "pubtypes": r.get("pubtypes") or [],
+                       "liked_sim": s["liked_sim"], "tool": s["tool"], "sources": r["sources"], "pubtypes": r.get("pubtypes") or [],
                        "_tv": ttf.vec(r["title"]), "_av": prof.tf.vec(rec_text(r))})
         recs[scored[-1]["id"]] = r
     papers, tool_papers, wider, n_similar = select(cfg, scored, settings)
     for x in papers + tool_papers:
         x["why_picked"] = why_picked(cfg, x, recs[x["id"]], prof)
-        if x["stream"] == "tools":
-            m = GITHUB_RE.search(recs[x["id"]].get("abstract") or "")
-            if m:
-                x["repo"] = m.group(1).rstrip(".")
-            x["reason"] = "SOFTWARE" if "tools_papers" in x["matched"] else "NEW METHOD"
+    for x in tool_papers:
+        m = GITHUB_RE.search(recs[x["id"]].get("abstract") or "")
+        if m:
+            x["repo"] = m.group(1).rstrip(".")
+        x["reason"] = "SOFTWARE" if "tools_papers" in x["matched"] else "NEW METHOD"
     for x in scored:
         x.pop("_tv", None); x.pop("_av", None)
     stats = {"window": [str(start), str(end)], "sources": src_stats, "raw_hits": len(raw), "after_merge": len(merged),
@@ -254,7 +261,7 @@ def run(start, end, settings, user_state=None, want=None, outdir=None, reuse_raw
         os.makedirs(outdir, exist_ok=True)
         with open(os.path.join(outdir, "pool.jsonl"), "w", encoding="utf-8") as f:   # every scored item, for auditing/tuning
             for x in sorted(scored, key=lambda x: -x["score"]):
-                f.write(json.dumps({k: x[k] for k in ("score", "stream", "title", "venue", "date", "doi", "matched", "score_parts", "profile_sim")},
+                f.write(json.dumps({k: x[k] for k in ("score", "stream", "tool", "title", "venue", "date", "doi", "matched", "score_parts", "profile_sim")},
                                    ensure_ascii=False) + "\n")
     log(f"papers: {len(raw)} raw -> {len(merged)} merged -> {len(scored)} scored -> {len(papers)} selected + {len(tool_papers)} tool papers "
         f"({n_similar} skipped as too similar; {len(wider)} wider-science candidates)")
