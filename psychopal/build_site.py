@@ -18,9 +18,11 @@ def write_edition(ed, settings):
     data = os.path.join(SITE, "data")
     week = ed["week"]
     cards = [public_card(c) for c in ed["cards"]]
-    write_json(os.path.join(data, "weeks", f"{week}.json"),
-               {"week": week, "label": ed.get("label") or week, "start": ed["start"], "end": ed["end"], "generated": ed["generated"],
-                "cards": cards, "deadlines": ed.get("deadlines", []), "health": ed.get("health", [])}, indent=None)
+    out = {"week": week, "label": ed.get("label") or week, "start": ed["start"], "end": ed["end"], "generated": ed["generated"],
+           "cards": cards, "deadlines": ed.get("deadlines", []), "health": ed.get("health", []), "alerts": ed.get("alerts", [])}
+    if ed.get("taste"):
+        out["taste"] = ed["taste"]          # what Claude learned from the marks (shown at the top of the feed)
+    write_json(os.path.join(data, "weeks", f"{week}.json"), out, indent=None)
     idx = load_json(os.path.join(data, "index.json"), default={"weeks": []})
     weeks = [w for w in idx["weeks"] if w["week"] != week]
     weeks.append({"week": week, "label": ed.get("label") or week, "start": ed["start"], "end": ed["end"], "n": len(cards)})

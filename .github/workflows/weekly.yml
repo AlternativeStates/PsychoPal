@@ -82,15 +82,16 @@ jobs:
             echo "no user-state branch yet (sync not connected) - fine"
           fi
 
-      - name: Check the Claude API key (non-fatal; prints OFF while Claude is switched off in settings.yaml)
+      - name: Check the Claude API key (non-fatal; tests a key even while Claude is switched off, so it can be verified first)
         id: claude
         continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
-        run: python -m psychopal.check_claude | tee claude_check.txt
+        run: python -m psychopal.check_claude --force | tee claude_check.txt
 
-      - name: Monthly discovery sweep (first Monday of the month only; skipped while sweep.enabled is false)
+      - name: Monthly discovery sweep (first run of each month that sweeps; skipped while Claude or the sweep is off)
+        if: ${{ inputs.no_llm != true }}
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
@@ -125,13 +126,23 @@ jobs:
           print(f"\n**Week:** {s.get('week')} ({' to '.join(s.get('window', []))})")
           print("\n**Cards:** " + ", ".join(f"{k} {v}" for k, v in (s.get('cards') or {}).items()))
           llm = s.get("llm", {})
-          if llm.get("off"):
+          cl = s.get("claude") or {}
+          if cl.get("line"):
+              print("\n**Claude:** " + cl["line"])
+          elif llm.get("off"):
               print("\n**Card text:** scripted abstract summaries (Claude switched off)")
-          elif llm.get("input_tokens") is not None and "skipped" not in llm:
-              cost = (llm.get("input_tokens", 0) * 2 + llm.get("output_tokens", 0) * 10) / 1e6 * (0.5 if llm.get("batch") else 1)
-              print(f"\n**Claude:** {llm.get('input_tokens', 0):,} input + {llm.get('output_tokens', 0):,} output tokens (about ${cost:.2f})")
-          if not llm.get("off") and (llm.get("skipped") or llm.get("error") or llm.get("errors")):
-              print(f"\n**Claude problems:** {llm.get('skipped') or llm.get('error') or llm.get('errors')}")
+          if not llm.get("off") and (llm.get("skipped") or llm.get("error") or llm.get("errors") or llm.get("budget_stop")):
+              print(f"\n**Claude problems:** {llm.get('budget_stop') or llm.get('skipped') or llm.get('error') or llm.get('errors')}")
+          try:
+              sw = [json.loads(l) for l in open("state/sweeps.jsonl", encoding="utf-8") if l.strip()][-1]
+              if sw.get("date") == s.get("finished", "")[:10]:
+                  print(f"\n**Monthly sweep:** {sw.get('error') or str(len(sw.get('added', []))) + ' new watchlist entries'}"
+                        f" ({sw.get('usage', {}).get('web_searches', 0)} searches, ${sw.get('cost_usd', 0):.2f})")
+          except Exception:
+              pass
+          p = s.get("preferences") or {}
+          print("\n**Preferences:** " + (f"{p.get('liked', 0)} liked / {p.get('disliked', 0)} not for me / {p.get('starred', 0)} saved"
+                                        if p.get("synced") else "phone sync not connected (no 👍 / 👎 / ★ received yet)"))
           for al in s.get("alerts", []):
               print(f"\n> **⚠ {al}**")
           for h in s.get("health", []):

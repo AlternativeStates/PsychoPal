@@ -45,20 +45,21 @@ The app works offline for the weeks you have opened (and the latest three). A wa
 went wrong that week (e.g. the literature databases could not be reached). There is also a searchable **archive** with
 filters, a graph view and a literature search page. It is adapted from Patrick's Neurodynamics Digest.
 
-## How it works (free: no API key needed)
+## How it works
 
-Every Monday at 05:17 UTC, GitHub Actions runs a set of Python scripts. **No AI model is used**: Claude support is built in but
-switched off (see "Optional: Claude" below). GitHub's scheduled triggers are best effort and are sometimes dropped, so backup
+Every Monday at 05:17 UTC, GitHub Actions runs a set of Python scripts. Without Claude (`llm.enabled: false`) **no AI model is
+used** and it's free; Claude can be switched on for better summaries and preference learning (see "Optional: Claude" below).
+GitHub's scheduled triggers are best effort and are sometimes dropped, so backup
 triggers fire later on Monday (07:47 and 11:23 UTC) and on Tuesday (06:41 UTC). Each first checks the live site and stops within
 seconds if last week's edition is already published, so a missed or failed run is retried without any duplicate edition.
 
 1. `psychopal/papers.py` queries PubMed, Europe PMC, OpenAlex, bioRxiv/medRxiv and arXiv, then removes duplicates. It scores papers
    by keyword groups (`config/queries.json`), imaging modality, named researchers, journal, and similarity to **your own papers**
-   and your 👍. No LLM is used.
+   and your 👍. With Claude on, a capped re-rank and taste bonus are added before selection (see below).
 2. `psychopal/extras.py` adds trials from ClinicalTrials.gov, Catch-up classics from OpenAlex (one per topic), and Buzz from Bluesky
    and Hacker News. `psychopal/wider.py` picks the Wider science cards.
 3. `psychopal/opportunities.py` re-reads every watched funding, conference and training page and spots changes. It also adds new UKRI calls.
-   Pages that block automated checks are marked `no_fetch: true` in the YAML. The card text is the `notes` written in the YAML.
+   Pages that block automated checks are marked `no_fetch: true` in the YAML. The card text is the `notes` written in the YAML (or, with Claude on, Claude's reading of the page).
 4. `psychopal/tools_watch.py` collects new GitHub releases, new neuro repositories and new JOSS papers.
 5. `psychopal/abstracts.py` writes the paper summaries. Structured abstracts (labelled Background / Methods / Results /
    Conclusions…) are mapped onto the four parts directly. For unstructured ones, each sentence is scored on cue phrases ("here we",
@@ -66,17 +67,32 @@ seconds if last week's edition is already published, so a missed or failed run i
    Limitation sentences are left out. Abstracts under 60 words keep their plain text.
 6. `psychopal/build_site.py` and `build_archive.py` write the static site in `site/`, which is deployed to GitHub Pages.
 
-**Cost:** nothing. GitHub hosting and Actions are free.
+**Cost:** nothing without Claude (GitHub hosting and Actions are free); about $3–4 a year with Claude switched on.
 
-### Optional: Claude (switched off)
-The code for two Claude features is kept, ready to switch on later:
-- `psychopal/summarise.py`: Claude writes the card text (2–3 sentences plus "Why it matters for you") for new items only, in one
-  batch (Sonnet 5.5, 50% batch discount), cached for good. Watched pages also get their deadline and dates read.
-- `psychopal/monthly_sweep.py`: on the first Monday of each month, one Claude call with web search looks for funding calls,
-  conferences and courses not on your lists yet.
+### Optional: Claude (about $3–4 a year)
+One switch, `llm.enabled` in `config/settings.yaml`, turns all of these on or off. The scripts still fetch, rank and render;
+Claude only writes text, gives a small capped ranking bonus, and proposes watchlist entries.
 
-To switch on: in `config/settings.yaml` set `llm: enabled: true` (and `sweep: enabled: true` for the sweep), then do steps C and D
-of the setup below. Expected cost about $8–10 a year.
+| Feature | What Claude does | Model | Cost per year |
+|---|---|---|---|
+| Card text (`summarise.py`) | Paper cards: Aim / Methods / Results / Conclusion written from the abstract, plus "Why it matters for you". Other cards: a short post. Only new items are sent, all at once in one batch (50% cheaper), and the text is cached for good. | Haiku 5.5 | ≈ $0.30 |
+| Pages (`opportunities.py`) | Reads changed funding, conference and course pages (status, dates; no countdowns), hides pages that are closed, and hides UKRI calls you can't apply for. | Haiku 5.5 (same batch) | included |
+| Re-rank (`prefs.py`) | Rates the week's ~80-paper shortlist 1–5 for you, giving a bonus between −2.5 and +2.5 points. The edition cut-off is ≈ 17 points, so it reorders papers but can't pull in an off-topic one. | Haiku 5.5 | ≈ $0.10 |
+| Taste digest (`prefs.py`) | Monthly, once you have marked 10 or more cards (needs phone sync): writes a short profile of what you like plus a few terms to rank higher or lower (±1.5 points at most). It's shown at the top of the feed. | Haiku 5.5 | ≈ $0.02 |
+| Web sweep (`monthly_sweep.py`) | On the first run of each month, searches the web (6 searches at most) for funding, conferences and courses not on your lists. | Sonnet 5.5 | ≈ $2–4 |
+
+Safeguards:
+- **Budget:** `llm.monthly_budget_usd` (default $1) is a soft monthly cap. Once it's used up, the feed falls back to scripted text
+  until the 1st and shows a banner. The hard cap is the workspace spend limit in the Anthropic Console (step C).
+- **Failures:** any Claude failure (refusal, timeout, bad key) gives that week's scripted text and script-only ranking, and the
+  items are retried the next week.
+- **Spend log:** the Actions run summary shows each run's cost and the month to date. Every run is logged in `state/runs.jsonl`,
+  sweeps in `state/sweeps.jsonl`.
+
+**To switch on:**
+1. Do steps C and D below (a new key, and the spend limit).
+2. Run the workflow once. Its summary should say "Claude key: (Claude is switched off; key tested anyway) OK".
+3. Set `llm: enabled: true` in `config/settings.yaml`.
 
 ## One-time setup (≈20 minutes)
 
@@ -101,9 +117,11 @@ the repo already has one (`.github/workflows/weekly.yml`).
   organization (you can create one during the claim). The link can't be changed later, so pick the lab's Console org.
   Enterprise plans are not eligible; buy credits on the Console **Billing** page instead (≈$10 lasts about a year).
 - In the Console (as Admin): **Settings › Workspaces › Create workspace** named `PsychoPal`; select it › **Spend limits** ›
-  e.g. $5/month.
+  **$3/month**. This is the hard cap; PsychoPal's own `llm.monthly_budget_usd` ($1) normally stops well before it.
 - **Settings › API keys › Create key**: name `PsychoPal GitHub`, Linked account = you (or a service account), **Workspace =
-  PsychoPal**, expiration **1 year** (or the longest option short of "never"). Copy the `sk-ant-api…` key (shown once).
+  PsychoPal**, expiration **1 year** (or the longest option short of "never"). Copy the `sk-ant-api…` key (shown once) with the
+  Console's copy button and paste it into the secret as it is: no quotes, no spaces. A wrong paste is the usual cause of
+  "401 invalid bearer token".
   Put its expiry date in `config/settings.yaml` › `llm.key_expires`: the feed then shows a warning 3 weeks before it runs out.
   The key lives only in GitHub's encrypted Secrets, never in the public code; the workspace spend limit caps any misuse.
   A key **not** tied to a workspace needs the workspace ID too: add it as a second secret `ANTHROPIC_WORKSPACE_ID` (`wrkspc_…`).
@@ -115,27 +133,36 @@ Repo › **Settings** › sidebar *Security* › **Secrets and variables › Act
 
 ### E. First run
 Repo › **Actions** tab › **Weekly PsychoPal** (left list) › **Run workflow** › `week_end` = `2026-11-08` › **Run workflow**.
-Wait 10–40 min, open the run: the **summary** shows the cards ("Claude key: OFF" while Claude is switched off). The `deploy`
-job shows the site address.
+Wait 10–40 min, open the run. The **summary** shows:
+- the cards;
+- the Claude key check, which tests the key even while Claude is switched off;
+- the Claude cost line;
+- the preferences received from your phone.
+
+The `deploy` job shows the site address.
 
 ### F. Phone, sync and eligibility
 - Open `https://<your-user-name-in-lowercase>.github.io/PsychoPal/` › iPhone: Share › **Add to Home Screen**; Android: ⋮ ›
   **Install app**.
-- Sync likes across devices: tap the "local only · connect sync" pill and follow it (fine-grained token, only this repo,
-  *Contents: Read and write*), once per device.
+- **Connect sync.** Without it, your 👍 / 👎 / ★ stay on the phone and nothing is learned from them.
+  1. Tap the "local only · connect sync" pill (or **Sync** at the bottom of the archive) › "pre-filled new-token page".
+  2. On GitHub: *Only select repositories* › **PsychoPal**, *Contents: Read and write*, 366 days › **Generate token**.
+  3. Paste the token in the app › **Test & connect**.
+  4. Do this once per device. The run summary then shows "Preferences: N liked / …".
 - Fill in `config/profile.yaml` (PhD date, nationality, recent countries) so fellowships you can't apply for are hidden.
 
-Check a key locally: `$env:ANTHROPIC_API_KEY="sk-ant-..."; .\.venv\Scripts\python -m psychopal.check_claude`
+Check a key locally: `$env:ANTHROPIC_API_KEY="sk-ant-..."; .\.venv\Scripts\python -m psychopal.check_claude --force`
 
 ## Tuning (edit the files on github.com or locally; no code changes needed)
 
 | What | File |
 |---|---|
 | Topics, keywords, weights, journals, named researchers; Wider science journals, tiers and Bluesky queries (`wider`). Within a topic, keyword groups are listed in priority order: each topic's minimum takes one paper per sub-area in that order (e.g. ketamine, stimulants, cannabis) | `config/queries.json` |
-| Papers per week, papers per topic (`stream_quota`, in order of importance), variety threshold (`max_similarity`), Wider science cards, deadlines on/off, Claude on/off, model, caps and key expiry | `config/settings.yaml` |
+| Papers per week, papers per topic (`stream_quota`, in order of importance), variety threshold (`max_similarity`), Wider science cards, deadlines on/off | `config/settings.yaml` |
+| Claude: master switch and monthly budget (`llm.enabled`, `llm.monthly_budget_usd`), models, key expiry; re-rank bonus (`rerank.max_bonus`), taste digest (`taste.min_marks`, `taste.max_bonus`), web sweep (`sweep.max_searches`); each feature can be switched off on its own | `config/settings.yaml` |
 | Topic ranking bonus (`scoring.stream_bonus`) and the "psychedelic in the title" rule (`scoring.primary_stream`) | `config/queries.json` |
 | Summary parts and their length (words per part, `LIMITS`) | `psychopal/abstracts.py` |
-| Who you are (what Claude uses for "Why it matters for you", if switched on) | `config/profile.md` |
+| Who you are (what Claude uses for "Why it matters for you", the re-rank and the web sweep) | `config/profile.md` |
 | Eligibility facts | `config/profile.yaml` |
 | Funding / conferences / training lists | `config/funding.yaml`, `conferences.yaml`, `training.yaml` (add `disabled: true` to stop tracking an entry; `no_fetch: true` + `deadline:` for sites that block automated checks) |
 | Software to watch; GitHub topics for new repositories | `config/tools.yaml` |
@@ -149,6 +176,9 @@ python -m venv .venv; .\.venv\Scripts\pip install -r requirements.txt
 .\.venv\Scripts\python -m pytest -q
 .\.venv\Scripts\python -m psychopal.run_weekly                     # last full week
 $env:ANTHROPIC_API_KEY="sk-ant-..."; .\.venv\Scripts\python -m psychopal.run_weekly --llm-limit 5   # (Claude on) try Claude on 5 cards
+.\.venv\Scripts\python -m psychopal.papers --end 2026-11-08 --reuse --claude   # (key set) see what the re-rank changes; writes only out/
+.\.venv\Scripts\python -m psychopal.monthly_sweep --force --dry-run           # (key set) test the web sweep (~$0.25; changes nothing)
+.\.venv\Scripts\python -m psychopal.prefs --digest --force --dry-run          # (key set) print the taste digest from your marks
 .\.venv\Scripts\python -m http.server 8000 --directory site       # then open http://localhost:8000
 .\.venv\Scripts\python -m psychopal.opportunities --check         # are all watched pages reachable?
 ```

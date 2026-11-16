@@ -191,10 +191,15 @@ def why_picked(cfg, x, rec, prof):
         bits.append(f"close to your paper “{t}”")
     elif x.get("liked_sim", 0) >= 0.2:
         bits.append("like papers you 👍")
+    if x.get("taste_terms"):
+        bits.append("matches your taste: " + ", ".join(x["taste_terms"]))
+    if x.get("claude_rating", 0) >= 4:
+        bits.append(f"Claude {x['claude_rating']}/5")
     return " · ".join(bits)
 
-def run(start, end, settings, user_state=None, want=None, outdir=None, reuse_raw=False):
-    """Returns dict(papers=[...], tool_papers=[...], stats={...}). Each paper is a card-ready dict (kind='paper')."""
+def run(start, end, settings, user_state=None, want=None, outdir=None, reuse_raw=False, adjust=None):
+    """Returns dict(papers=[...], tool_papers=[...], stats={...}). Each paper is a card-ready dict (kind='paper').
+    adjust(scored): optional, in place, before selection (prefs.adjust: capped Claude re-rank + taste bonus)."""
     cfg = load_config()
     t0 = time.time()
     cache = os.path.join(outdir, "raw.json") if outdir else None
@@ -242,7 +247,17 @@ def run(start, end, settings, user_state=None, want=None, outdir=None, reuse_raw
                        "liked_sim": s["liked_sim"], "tool": s["tool"], "sources": r["sources"], "pubtypes": r.get("pubtypes") or [],
                        "_tv": ttf.vec(r["title"]), "_av": prof.tf.vec(rec_text(r))})
         recs[scored[-1]["id"]] = r
+    moves = None
+    if adjust:
+        base = {x["id"] for x in select(cfg, [dict(x) for x in scored], settings)[0]}   # what the scripts alone would pick
+        try:
+            adjust(scored)
+        except Exception as e:      # never let the optional Claude step break the paper selection
+            log(f"papers: adjust failed ({type(e).__name__}: {e}); script ranking only")
     papers, tool_papers, wider, n_similar = select(cfg, scored, settings)
+    if adjust:
+        now, title = {x["id"] for x in papers}, {x["id"]: x["title"][:90] for x in scored}
+        moves = {"in": [title[i] for i in now - base], "out": [title[i] for i in base - now]}
     for x in papers + tool_papers:
         x["why_picked"] = why_picked(cfg, x, recs[x["id"]], prof)
     for x in tool_papers:
@@ -257,31 +272,45 @@ def run(start, end, settings, user_state=None, want=None, outdir=None, reuse_raw
              "skipped_too_similar": n_similar, "wider_candidates": len(wider),
              "per_stream": {s: sum(1 for p in papers if p["stream"] == s) for s in cfg["streams"]},
              "seconds": round(time.time() - t0, 1)}
+    if moves is not None:
+        stats["claude_moves"] = moves
     if outdir:
         os.makedirs(outdir, exist_ok=True)
         with open(os.path.join(outdir, "pool.jsonl"), "w", encoding="utf-8") as f:   # every scored item, for auditing/tuning
             for x in sorted(scored, key=lambda x: -x["score"]):
-                f.write(json.dumps({k: x[k] for k in ("score", "stream", "tool", "title", "venue", "date", "doi", "matched", "score_parts", "profile_sim")},
-                                   ensure_ascii=False) + "\n")
+                f.write(json.dumps({k: x.get(k) for k in ("score", "stream", "tool", "title", "venue", "date", "doi", "matched", "score_parts",
+                                                          "profile_sim", "claude_rating")}, ensure_ascii=False) + "\n")
     log(f"papers: {len(raw)} raw -> {len(merged)} merged -> {len(scored)} scored -> {len(papers)} selected + {len(tool_papers)} tool papers "
         f"({n_similar} skipped as too similar; {len(wider)} wider-science candidates)")
     return {"papers": papers, "tool_papers": tool_papers, "wider": wider, "stats": stats, "cfg_streams": cfg["streams"]}
 
 if __name__ == "__main__":
     import argparse
-    from .common import last_full_week, write_json
+    from .common import last_full_week, write_json, load_yaml, week_id
     ap = argparse.ArgumentParser()
     ap.add_argument("--start"); ap.add_argument("--end"); ap.add_argument("--sources"); ap.add_argument("--reuse", action="store_true")
+    ap.add_argument("--claude", action="store_true", help="also apply the Claude re-rank + taste bonus (one Haiku call, ~$0.002)")
     a = ap.parse_args()
     s, e = last_full_week()
-    start = dt.date.fromisoformat(a.start) if a.start else s
     end = dt.date.fromisoformat(a.end) if a.end else e
+    start = dt.date.fromisoformat(a.start) if a.start else (end - dt.timedelta(days=6) if a.end else s)
     od = os.path.join(OUT, str(end))
-    res = run(start, end, {"papers_total": 25}, want=a.sources.split(",") if a.sources else None, outdir=od, reuse_raw=a.reuse)
+    settings = load_yaml("settings.yaml")
+    settings["_week"] = week_id(start)
+    adj, st = None, {}
+    if a.claude:
+        from . import prefs
+        settings["_llm_on"] = True
+        adj = lambda sc: prefs.adjust(sc, settings, prefs.load(), st)
+    res = run(start, end, settings, want=a.sources.split(",") if a.sources else None, outdir=od, reuse_raw=a.reuse, adjust=adj)
     write_json(os.path.join(od, "papers.json"), res)
     for p in res["papers"]:
-        print(f"{'★' if p['top'] else ' '} [{p['score']:5.1f}] {p['stream']:16} {p['title'][:90]} | {p['venue'][:30]}")
+        cl = f" C{p['claude_rating']}" if p.get("claude_rating") else "   "
+        print(f"{'★' if p['top'] else ' '} [{p['score']:5.1f}]{cl} {p['stream']:16} {p['title'][:90]} | {p['venue'][:30]}")
     print("tools:")
     for p in res["tool_papers"]:
         print(f"  [{p['score']:5.1f}] {p['title'][:90]} | {p['venue'][:30]}")
+    if a.claude:
+        print("claude:", json.dumps({k: st.get(k) for k in ("rerank", "taste_terms")}, ensure_ascii=False))
+        print("moved by Claude:", json.dumps(res["stats"].get("claude_moves"), indent=1, ensure_ascii=False))
     print(json.dumps(res["stats"], indent=1)[:2500])

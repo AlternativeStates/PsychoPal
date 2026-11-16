@@ -166,8 +166,10 @@ def anthropic_client():
     """Claude API client. Reads ANTHROPIC_API_KEY; if the key is not scoped to a Console workspace, set ANTHROPIC_WORKSPACE_ID
     (wrkspc_...) and it is sent on every request as the anthropic-workspace-id header."""
     import anthropic
+    key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()   # a pasted secret often ends in a newline -> 401 "invalid bearer token"
     ws = (os.environ.get("ANTHROPIC_WORKSPACE_ID") or "").strip()
-    return anthropic.Anthropic(default_headers={"anthropic-workspace-id": ws}) if ws else anthropic.Anthropic()
+    kw = {"api_key": key} if key else {}
+    return anthropic.Anthropic(default_headers={"anthropic-workspace-id": ws}, **kw) if ws else anthropic.Anthropic(**kw)
 
 def log(*a):
     print(time.strftime("%H:%M:%S"), *a, file=sys.stderr, flush=True)

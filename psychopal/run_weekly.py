@@ -1,6 +1,6 @@
 """PsychoPal weekly run: papers + extras + opportunities + tools -> card text -> static site + archive.
-Card text is scripted (structured abstract summaries) while Claude is switched off (llm.enabled: false in config/settings.yaml);
-switched on, Claude writes it for new items only.
+Claude is optional (llm.enabled in config/settings.yaml). Switched on: a monthly taste digest from your marks, a capped re-rank of
+the paper shortlist, and card text for new items only; switched off (or failing): scripted card text and script-only ranking.
 Every stage is isolated: a failure is recorded as a run note and the edition still publishes.
 
   python -m psychopal.run_weekly                        # previous Monday-Sunday
@@ -10,7 +10,7 @@ Every stage is isolated: a failure is recorded as a run note and the edition sti
   python -m psychopal.run_weekly --reuse-papers         # re-score cached paper search results (tuning)
 """
 import argparse, datetime as dt, json, os, time, traceback
-from . import papers, extras, opportunities, tools_watch, build_site, build_archive, wider
+from . import papers, extras, opportunities, tools_watch, build_site, build_archive, wider, prefs, llm
 from .summarise import summarise
 from .common import STATE, OUT, load_jsonl, append_jsonl, load_json, write_json, load_yaml, week_id, last_full_week, log
 
@@ -56,15 +56,19 @@ def claude_alerts(llm, settings, no_llm=False, today=None):
     if not (settings.get("llm") or {}).get("enabled", True):
         return out                      # Claude switched off: no key in use, nothing to warn about
     err = llm.get("error") or ""
-    if err and ("401" in err or "Authentication" in err):
-        out.append("Claude rejected the API key, so cards show abstract excerpts this week. Replace the ANTHROPIC_API_KEY secret on GitHub, "
+    if llm.get("budget_stop") and not no_llm:
+        b = (settings.get("llm") or {}).get("monthly_budget_usd", 1.0)
+        out.append(f"Claude's monthly budget (${float(b):.2f}) is used up, so cards show scripted summaries until the 1st. "
+                   "Raise llm.monthly_budget_usd in config/settings.yaml to change this.")
+    elif err and ("401" in err or "Authentication" in err):
+        out.append("Claude rejected the API key, so cards show scripted summaries this week. Replace the ANTHROPIC_API_KEY secret on GitHub, "
                    "then re-run the workflow for this week.")
     elif err and ("credit" in err.lower() or "billing" in err.lower()):
-        out.append("The Claude account has run out of credits, so cards show abstract excerpts this week.")
+        out.append("The Claude account has run out of credits, so cards show scripted summaries this week.")
     elif err:
-        out.append("Claude was unavailable, so some cards show abstract excerpts this week. They are rewritten next week.")
+        out.append("Claude was unavailable, so some cards show scripted summaries this week. They are rewritten next week.")
     elif llm.get("skipped") and not no_llm and (settings.get("llm") or {}).get("enabled", True):
-        out.append("No Claude API key is set, so cards show abstract excerpts. Add the ANTHROPIC_API_KEY secret on GitHub.")
+        out.append("No Claude API key is set, so cards show scripted summaries. Add the ANTHROPIC_API_KEY secret on GitHub.")
     exp = (settings.get("llm") or {}).get("key_expires")
     if exp:
         try:
@@ -78,6 +82,31 @@ def claude_alerts(llm, settings, no_llm=False, today=None):
             out.append(f"The Claude API key expires in {days} days ({exp}). Create a new one and update the ANTHROPIC_API_KEY secret on "
                        "GitHub, and llm.key_expires in config/settings.yaml.")
     return out
+
+def claude_summary(stats, llm_cfg, on):
+    """Claude's cost this run + month to date, and one readable line for the Actions run page."""
+    if not on:
+        return {"on": False, "cost_usd": 0.0, "line": "switched off (scripted card text, script-only ranking)"}
+    parts = {k: stats.get(k) or {} for k in ("llm", "rerank", "taste")}
+    cost = round(sum(float(v.get("cost_usd") or 0) for v in parts.values()), 4)
+    budget = float(llm_cfg.get("monthly_budget_usd", 1.0))
+    mtd = round(llm.month_spend() + cost, 4)        # this run is not in runs.jsonl yet
+    c, r, t = parts["llm"], parts["rerank"], parts["taste"]
+    bits = []
+    if c.get("budget_stop") or c.get("skipped") or c.get("error"):
+        bits.append("cards: " + (c.get("budget_stop") or c.get("skipped") or "error, scripted text"))
+    else:
+        bits.append(f"cards {c.get('written', 0)} new (${float(c.get('cost_usd') or 0):.3f})")
+    if r:
+        mv = (stats.get("papers") or {}).get("claude_moves") or {}
+        bits.append(f"re-rank: {r.get('skipped') or r.get('error') or str(r.get('rated', 0)) + ' papers rated'}"
+                    + (f", {len(mv.get('in', []))} in / {len(mv.get('out', []))} out" if mv and r.get("rated") else "")
+                    + (f" (${float(r.get('cost_usd') or 0):.3f})" if r.get("cost_usd") else ""))
+    if t:
+        bits.append("taste: " + (t.get("skipped") or t.get("error") or f"new digest from {t.get('marks')} marks"))
+    bits.append(f"this run ${cost:.3f} · month ${mtd:.2f} of ${budget:.2f}")
+    return {"on": True, "cost_usd": cost, "month_to_date_usd": mtd, "budget_usd": budget,
+            "parts": {k: v.get("cost_usd", 0) for k, v in parts.items()}, "line": " · ".join(bits)}
 
 def stage(name, health, stats, fn, *a, **kw):
     t0 = time.time()
@@ -112,16 +141,33 @@ def main():
     log(f"=== PsychoPal {week}: {start} to {end} ===")
     stats, health = {"week": week, "window": [str(start), str(end)], "started": dt.datetime.now().isoformat(timespec="seconds")}, []
 
+    # Claude master switch (llm.enabled; --no-llm turns it off for this run)
+    llm_cfg = dict(settings.get("llm") or {})
+    if a.no_llm:
+        llm_cfg["enabled"] = False
+    settings["_llm_on"] = bool(llm_cfg.get("enabled", True))
+
     us = read_user_state()
     liked_t, disliked_t = preference_texts(us)
-    stats["preferences"] = {"liked": len(us["liked"]), "disliked": len(us["disliked"]), "starred": len(us["starred"])}
+    stats["preferences"] = {"liked": len(us["liked"]), "disliked": len(us["disliked"]), "starred": len(us["starred"]),
+                            "synced": os.path.exists(os.path.join(STATE, "user_state.json"))}
     prev = load_jsonl(os.path.join(STATE, "items.jsonl"))
     shown_before = {r["id"] for r in prev if r.get("week") != week}
+
+    # preferences: monthly taste digest (Claude), then a capped re-rank + taste bonus applied before paper selection
+    taste = None
+    if settings["_llm_on"]:
+        taste = stage("taste", health, stats, prefs.monthly_digest, us, settings, stats)
+        taste = taste or prefs.load()
+    spent = lambda: sum(float((stats.get(k) or {}).get("cost_usd") or 0) for k in ("taste", "rerank", "llm"))
+    adjust = (lambda sc: prefs.adjust(sc, settings, taste, stats, run_spent=spent())) if settings["_llm_on"] else None
 
     cards, alerts, res = [], [], None
     if "papers" not in skip:
         res = stage("papers", health, stats, papers.run, start, end, settings,
-                    {"liked_texts": liked_t, "disliked_texts": disliked_t}, outdir=outdir, reuse_raw=a.reuse_papers)
+                    {"liked_texts": liked_t, "disliked_texts": disliked_t}, outdir=outdir, reuse_raw=a.reuse_papers, adjust=adjust)
+        if (stats.get("rerank") or {}).get("error"):
+            health.append("Claude re-rank unavailable this week; script ranking only")
         if res:
             stats["papers"] = res["stats"]
             cards += res["papers"]
@@ -173,14 +219,10 @@ def main():
     cards = uniq
 
     # Claude: card text for new items only (opportunity pages: only new/changed versions)
-    llm_cfg = dict(settings.get("llm") or {})
-    if a.no_llm:
-        llm_cfg["enabled"] = False
-    settings["_llm_on"] = bool(llm_cfg.get("enabled", True))
     to_write = cards + [i for i in opp_items if i.get("_extract") or i.get("_ukri")]
-    stage("summarise", health, stats, summarise, to_write, llm_cfg, stats, limit=a.llm_limit)
+    stage("summarise", health, stats, summarise, to_write, llm_cfg, stats, limit=a.llm_limit, run_spent=spent())
     if stats.get("llm", {}).get("error"):
-        health.append("card text fell back to abstracts for some items (Claude unavailable)")
+        health.append("card text fell back to scripted summaries for some items (Claude unavailable)")
     alerts += claude_alerts(stats.get("llm", {}), settings, a.no_llm)
 
     deadlines = []
@@ -191,7 +233,7 @@ def main():
             cards = opp_cards + cards
     edition = {"week": week, "label": f"Week {int(week.split('W')[1])}, {start.year}", "start": str(start), "end": str(end),
                "generated": dt.datetime.now().isoformat(timespec="seconds"), "cards": cards, "deadlines": deadlines, "health": health,
-               "alerts": alerts}
+               "alerts": alerts, "taste": prefs.public(taste, settings, us)}
     n = build_site.write_edition(edition, settings)
 
     # archive state: one row per card per week (idempotent on re-runs of the same week)
@@ -211,9 +253,11 @@ def main():
     stats["finished"] = dt.datetime.now().isoformat(timespec="seconds")
     stats["health"] = health
     stats["alerts"] = alerts
+    stats["claude"] = claude_summary(stats, llm_cfg, settings["_llm_on"])
     write_json(os.path.join(STATE, "stats.json"), stats)
     append_jsonl(os.path.join(STATE, "runs.jsonl"), [{"week": week, "finished": stats["finished"], "cards": stats["cards"],
-                                                     "llm": stats.get("llm", {}), "failures": stats.get("failures", {})}])
+                                                     "llm": stats.get("llm", {}), "claude": stats["claude"],
+                                                     "failures": stats.get("failures", {})}])
     log(f"=== done: {n} cards -> site/data/weeks/{week}.json · {stats['cards']} · llm {stats.get('llm', {})} ===")
 
 if __name__ == "__main__":

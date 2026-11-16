@@ -134,6 +134,7 @@ function badges(c) {
   if (d !== null && d >= 0) b.push(`<span class="bd dead">⏳ ${d === 0 ? "deadline today" : d === 1 ? "1 day left" : d + " days left"}</span>`);
   if (c.reason) b.push(`<span class="bd new">${esc(c.reason)}</span>`);
   if (c.eligibility_note) b.push(`<span class="bd">${esc(c.eligibility_note)}</span>`);
+  if (c.ai) b.push(`<span class="bd ai" title="Written by Claude from the ${c.sections ? "abstract" : "source text"}">${c.sections ? "AI SUMMARY" : "AI TEXT"}</span>`);
   for (const t of (c.ai_tags || []).slice(0, 2)) b.push(`<span class="bd">#${esc(t)}</span>`);
   return b.length ? `<div class="badges">${b.join("")}</div>` : "";
 }
@@ -186,6 +187,13 @@ function strip(w, kinds) {
     return `<a class="dl" style="--c:${k.c}" ${u ? `href="${esc(u)}" target="_blank" rel="noopener"` : ""}><div class="d">${d.days}<small>days</small></div><div class="t">${esc(d.name)}</div><div class="k">${esc(k.label)} · ${esc(d.label || "deadline")} ${esc(fmtDate(d.deadline))}</div></a>`;
   }).join("")}</div>`;
 }
+function tasteHTML(t) {
+  if (t.waiting) return `<details class="health taste"><summary>Learning your taste: ${esc(t.waiting)} so far</summary>
+    <p>Mark cards with 👍, 👎 or ★ (with sync connected). Once there are enough, Claude writes a short profile of what you like each month and nudges the ranking (a small, capped bonus).</p></details>`;
+  const list = (label, xs) => (xs || []).length ? `<p><b>${label}:</b> ${xs.map(esc).join(", ")}</p>` : "";
+  return `<details class="health taste"><summary>What Claude learned from your marks (${esc(t.month || "")}, ${esc(t.marks || 0)} marked cards)</summary>
+    <p>${esc(t.profile || "")}</p>${list("Ranked a little higher", t.boost)}${list("Ranked a little lower", t.penalise)}</details>`;
+}
 function weekHTML(w, first) {
   const cards = w.cards || [];
   const f = TABS.find(t => t[0] === S.tab)[2];
@@ -196,6 +204,7 @@ function weekHTML(w, first) {
   h += `<div class="edition"><b>${esc(w.label || w.week)}</b> · ${esc(fmtDate(w.start))} – ${esc(fmtDate(w.end))}<br>${n("paper")} papers · ${n("funding") + n("conference") + n("training")} opportunities · ${tools} tools${n("trial") ? ` · ${n("trial")} new trials` : ""}</div>`;
   if (w.error) return h + '<p class="empty">Could not load this week.</p>';
   if (S.tab === "all") {
+    if (first && w.taste) h += tasteHTML(w.taste);
     h += section("Top 5 for you", vis.filter(c => c.top), "var(--accent)");
     if (first) h += strip(w);
     h += section("Funding, events & training", vis.filter(c => ["funding", "conference", "training"].includes(c.kind)), "#c98a1b");

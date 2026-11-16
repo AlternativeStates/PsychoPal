@@ -80,6 +80,7 @@ button{font-family:inherit}
 .bd.hot{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
 .bd.dead{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,transparent)}
 .bd.new{color:var(--good);border-color:color-mix(in srgb,var(--good) 40%,transparent)}
+.bd.ai{color:var(--dim)}
 .acts{display:flex;align-items:center;gap:2px;border-top:1px solid var(--line);margin-top:8px;padding-top:4px}
 .acts button,.acts a{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--mut);font-size:13px;padding:8px 10px;border-radius:8px;cursor:pointer;text-decoration:none;min-height:40px}
 .acts button:hover,.acts a:hover{background:var(--panel2);color:var(--tx)}
@@ -91,6 +92,9 @@ button{font-family:inherit}
 .more{display:block;width:100%;margin:18px 0;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--tx);font-size:15px;cursor:pointer}
 .empty{color:var(--mut);text-align:center;padding:40px 10px}
 .health{font-size:13px;color:var(--mut);border:1px dashed var(--line);border-radius:12px;padding:10px 14px;margin:20px 0}
+.taste{margin:14px 0 4px}
+.taste summary{cursor:pointer;color:var(--tx);font-weight:600}
+.taste p{margin:8px 0 0;line-height:1.45}
 .pick{margin:0 0 6px;font-size:12.5px;color:var(--dim);line-height:1.35}
 .acts .ask:hover{color:var(--accent)}
 .alert{margin:16px 2px 0;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4;color:var(--tx);

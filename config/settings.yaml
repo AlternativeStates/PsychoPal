@@ -43,19 +43,44 @@ ukri_max: 6                 # max new UKRI opportunities per week
 # Tools
 tool_releases_max: 6        # max new software releases per week
 
-# Claude. SWITCHED OFF: the app runs without an API key. Paper cards get a scripted Aim / Methods / Results / Conclusion summary
-# of the abstract (psychopal/abstracts.py). To switch Claude card text back on: enabled: true + the ANTHROPIC_API_KEY secret on GitHub.
-# Only NEW items are then sent; Claude text is cached in state/summaries.jsonl forever.
+# Claude (optional). llm.enabled is the MASTER switch: false = scripted feed and zero API calls (it also switches off rerank, taste
+# and sweep below). On, it needs the ANTHROPIC_API_KEY secret on GitHub. Expected cost about $3-4 a year, mostly the monthly sweep.
+# Any Claude failure falls back to the scripted behaviour for that run and is retried the next week.
 llm:
   enabled: false
-  model: claude-sonnet-5-5
+  monthly_budget_usd: 1.00  # soft cap: once this month's Claude spend (state/runs.jsonl + state/sweeps.jsonl) reaches it, everything
+                            # falls back to scripted text until the 1st. Set the hard cap as a spend limit in the Anthropic Console.
+  key_expires: null         # expiry date of the ANTHROPIC_API_KEY, e.g. 2027-11-16: the feed shows a warning 3 weeks before
+  # card text: structured Aim / Methods / Results / Conclusion paper summaries + "why it matters for you"; reads changed funding,
+  # conference and course pages (status, dates) and filters UKRI calls. Only NEW items are sent; the text is cached forever.
+  model: claude-haiku-5-5
+  effort: low
+  thinking: "off"           # "off" = no extended thinking (cheapest); "adaptive" = let the model think
   use_batch: true           # Message Batches API: 50% cheaper, results within minutes (max wait below)
   batch_max_wait_min: 60
   items_per_request: 10
   max_items_to_llm: 80      # hard cap per week
+  text_chars: 2400          # abstract / page text sent per item
+rerank:                     # weekly: Claude rates the ~80-paper shortlist against your profile and taste; capped bonus
+  enabled: true
+  model: claude-haiku-5-5
   effort: low
-  key_expires: null         # expiry date of the ANTHROPIC_API_KEY, e.g. 2027-11-09: the feed shows a warning 3 weeks before
-sweep:
-  enabled: false            # monthly Claude web-search sweep for new funding / conferences / courses (needs the API key)
+  thinking: "off"
+  shortlist: 80
+  max_bonus: 2.5            # points added or taken off (rating 5 = +2.5, 1 = -2.5); the edition cut-off is around 17 points
+taste:                      # monthly: Claude reads your 👍 / 👎 / ★ (needs phone sync) and writes a taste profile + boost/lower terms
+  enabled: true
+  model: claude-haiku-5-5
+  effort: medium
+  thinking: adaptive
+  min_marks: 10             # no digest until this many marked cards
+  max_boost: 8
+  max_penalise: 6
+  term_weight: 0.75         # points per matching term
+  max_bonus: 1.5            # cap on the taste-term bonus per paper (with rerank: at most +-4 points in total)
+sweep:                      # monthly web search for new funding / conferences / courses (first run of each month)
+  enabled: true
   model: claude-sonnet-5-5
-  max_searches: 8
+  effort: medium
+  max_searches: 6
+  min_budget_left_usd: 0.40 # skip the sweep if less than this is left of the monthly budget

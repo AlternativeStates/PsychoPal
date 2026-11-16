@@ -248,6 +248,12 @@ def finalise(items, ctx, settings, shown_ids):
                     break
         if days is not None and days < 0 and not it.get("_ukri"):
             show = False      # already closed
+        if it.get("_ukri") and it.get("relevant") == "no":     # Claude: he can't apply, or it's off-field (cached: stays hidden)
+            show = False
+            ost = ctx.setdefault("stats", {})
+            ost["ukri_hidden"] = ost.get("ukri_hidden", 0) + 1
+        if it.get("_extract") and it.get("status") == "closed":  # Claude read the page as closed
+            show = False
         if show:
             cards.append(it)
     if any_read:
