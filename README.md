@@ -47,8 +47,10 @@ filters, a graph view and a literature search page. It is adapted from Patrick's
 
 ## How it works (free: no API key needed)
 
-Every Monday at 05:30 UTC, GitHub Actions runs a set of Python scripts. **No AI model is used**: Claude support is built in but
-switched off (see "Optional: Claude" below).
+Every Monday at 05:17 UTC, GitHub Actions runs a set of Python scripts. **No AI model is used**: Claude support is built in but
+switched off (see "Optional: Claude" below). GitHub's scheduled triggers are best effort and are sometimes dropped, so backup
+triggers fire later on Monday (07:47 and 11:23 UTC) and on Tuesday (06:41 UTC). Each first checks the live site and stops within
+seconds if last week's edition is already published, so a missed or failed run is retried without any duplicate edition.
 
 1. `psychopal/papers.py` queries PubMed, Europe PMC, OpenAlex, bioRxiv/medRxiv and arXiv, then removes duplicates. It scores papers
    by keyword groups (`config/queries.json`), imaging modality, named researchers, journal, and similarity to **your own papers**

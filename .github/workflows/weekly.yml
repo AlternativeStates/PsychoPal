@@ -1,8 +1,14 @@
 name: Weekly PsychoPal
 
 on:
+  # GitHub runs scheduled workflows "best effort": a trigger can be late or silently dropped (it happened on Mon 16 Nov 2026).
+  # So there are backup triggers; each one first checks the live site and stops at once if last week's edition is already there.
+  # Odd minutes on purpose: GitHub drops more runs at busy times such as :00 and :30.
   schedule:
-    - cron: "30 5 * * 1"     # Mondays 05:30 UTC (05:30 GMT / 06:30 BST); ready before ~07:00 UK
+    - cron: "17 5 * * 1"     # Mondays 05:17 UTC (05:17 GMT / 06:17 BST): the normal run, ready before ~07:00 UK
+    - cron: "47 7 * * 1"     # backup, Monday
+    - cron: "23 11 * * 1"    # backup, Monday
+    - cron: "41 6 * * 2"     # last backup, Tuesday morning
   workflow_dispatch:
     inputs:
       week_end:
@@ -24,7 +30,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  check:   # scheduled runs: is last week's edition already published? (manual runs always build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.c.outputs.run }}
+    steps:
+      - id: c
+        env:
+          EVENT: ${{ github.event_name }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          if [ "$EVENT" != "schedule" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; echo "Manual run: building."; exit 0; fi
+          WEEK=$(python3 -c "import datetime as d; t=d.date.today(); y,w,_=(t-d.timedelta(days=t.weekday()+7)).isocalendar(); print(f'{y}-W{w:02d}')")
+          URL="https://${OWNER,,}.github.io/${REPO}/data/index.json"
+          if curl -fsS --max-time 30 "$URL" | python3 -c "import json,sys; sys.exit(0 if any(x.get('week') == '$WEEK' for x in json.load(sys.stdin).get('weeks', [])) else 1)"; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Edition $WEEK is already published: nothing to do (backup trigger)." | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "Edition $WEEK is not on the site yet: building it."
+          fi
+
   build:
+    needs: check
+    if: needs.check.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
