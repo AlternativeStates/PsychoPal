@@ -12,7 +12,7 @@ from .common import anthropic_client, load_yaml
 
 def key_shape(raw):
     k = (raw or "").strip()
-    fam = next((p for p in ("sk-ant-api", "sk-ant-admin", "sk-ant-oat") if k.startswith(p)), "unrecognised prefix")
+    fam = next((p for p in ("sk-ant-api", "sk-ant-admin", "sk-ant-oat") if k.startswith(p)), "with another prefix")
     note = ""
     if fam == "sk-ant-admin":
         note = " - this is an ADMIN key, not an API key: create a normal API key in the Console"

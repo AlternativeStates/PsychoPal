@@ -47,10 +47,10 @@ tool_releases_max: 6        # max new software releases per week
 # and sweep below). On, it needs the ANTHROPIC_API_KEY secret on GitHub. Expected cost about $3-4 a year, mostly the monthly sweep.
 # Any Claude failure falls back to the scripted behaviour for that run and is retried the next week.
 llm:
-  enabled: false
+  enabled: true             # switched on 2026-11-17 after the key check said OK
   monthly_budget_usd: 1.00  # soft cap: once this month's Claude spend (state/runs.jsonl + state/sweeps.jsonl) reaches it, everything
                             # falls back to scripted text until the 1st. Set the hard cap as a spend limit in the Anthropic Console.
-  key_expires: null         # expiry date of the ANTHROPIC_API_KEY, e.g. 2027-11-16: the feed shows a warning 3 weeks before
+  key_expires: 2026-12-16   # expiry date of the ANTHROPIC_API_KEY (this one: 1 month): the feed shows a warning 3 weeks before
   # card text: structured Aim / Methods / Results / Conclusion paper summaries + "why it matters for you"; reads changed funding,
   # conference and course pages (status, dates) and filters UKRI calls. Only NEW items are sent; the text is cached forever.
   model: claude-haiku-5-5
