@@ -13,9 +13,11 @@ Weekly literature/funding/events feed for Claudio Agnorelli (Centre for Psychede
   (`psychopal/abstracts.py`, recomputed every run, never cached). Bump `summarise.PROMPT_VERSION` when the prompt/schema changes.
   Deadline countdowns/strip/badges are off (`deadlines: false`). Keep new features scripted first.
 - Entry point: `python -m psychopal.run_weekly` (flags: `--week-end`, `--no-llm`, `--llm-limit`, `--reuse-papers`, `--skip`).
-- Trigger: GitHub's `schedule` crons have NEVER fired for this repo (Nov 2026), so the real trigger is an outside timer (README
-  step G, cron-job.org) calling `workflow_dispatch` with `only_if_missing=true`. The `check` job skips the build when last week's
-  edition is already on the live site (for timer and cron runs; manual runs always build). Keep that input name stable.
+- Trigger: GitHub's `schedule` crons NEVER fire for this repo (Nov 2026; a */5 test cron missed 15 times), so the real trigger
+  is the laptop nudge: Windows task "PsychoPal weekly nudge" → `python -m psychopal.nudge` → if last week's edition is missing,
+  force-push a commit (origin/main's tree) to `weekly-nudge` → `nudge.yml` → `workflow_dispatch` weekly.yml with
+  `only_if_missing=true`. The `check` job skips the build when the edition is already live (nudge and cron runs; manual runs
+  always build). Keep the input and branch names stable. He found an external timer (cron-job.org + token) too complicated.
   Each build saves the key-check verdict (no key shape, no workspace ID) in `state/claude_check.json`.
 - Config lives in `config/` (queries.json = topics/weights; settings.yaml; watchlist YAMLs). Topics are ranked (Nov 2026):
   psychedelics > neuroimaging (incl. brain stimulation) > neuropsychopharm > bio_psychiatry > neurodynamics (merged with the old

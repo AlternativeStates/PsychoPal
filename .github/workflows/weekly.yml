@@ -1,12 +1,12 @@
 name: Weekly PsychoPal
-run-name: ${{ github.event_name == 'schedule' && 'Weekly PsychoPal (GitHub schedule)' || (inputs.only_if_missing && 'Weekly PsychoPal (weekly timer)' || 'Weekly PsychoPal (manual run)') }}
+run-name: ${{ github.event_name == 'schedule' && 'Weekly PsychoPal (GitHub schedule)' || (inputs.only_if_missing && 'Weekly PsychoPal (nudge)' || 'Weekly PsychoPal (manual run)') }}
 
 on:
-  # GitHub runs scheduled workflows "best effort": a trigger can be late or silently dropped. For this repo none of them has ever
-  # fired (Mon 10 Nov, Mon 16 Nov, Tue 17 Nov 2026), so the edition does NOT rely on them. The main trigger is an outside weekly
-  # timer (README, step G) that calls workflow_dispatch with only_if_missing=true, like the Run workflow button does. The crons stay
-  # as free extras. Every trigger first checks the live site and stops at once if last week's edition is already there.
-  # Odd minutes on purpose: GitHub drops more runs at busy times such as :00 and :30.
+  # GitHub's `schedule` trigger never fires for this repo: the crons below missed Mon 10 Nov, Mon 16 Nov and Tue 17 Nov 2026,
+  # and a 5-minute test cron missed 15 times in a row. So the edition does NOT rely on them. The real trigger is the laptop
+  # nudge (psychopal/nudge.py -> push to weekly-nudge -> nudge.yml -> workflow_dispatch with only_if_missing=true). The crons
+  # stay as free extras in case GitHub's scheduler starts working. Every nudge or cron run first checks the live site and
+  # stops at once if last week's edition is already there.
   schedule:
     - cron: "17 5 * * 1"     # Mondays 05:17 UTC (05:17 GMT / 06:17 BST): the normal run, ready before ~07:00 UK
     - cron: "47 7 * * 1"     # backup, Monday
@@ -23,7 +23,7 @@ on:
         type: boolean
         default: false
       only_if_missing:
-        description: "Only build if last week's edition is not on the site yet (used by the weekly timer; leave unticked by hand)"
+        description: "Only build if last week's edition is not on the site yet (used by the laptop nudge; leave unticked by hand)"
         type: boolean
         default: false
 

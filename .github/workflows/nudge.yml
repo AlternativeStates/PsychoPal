@@ -1,0 +1,18 @@
+name: Nudge
+# Starts the weekly build when the laptop nudge (psychopal/nudge.py, run by a Windows scheduled task) pushes to weekly-nudge.
+# Needed because GitHub's `schedule` trigger never fires for this repo (tested Nov 2026), while pushes always do.
+# The weekly run gets only_if_missing=true, so it stops within seconds if last week's edition is already published.
+run-name: Nudge from the laptop
+on:
+  push:
+    branches: [weekly-nudge]
+permissions:
+  actions: write      # lets the built-in token start weekly.yml (workflow_dispatch is allowed from GITHUB_TOKEN)
+jobs:
+  nudge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run weekly.yml --repo "$GITHUB_REPOSITORY" --ref main -f only_if_missing=true
