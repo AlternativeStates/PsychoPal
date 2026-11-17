@@ -59,6 +59,35 @@ def test_check_claude_off_without_key(monkeypatch, capsys):
     monkeypatch.setattr(check_claude, "load_yaml", lambda n: {"llm": {"enabled": False}})
     assert check_claude.main(["--force"]) == 0 and "OFF" in capsys.readouterr().out
 
+class _KeyCheckClient:
+    def __init__(self, exc=None):
+        def create(**p):
+            if exc:
+                raise exc
+            return types.SimpleNamespace(headers={"anthropic-workspace-id": "wrkspc_PRIVATEWS"},
+                                         parse=lambda: types.SimpleNamespace(content=[types.SimpleNamespace(type="text", text="ready")]))
+        self.messages = types.SimpleNamespace(with_raw_response=types.SimpleNamespace(create=create))
+        self.models = types.SimpleNamespace(retrieve=lambda m: None)
+
+@pytest.mark.parametrize("fail", [False, True])
+def test_check_claude_saves_only_the_verdict(tmp_path, monkeypatch, capsys, fail):
+    import anthropic
+    exc = None
+    if fail:                                     # built without an HTTP response object, so the test doesn't depend on SDK internals
+        exc = anthropic.AuthenticationError.__new__(anthropic.AuthenticationError)
+        exc.message = "invalid x-api-key"
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-api03-SECRETSECRET")
+    monkeypatch.setattr(check_claude, "load_yaml", lambda n: {"llm": {"enabled": False, "model": "claude-haiku-5-5"},
+                                                              "sweep": {"enabled": True, "model": "claude-sonnet-5-5"}})
+    monkeypatch.setattr(check_claude, "anthropic_client", lambda: _KeyCheckClient(exc))
+    out = tmp_path / "claude_check.json"
+    assert check_claude.main(["--force", "--save", str(out)]) == (1 if fail else 0)
+    printed, saved = capsys.readouterr().out, json.load(open(out, encoding="utf-8"))
+    assert "characters" in printed and "SECRET" not in printed                  # the log shows the key's shape only
+    assert saved["status"] == ("fail" if fail else "ok") and "key tested anyway" in saved["result"]
+    assert "rejected" in saved["result"] if fail else "claude-sonnet-5-5 available" in saved["result"]
+    assert not any(s in json.dumps(saved) for s in ("SECRET", "sk-ant", "characters", "wrkspc"))   # public file: verdict only
+
 # ---------------- monthly sweep ----------------
 class FakeSweepClient:
     """First answer pauses the turn after using up all searches; the JSON is split across two text blocks (citations)."""

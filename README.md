@@ -47,11 +47,15 @@ filters, a graph view and a literature search page. It is adapted from Patrick's
 
 ## How it works
 
-Every Monday at 05:17 UTC, GitHub Actions runs a set of Python scripts. Without Claude (`llm.enabled: false`) **no AI model is
+Every Monday morning, GitHub Actions runs a set of Python scripts. Without Claude (`llm.enabled: false`) **no AI model is
 used** and it's free; Claude can be switched on for better summaries and preference learning (see "Optional: Claude" below).
-GitHub's scheduled triggers are best effort and are sometimes dropped, so backup
-triggers fire later on Monday (07:47 and 11:23 UTC) and on Tuesday (06:41 UTC). Each first checks the live site and stops within
-seconds if last week's edition is already published, so a missed or failed run is retried without any duplicate edition.
+
+**What starts the run.** GitHub's own scheduled triggers are "best effort", and for this repo none has ever fired (Mondays 10 and 16
+Nov, Tuesday 17 Nov 2026). So the edition does not rely on them: an outside **weekly timer** (step G, free) starts the workflow
+every Monday and Tuesday at 06:05 and 12:05 UK time, through the same GitHub API the **Run workflow** button uses. The GitHub crons
+stay in the file as free extras. Every timer or cron run first checks the live site and stops within seconds if last week's
+edition is already published, so a failed run is retried and there's never a duplicate edition. In the Actions list the runs are
+named "(weekly timer)", "(GitHub schedule)" or "(manual run)".
 
 1. `psychopal/papers.py` queries PubMed, Europe PMC, OpenAlex, bioRxiv/medRxiv and arXiv, then removes duplicates. It scores papers
    by keyword groups (`config/queries.json`), imaging modality, named researchers, journal, and similarity to **your own papers**
@@ -91,7 +95,8 @@ Safeguards:
 
 **To switch on:**
 1. Do steps C and D below (a new key, and the spend limit).
-2. Run the workflow once. Its summary should say "Claude key: (Claude is switched off; key tested anyway) OK".
+2. Run the workflow once. Its summary should say "Claude key: (Claude is switched off; key tested anyway) OK". Every build also
+   saves this verdict (OK or FAIL plus the reason; never the key) in `state/claude_check.json`.
 3. Set `llm: enabled: true` in `config/settings.yaml`.
 
 ## One-time setup (≈20 minutes)
@@ -150,6 +155,36 @@ The `deploy` job shows the site address.
   3. Paste the token in the app › **Test & connect**.
   4. Do this once per device. The run summary then shows "Preferences: N liked / …".
 - Fill in `config/profile.yaml` (PhD date, nationality, recent countries) so fellowships you can't apply for are hidden.
+
+### G. Weekly timer (≈10 minutes; makes Monday's edition independent of GitHub's scheduler)
+A free outside timer calls GitHub once or twice on Monday and Tuesday mornings: "build last week's edition if it isn't on the
+site yet". You set it up once.
+1. **Token.** Signed in to GitHub, open
+   [this pre-filled token page](https://github.com/settings/personal-access-tokens/new?name=PsychoPal+weekly+timer&description=PsychoPal%3A+starts+the+weekly+build.+Only+the+PsychoPal+repo%2C+Actions+read%2Bwrite.&target_name=AlternativeStates&expires_in=366&actions=write).
+   - *Repository access*: **Only select repositories › PsychoPal**.
+   - *Permissions › Repository permissions*: **Actions: Read and write** should already be set. Metadata (read-only) is added
+     automatically. Add nothing else.
+   - **Generate token**, then copy it (`github_pat_…`). Note its expiry date.
+
+   The token can only start, cancel and read the workflow runs of PsychoPal. It can't touch the code, the secrets or your
+   other repos.
+2. **Timer.** Make a free account at **cron-job.org**, then **Create cronjob**:
+   - **Title:** `PsychoPal weekly`
+   - **URL:** `https://api.github.com/repos/AlternativeStates/PsychoPal/actions/workflows/weekly.yml/dispatches`
+   - **Execution schedule › Custom:** days of the week **Monday** and **Tuesday**; hours **6** and **12**; minute **5**.
+   - **Time zone:** **Europe/London**.
+   - **Notifications:** tick "execution fails". You get an email if GitHub refuses the call, for example once the token has
+     expired.
+   - **Advanced** tab:
+     - **Request method:** **POST**.
+     - **Headers:** `Authorization` = `Bearer github_pat_…` (your token), `Accept` = `application/vnd.github+json`,
+       `X-GitHub-Api-Version` = `2022-11-28`, `Content-Type` = `application/json`.
+     - **Request body:** `{"ref":"main","inputs":{"only_if_missing":"true"}}`
+   - **Save**, then **Test run**. It should answer with status **204**. In the repo's **Actions** tab, a run "Weekly PsychoPal
+     (weekly timer)" appears and stops after about 10 s with "Edition … is already published: nothing to do".
+3. Before the token expires, make a new one with the same link and paste it into the job's `Authorization` header.
+
+Any other service that can send this POST on a schedule works the same, for example a time-driven Google Apps Script.
 
 Check a key locally: `$env:ANTHROPIC_API_KEY="sk-ant-..."; .\.venv\Scripts\python -m psychopal.check_claude --force`
 

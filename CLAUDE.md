@@ -13,6 +13,10 @@ Weekly literature/funding/events feed for Claudio Agnorelli (Centre for Psychede
   (`psychopal/abstracts.py`, recomputed every run, never cached). Bump `summarise.PROMPT_VERSION` when the prompt/schema changes.
   Deadline countdowns/strip/badges are off (`deadlines: false`). Keep new features scripted first.
 - Entry point: `python -m psychopal.run_weekly` (flags: `--week-end`, `--no-llm`, `--llm-limit`, `--reuse-papers`, `--skip`).
+- Trigger: GitHub's `schedule` crons have NEVER fired for this repo (Nov 2026), so the real trigger is an outside timer (README
+  step G, cron-job.org) calling `workflow_dispatch` with `only_if_missing=true`. The `check` job skips the build when last week's
+  edition is already on the live site (for timer and cron runs; manual runs always build). Keep that input name stable.
+  Each build saves the key-check verdict (no key shape, no workspace ID) in `state/claude_check.json`.
 - Config lives in `config/` (queries.json = topics/weights; settings.yaml; watchlist YAMLs). Topics are ranked (Nov 2026):
   psychedelics > neuroimaging (incl. brain stimulation) > neuropsychopharm > bio_psychiatry > neurodynamics (merged with the old
   comp_neuro) > brain_body; quotas in settings `stream_quota`, ranking tilt in queries.json `scoring.stream_bonus`/`primary_stream`. State in `state/` (committed by CI).

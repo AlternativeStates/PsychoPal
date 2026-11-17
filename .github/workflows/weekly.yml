@@ -1,8 +1,11 @@
 name: Weekly PsychoPal
+run-name: ${{ github.event_name == 'schedule' && 'Weekly PsychoPal (GitHub schedule)' || (inputs.only_if_missing && 'Weekly PsychoPal (weekly timer)' || 'Weekly PsychoPal (manual run)') }}
 
 on:
-  # GitHub runs scheduled workflows "best effort": a trigger can be late or silently dropped (it happened on Mon 16 Nov 2026).
-  # So there are backup triggers; each one first checks the live site and stops at once if last week's edition is already there.
+  # GitHub runs scheduled workflows "best effort": a trigger can be late or silently dropped. For this repo none of them has ever
+  # fired (Mon 10 Nov, Mon 16 Nov, Tue 17 Nov 2026), so the edition does NOT rely on them. The main trigger is an outside weekly
+  # timer (README, step G) that calls workflow_dispatch with only_if_missing=true, like the Run workflow button does. The crons stay
+  # as free extras. Every trigger first checks the live site and stops at once if last week's edition is already there.
   # Odd minutes on purpose: GitHub drops more runs at busy times such as :00 and :30.
   schedule:
     - cron: "17 5 * * 1"     # Mondays 05:17 UTC (05:17 GMT / 06:17 BST): the normal run, ready before ~07:00 UK
@@ -19,6 +22,10 @@ on:
         description: "Skip Claude this run (only matters if llm.enabled is true in settings.yaml)"
         type: boolean
         default: false
+      only_if_missing:
+        description: "Only build if last week's edition is not on the site yet (used by the weekly timer; leave unticked by hand)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write     # commit state/ and site/data/ back to main
@@ -30,7 +37,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  check:   # scheduled runs: is last week's edition already published? (manual runs always build)
+  check:   # timer / scheduled runs: is last week's edition already published? (manual runs always build)
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -39,15 +46,16 @@ jobs:
       - id: c
         env:
           EVENT: ${{ github.event_name }}
+          ONLY_IF_MISSING: ${{ inputs.only_if_missing }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
         run: |
-          if [ "$EVENT" != "schedule" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; echo "Manual run: building."; exit 0; fi
+          if [ "$EVENT" != "schedule" ] && [ "$ONLY_IF_MISSING" != "true" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; echo "Manual run: building."; exit 0; fi
           WEEK=$(python3 -c "import datetime as d; t=d.date.today(); y,w,_=(t-d.timedelta(days=t.weekday()+7)).isocalendar(); print(f'{y}-W{w:02d}')")
           URL="https://${OWNER,,}.github.io/${REPO}/data/index.json"
           if curl -fsS --max-time 30 "$URL" | python3 -c "import json,sys; sys.exit(0 if any(x.get('week') == '$WEEK' for x in json.load(sys.stdin).get('weeks', [])) else 1)"; then
             echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Edition $WEEK is already published: nothing to do (backup trigger)." | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "Edition $WEEK is already published: nothing to do." | tee -a "$GITHUB_STEP_SUMMARY"
           else
             echo "run=true" >> "$GITHUB_OUTPUT"
             echo "Edition $WEEK is not on the site yet: building it."
@@ -88,7 +96,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
-        run: python -m psychopal.check_claude --force | tee claude_check.txt
+        run: python -m psychopal.check_claude --force --save state/claude_check.json | tee claude_check.txt   # the saved file holds only OK/FAIL + reason
 
       - name: Monthly discovery sweep (first run of each month that sweeps; skipped while Claude or the sweep is off)
         if: ${{ inputs.no_llm != true }}
