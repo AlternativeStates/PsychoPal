@@ -16,7 +16,10 @@ from .common import STATE, OUT, load_jsonl, append_jsonl, load_json, write_json,
 
 def read_user_state():
     """Likes / dislikes / saves synced from the phone (sync.js -> user-state branch -> state/user_state.json, fetched by the workflow)."""
-    raw = load_json(os.path.join(STATE, "user_state.json"), default=None)
+    try:
+        raw = load_json(os.path.join(STATE, "user_state.json"), default=None)
+    except ValueError:                       # empty or damaged file: run without marks rather than fail the edition
+        raw = None
     out = {"liked": set(), "disliked": set(), "starred": set(), "search_saved": []}
     if not raw:
         return out

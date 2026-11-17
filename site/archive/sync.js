@@ -49,6 +49,15 @@ async function putRemote(t,data,sha){const body={message:"sync: user state",cont
  const r=await fetch(`${API}/repos/${REPO}/contents/${PATH}`,{method:"PUT",headers:{...hdr(t),"Content-Type":"application/json"},body:JSON.stringify(body),cache:"no-store"});
  if(!r.ok)throw httpErr(r);const j=await r.json();return j.content&&j.content.sha}
 function httpErr(r){const e=new Error("HTTP "+r.status);e.status=r.status;return e}
+// The contents API can't write to a branch that doesn't exist, so the very first sync creates `user-state` from the default
+// branch's head (needs only Contents: write). 422 = another device created it a moment ago: fine.
+async function ensureBranch(t){const g=u=>fetch(`${API}/repos/${REPO}${u}`,{headers:hdr(t),cache:"no-store"});
+ const r=await g(`/git/ref/heads/${BRANCH}`);if(r.ok)return;if(r.status!==404)throw httpErr(r);
+ const repo=await g("");if(!repo.ok)throw httpErr(repo);const def=(await repo.json()).default_branch||"main";
+ const h=await g(`/git/ref/heads/${def}`);if(!h.ok)throw httpErr(h);const sha=(await h.json()).object.sha;
+ const c=await fetch(`${API}/repos/${REPO}/git/refs`,{method:"POST",headers:{...hdr(t),"Content-Type":"application/json"},
+  body:JSON.stringify({ref:`refs/heads/${BRANCH}`,sha}),cache:"no-store"});
+ if(!c.ok&&c.status!==422)throw httpErr(c)}
 // ---- status + listeners ----
 const subs={};let status=tok()?"pending":"nokey",detail="",timer=0,busy=null,again=false;
 function setStatus(s,d){status=s;detail=d||"";paint()}
@@ -62,7 +71,7 @@ async function syncNow(){const t=tok();track();if(!t||!REPO){setStatus("nokey");
    const{sha,data}=await getRemote(t);const m=mergeIn(data.stores);notify(m.local);
    const known=sha!==null&&!m.push;if(known){meta.sha=sha;meta.synced=Date.now();saveMeta();setStatus("synced");return}
    const payload={version:1,_readme:data._readme||"PsychoPal marks (likes, dislikes, saves). Written by archive/sync.js; read by the weekly run. Never overwrite from builds.",updated:Date.now(),stores:meta.stores};
-   try{meta.sha=await putRemote(t,payload,sha);meta.synced=Date.now();saveMeta();setStatus("synced");return}
+   try{if(sha===null)await ensureBranch(t);meta.sha=await putRemote(t,payload,sha);meta.synced=Date.now();saveMeta();setStatus("synced");return}
    catch(e){if(e.status===409||e.status===422){await new Promise(r=>setTimeout(r,300+Math.random()*700));continue}throw e}}
   throw new Error("kept conflicting, will retry")
  }catch(e){if(e.offline||e instanceof TypeError)setStatus("offline","will retry when back online");

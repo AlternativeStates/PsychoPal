@@ -83,6 +83,11 @@ def test_extractive_fallback():
     page = summarise.extractive({"id": "fu-1", "page_text": "Home Menu Login", "notes": "Curated note."})
     assert page["post"] == "Curated note."
 
+def test_read_user_state_survives_an_empty_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(run_weekly, "STATE", str(tmp_path))
+    (tmp_path / "user_state.json").write_text("", encoding="utf-8")       # e.g. branch exists but the file wasn't written yet
+    assert run_weekly.read_user_state() == {"liked": set(), "disliked": set(), "starred": set(), "search_saved": []}
+
 def test_read_user_state(tmp_path, monkeypatch):
     raw = {"stores": {"pp-marks": {"like\tpa-1": {"v": "1", "t": 5}, "dislike\tpa-2": {"v": "1", "t": 5}, "star\tpa-3": {"v": "1", "t": 5},
                                    "like\tpa-9": {"v": None, "t": 9, "d": 1}},
