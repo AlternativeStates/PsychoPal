@@ -5,14 +5,71 @@ Every stage is isolated: a failure is recorded as a run note and the edition sti
 
   python -m psychopal.run_weekly                        # previous Monday-Sunday
   python -m psychopal.run_weekly --week-end 2026-11-08  # a specific week (re-running a week is idempotent)
+  python -m psychopal.run_weekly --end 2026-11-21       # this week so far (Monday to the 21st): the app's refresh button
+  python -m psychopal.run_weekly --start 2026-11-02 --end 2026-11-21   # a longer period (at most 4 weeks)
   python -m psychopal.run_weekly --no-llm               # extractive card text only (zero tokens)
   python -m psychopal.run_weekly --llm-limit 5          # cap Claude to 5 items (testing)
   python -m psychopal.run_weekly --reuse-papers         # re-score cached paper search results (tuning)
+
+Editions: one per ISO week, filed under the week of the period's LAST day. A refresh in the middle of the week builds that week's
+edition "so far"; the Monday run completes it. Re-running a week keeps the earliest start it already had (a longer refresh period
+is never cut back) unless --start is given. Cards shown in other editions are never repeated. Per-week amounts (papers, tools,
+trials...) are scaled to the period's length.
 """
 import argparse, datetime as dt, json, os, time, traceback
 from . import papers, extras, opportunities, tools_watch, build_site, build_archive, wider, prefs, llm
 from .summarise import summarise
-from .common import STATE, OUT, load_jsonl, append_jsonl, load_json, write_json, load_yaml, week_id, last_full_week, log
+from .common import STATE, OUT, SITE, load_jsonl, append_jsonl, load_json, write_json, load_yaml, week_id, last_full_week, log
+
+MAX_DAYS = 28       # longest period one edition may cover (a refresh after a holiday)
+
+def edition_window(today, week_end=None, start=None, end=None, existing=None, max_days=MAX_DAYS):
+    """(start, end, week id) of the edition to build. `existing` = this week's entry in site/data/index.json, if any."""
+    if week_end:
+        end = dt.date.fromisoformat(week_end)
+        default_start = end - dt.timedelta(days=6)
+    elif end or start:
+        end = min(dt.date.fromisoformat(end), today) if end else today
+        default_start = end - dt.timedelta(days=end.weekday())          # Monday of that week
+    else:
+        default_start, end = last_full_week(today)
+    week = week_id(end)
+    if start:
+        s = dt.date.fromisoformat(start)
+    else:
+        s = default_start
+        if existing and existing.get("start"):
+            s = min(s, dt.date.fromisoformat(existing["start"]))         # keep a longer period an earlier refresh chose
+    s = max(min(s, end), end - dt.timedelta(days=max_days - 1))
+    return s, end, week
+
+def edition_label(week, end):
+    """'Week 47, 2026', or 'Week 47, 2026 (so far)' when the period stops before that week's Sunday."""
+    sunday = end + dt.timedelta(days=6 - end.weekday())
+    return f"Week {int(week.split('W')[1])}, {week[:4]}" + (" (so far)" if end < sunday else "")
+
+def scale_for_period(settings, days):
+    """Per-week amounts scaled to the period: a 3-day refresh shows fewer cards, a 3-week catch-up more. 7 days = unchanged."""
+    if days == 7:
+        return settings
+    f = min(max(days / 7, 0.3), MAX_DAYS / 7)
+    sc = lambda v, lo=1: max(lo, round(v * f))
+    s = dict(settings)
+    s["papers_total"] = sc(settings.get("papers_total", 25), 5)
+    s["top_for_you"] = min(settings.get("top_for_you", 5), s["papers_total"])
+    quota = {}
+    for k, v in (settings.get("stream_quota") or {}).items():
+        lo, hi = (v, v) if isinstance(v, int) else (v[0], v[1])
+        quota[k] = [sc(lo, 0), sc(hi)]
+    s["stream_quota"] = quota
+    s["min_per_stream"] = sc(settings.get("min_per_stream", 2), 0)
+    for k in ("max_per_stream", "tool_papers_max", "trials_max", "ukri_max", "tool_releases_max", "buzz_discover"):
+        if k in settings:
+            s[k] = sc(settings[k], 0 if k == "buzz_discover" else 1)
+    if (settings.get("wider") or {}).get("cards"):
+        s["wider"] = {**settings["wider"], "cards": sc(settings["wider"]["cards"], 0)}
+    s["_scale"] = round(f, 2)
+    return s
 
 def read_user_state():
     """Likes / dislikes / saves synced from the phone (sync.js -> user-state branch -> state/user_state.json, fetched by the workflow)."""
@@ -127,22 +184,28 @@ def stage(name, health, stats, fn, *a, **kw):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--week-end", help="Sunday that ends the week (default: last full week)")
+    ap.add_argument("--start", help="first day of the period (with --end; default: that week's Monday)")
+    ap.add_argument("--end", help="last day of the period (default: last Sunday; never later than today)")
     ap.add_argument("--no-llm", action="store_true")
     ap.add_argument("--llm-limit", type=int)
     ap.add_argument("--reuse-papers", action="store_true")
     ap.add_argument("--skip", default="", help="comma list of stages to skip: papers,trials,catchup,buzz,opportunities,tools")
     a = ap.parse_args()
     settings = load_yaml("settings.yaml")
-    if a.week_end:
-        end = dt.date.fromisoformat(a.week_end); start = end - dt.timedelta(days=6)
-    else:
-        start, end = last_full_week()
-    week = week_id(start)
+    today = dt.date.today()
+    index = load_json(os.path.join(SITE, "data", "index.json"), default={"weeks": []}) or {"weeks": []}
+    week = edition_window(today, a.week_end, a.start, a.end)[2]                  # the week depends only on the end date
+    existing = next((w for w in index.get("weeks", []) if w.get("week") == week), None)
+    start, end, week = edition_window(today, a.week_end, a.start, a.end, existing)
+    days = (end - start).days + 1
+    settings = scale_for_period(settings, days)
     skip = set(filter(None, a.skip.split(",")))
     settings["_week"] = week
     outdir = os.path.join(OUT, str(end))
-    log(f"=== PsychoPal {week}: {start} to {end} ===")
+    log(f"=== PsychoPal {week}: {start} to {end} ({days} days) ===")
     stats, health = {"week": week, "window": [str(start), str(end)], "started": dt.datetime.now().isoformat(timespec="seconds")}, []
+    if days != 7:
+        stats["period_scale"] = settings.get("_scale")
 
     # Claude master switch (llm.enabled; --no-llm turns it off for this run)
     llm_cfg = dict(settings.get("llm") or {})
@@ -234,7 +297,7 @@ def main():
         if r:
             opp_cards, deadlines = r
             cards = opp_cards + cards
-    edition = {"week": week, "label": f"Week {int(week.split('W')[1])}, {start.year}", "start": str(start), "end": str(end),
+    edition = {"week": week, "label": edition_label(week, end), "start": str(start), "end": str(end),
                "generated": dt.datetime.now().isoformat(timespec="seconds"), "cards": cards, "deadlines": deadlines, "health": health,
                "alerts": alerts, "taste": prefs.public(taste, settings, us)}
     n = build_site.write_edition(edition, settings)

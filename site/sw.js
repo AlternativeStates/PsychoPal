@@ -1,9 +1,9 @@
 /* PsychoPal service worker: offline reading.
    Network first (so you always get the latest edition when online), falling back to the copy saved on the phone.
    On install it saves the app itself plus the three most recent weeks, so the feed opens on the Underground. */
-const CACHE = "psychopal-v4";
+const CACHE = "psychopal-v5";
 const SHELL = ["./", "index.html", "app.js", "styles.css", "config.js", "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png",
-               "archive/sync.js"];
+               "archive/sync.js", "refresh.js"];
 
 self.addEventListener("install", e => {
   e.waitUntil((async () => {

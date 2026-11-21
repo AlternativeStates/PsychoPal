@@ -1,21 +1,27 @@
 name: Weekly PsychoPal
-run-name: ${{ github.event_name == 'schedule' && 'Weekly PsychoPal (GitHub schedule)' || (inputs.only_if_missing && 'Weekly PsychoPal (nudge)' || 'Weekly PsychoPal (manual run)') }}
+run-name: ${{ github.event_name == 'schedule' && 'Weekly PsychoPal (GitHub timer)' || inputs.only_if_missing && 'Weekly PsychoPal (laptop nudge)' || inputs.end != '' && format('PsychoPal refresh from the app, to {0}', inputs.end) || 'Weekly PsychoPal (manual run)' }}
 
+# What starts a build (each at most once a week, except the button):
+#   1. Monday: GitHub's own timer (below). For this repo it fires hours late or not at all, so it is only a free extra.
+#   2. Monday 07:30 (or when the laptop is next on): the laptop nudge, psychopal/nudge.py -> push to weekly-nudge -> nudge.yml ->
+#      this workflow with only_if_missing=true.
+#   3. Any time: the ⟳ button in the app, which sends a period (start / end) and always builds.
+# 1 and 2 first check the live site and stop within seconds if an edition already covers last Monday-Sunday.
 on:
-  # GitHub's `schedule` trigger never fires for this repo: the crons below missed Mon 10 Nov, Mon 16 Nov and Tue 17 Nov 2026,
-  # and a 5-minute test cron missed 15 times in a row. So the edition does NOT rely on them. The real trigger is the laptop
-  # nudge (psychopal/nudge.py -> push to weekly-nudge -> nudge.yml -> workflow_dispatch with only_if_missing=true). The crons
-  # stay as free extras in case GitHub's scheduler starts working. Every nudge or cron run first checks the live site and
-  # stops at once if last week's edition is already there.
   schedule:
-    - cron: "17 5 * * 1"     # Mondays 05:17 UTC (05:17 GMT / 06:17 BST): the normal run, ready before ~07:00 UK
-    - cron: "47 7 * * 1"     # backup, Monday
-    - cron: "23 11 * * 1"    # backup, Monday
-    - cron: "41 6 * * 2"     # last backup, Tuesday morning
+    - cron: "17 5 * * 1"     # Mondays 05:17 UTC (05:17 GMT / 06:17 BST)
   workflow_dispatch:
     inputs:
       week_end:
         description: "Sunday that ends the week to (re)build, e.g. 2026-11-08 (empty = last full week)"
+        required: false
+        default: ""
+      start:
+        description: "Refresh: first day of the period, YYYY-MM-DD (empty = Monday of the end's week). Used by the app's button"
+        required: false
+        default: ""
+      end:
+        description: "Refresh: last day of the period, YYYY-MM-DD (e.g. today: this week so far). Used by the app's button"
         required: false
         default: ""
       no_llm:
@@ -37,7 +43,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  check:   # timer / scheduled runs: is last week's edition already published? (manual runs always build)
+  check:   # timer and nudge runs: does an edition already cover last Monday-Sunday? (the app and manual runs always build)
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -51,15 +57,17 @@ jobs:
           REPO: ${{ github.event.repository.name }}
         run: |
           if [ "$EVENT" != "schedule" ] && [ "$ONLY_IF_MISSING" != "true" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; echo "Manual run: building."; exit 0; fi
-          WEEK=$(python3 -c "import datetime as d; t=d.date.today(); y,w,_=(t-d.timedelta(days=t.weekday()+7)).isocalendar(); print(f'{y}-W{w:02d}')")
           URL="https://${OWNER,,}.github.io/${REPO}/data/index.json"
-          if curl -fsS --max-time 30 "$URL" | python3 -c "import json,sys; sys.exit(0 if any(x.get('week') == '$WEEK' for x in json.load(sys.stdin).get('weeks', [])) else 1)"; then
-            echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Edition $WEEK is already published: nothing to do." | tee -a "$GITHUB_STEP_SUMMARY"
-          else
-            echo "run=true" >> "$GITHUB_OUTPUT"
-            echo "Edition $WEEK is not on the site yet: building it."
-          fi
+          # same rule as psychopal/nudge.py covered(): one edition from last Monday (or earlier) to last Sunday (or later)
+          # exit status = python's (the last command of the pipe); site unreachable -> python fails -> build, to be safe
+          if MSG=$(curl -fsS --max-time 30 "$URL" | python3 -c '
+          import datetime as d, json, sys
+          t = d.date.today(); mon = t - d.timedelta(days=t.weekday() + 7); sun = mon + d.timedelta(days=6)
+          ok = any(w.get("start", "9999") <= str(mon) and w.get("end", "") >= str(sun) for w in json.load(sys.stdin).get("weeks", []))
+          print(f"Last week ({mon} to {sun}) is " + ("already published: nothing to do." if ok else "not on the site yet: building it."))
+          sys.exit(0 if ok else 1)'); then RUN=false; else RUN=true; fi
+          echo "${MSG:-Could not read the live site: building to be safe.}" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "run=$RUN" >> "$GITHUB_OUTPUT"
 
   build:
     needs: check
@@ -106,7 +114,7 @@ jobs:
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
         run: python -m psychopal.monthly_sweep || echo "sweep failed (non-fatal)"
 
-      - name: Build this week's edition
+      - name: Build the edition
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
@@ -114,11 +122,18 @@ jobs:
           NCBI_API_KEY: ${{ secrets.NCBI_API_KEY }}
           OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
           PSYCHOPAL_MAILTO: ${{ vars.PSYCHOPAL_MAILTO }}
+          # inputs arrive as environment variables (never pasted into the script) and run_weekly checks they are real dates
+          WEEK_END: ${{ inputs.week_end }}
+          START: ${{ inputs.start }}
+          END: ${{ inputs.end }}
+          NO_LLM: ${{ inputs.no_llm }}
         run: |
-          ARGS=""
-          if [ -n "${{ inputs.week_end }}" ]; then ARGS="$ARGS --week-end ${{ inputs.week_end }}"; fi
-          if [ "${{ inputs.no_llm }}" = "true" ]; then ARGS="$ARGS --no-llm"; fi
-          python -m psychopal.run_weekly $ARGS
+          set --
+          if [ -n "$WEEK_END" ]; then set -- "$@" --week-end "$WEEK_END"; fi
+          if [ -n "$START" ]; then set -- "$@" --start "$START"; fi
+          if [ -n "$END" ]; then set -- "$@" --end "$END"; fi
+          if [ "$NO_LLM" = "true" ]; then set -- "$@" --no-llm; fi
+          python -m psychopal.run_weekly "$@"
 
       - name: Run summary (shown on the Actions run page)
         if: always()

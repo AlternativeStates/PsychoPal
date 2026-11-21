@@ -99,18 +99,18 @@ const LABEL={nokey:"local only · connect sync",pending:"changes pending",syncin
 let pill,dlg;
 const ago=t=>{if(!t)return"never";const s=(Date.now()-t)/1000;return s<60?"just now":s<3600?Math.round(s/60)+" min ago":new Date(t).toLocaleString()};
 function paint(){if(!pill)return;pill.className=status;pill.innerHTML=`<i></i>${LABEL[status]||status}`;pill.title=(detail?detail+" · ":"")+"Last synced: "+ago(meta.synced)+" · click for sync settings";if(dlg&&dlg.style.display==="flex")fill()}
-const NEWTOKEN="https://github.com/settings/personal-access-tokens/new?name=PsychoPal+sync&description="+encodeURIComponent("PsychoPal: sync likes/saves. Only the PsychoPal repo, Contents read+write.")+(OWNER?"&target_name="+encodeURIComponent(OWNER):"")+"&expires_in=366&contents=write";
+const NEWTOKEN="https://github.com/settings/personal-access-tokens/new?name=PsychoPal+sync&description="+encodeURIComponent("PsychoPal: sync likes/saves and start refreshes. Only the PsychoPal repo, Contents + Actions read+write.")+(OWNER?"&target_name="+encodeURIComponent(OWNER):"")+"&expires_in=366&contents=write&actions=write";
 function fill(){const t=tok(),b=dlg.querySelector(".bx");
  if(!REPO){b.innerHTML=`<h2>⇅ Sync my marks across devices</h2><p>Sync is not set up yet: put your repository name (e.g. <code>yourname/PsychoPal</code>) in <code>config/settings.yaml</code> → <code>github_repo</code>; the next weekly run enables it. Until then, likes and saves stay in this browser.</p><button data-a="close">Close</button>`;return}
  b.innerHTML=`<h2>⇅ Sync my marks across devices</h2>
  <p class="m">Repo: <a href="https://github.com/${REPO}/blob/${BRANCH}/${PATH}" target="_blank" rel="noopener">${REPO}</a> · branch <b>${BRANCH}</b> · file ${PATH}<br>Status: <b>${LABEL[status]||status}</b>${detail?" · "+detail:""} · last synced ${ago(meta.synced)}</p>
- <p style="font-size:14px">Your likes, hides, saves and read marks are saved to that file, so every device sees the same marks and the weekly run learns what you like. Your key stays in <b>this browser only</b>; it is never written to the repo or a link. The repo is public, so marked item ids are visible to anyone who looks.</p>
+ <p style="font-size:14px">Your likes, hides, saves and read marks are saved to that file, so every device sees the same marks and the weekly run learns what you like. The same key lets the ⟳ button start a refresh. Your key stays in <b>this browser only</b>; it is never written to the repo or a link. The repo is public, so marked item ids are visible to anyone who looks.</p>
  ${t?`<p class="ok">✓ Connected on this device (key …${t.slice(-4)}).</p><button class="pri" data-a="now">Sync now</button><button data-a="test">Test key</button><button data-a="off">Disconnect this device</button>`:
  `<b>Connect this device</b> (once per browser / device)
  <ol><li>On GitHub, open <a href="${NEWTOKEN}" target="_blank" rel="noopener">this pre-filled new-token page</a> (or: profile picture › <b>Settings</b> › <b>Developer settings</b> › <b>Personal access tokens</b> › <b>Fine-grained tokens</b> › <b>Generate new token</b>).</li>
  <li>Token name: e.g. "PsychoPal sync". <b>Expiration</b>: pick one (e.g. 1 year); you'll redo this step when it expires.</li>
  <li><b>Resource owner</b>: ${OWNER||"you"}. <b>Repository access</b>: <b>Only select repositories</b> › <b>${RNAME}</b>.</li>
- <li><b>Permissions</b> › Repository permissions › <b>Contents</b>: <b>Read and write</b> (Metadata: read is added automatically). Nothing else.</li>
+ <li><b>Permissions</b> › Repository permissions › <b>Contents</b>: <b>Read and write</b> and <b>Actions</b>: <b>Read and write</b> (both are pre-filled; Actions lets the ⟳ button start a refresh; Metadata: read is added automatically). Nothing else.</li>
  <li><b>Generate token</b>, copy it (starts <code>github_pat_</code>) and paste it below. You can reuse the same token on your other devices, or make one per device.</li></ol>
  <input id="pp-tk" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false"><button class="pri" data-a="save">Test &amp; connect</button>`}
  <button data-a="close">Close</button><div class="msg" id="pp-msg"></div>

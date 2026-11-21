@@ -26,7 +26,7 @@ def write_edition(ed, settings):
     idx = load_json(os.path.join(data, "index.json"), default={"weeks": []})
     weeks = [w for w in idx["weeks"] if w["week"] != week]
     weeks.append({"week": week, "label": ed.get("label") or week, "start": ed["start"], "end": ed["end"], "n": len(cards)})
-    weeks.sort(key=lambda w: w["start"], reverse=True)
+    weeks.sort(key=lambda w: (w["end"], w["start"]), reverse=True)     # newest period first (a refresh may start early)
     write_json(os.path.join(data, "index.json"), {"latest": weeks[0]["week"], "weeks": weeks})
     cfg = {"repo": settings.get("github_repo") or "", "title": settings.get("site_title") or "PsychoPal", "site_url": settings.get("site_url") or ""}
     with open(os.path.join(SITE, "config.js"), "w", encoding="utf-8") as f:

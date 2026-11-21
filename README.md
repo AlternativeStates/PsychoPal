@@ -50,15 +50,34 @@ filters, a graph view and a literature search page. It is adapted from Patrick's
 Every Monday morning, GitHub Actions runs a set of Python scripts. Without Claude (`llm.enabled: false`) **no AI model is
 used** and it's free; Claude can be switched on for better summaries and preference learning (see "Optional: Claude" below).
 
-**What starts the run: your laptop.** GitHub's own timer (`schedule`) never fires for this repo. It missed Monday 10 Nov, Monday
-16 Nov and Tuesday 17 Nov 2026, and a 5-minute test timer missed 15 times in a row. So a small task on your laptop does the
-starting (step G, already set up):
-1. At log-on, at unlock, and on Monday to Wednesday mornings, the task checks whether last week's edition is on the site.
-2. If it's missing, the task asks GitHub to build it. The build takes about 10 minutes.
-3. Otherwise it does nothing.
+**What starts a build.** There are three triggers:
 
-The laptop just has to be on at some point after the week ends. The **Run workflow** button always works too. Each run checks the
-site first and stops within seconds if the edition is already there, so an edition is never built twice.
+| Trigger | When | Builds |
+|---|---|---|
+| GitHub's own timer | Monday 05:17 UTC | Last week, if it's still missing. It fires hours late or not at all for this repo, so it's only a free extra. |
+| Laptop nudge (step G) | Once a week: Monday 07:30, or as soon as the laptop is next on | Last week, if it's still missing. This is the dependable one. |
+| **⟳ button in the app** | Whenever you press it | The period you choose (see below). It always builds. |
+
+The two automatic triggers check the site first and stop within seconds if an edition already covers last Monday to Sunday, so
+an edition is never built twice. If the laptop is offline at 07:30, the nudge tries again every 10 minutes for an hour. After
+that it waits until next Monday; the ⟳ button works at any time. The **Run workflow** button on GitHub (Actions › Weekly
+PsychoPal) also still works.
+
+**⟳ Get new cards now (in the app).** The ⟳ button at the top right asks for a period:
+- **This week so far:** Monday to today. It builds this week's edition, marked "(so far)". Monday's automatic run completes it.
+- **Last week:** Monday to Sunday of last week. Use it if Monday's edition is missing, or to rebuild it.
+- **From a date to today:** for example after a holiday, up to 4 weeks back.
+
+The build takes about 10 minutes, and you can close the app meanwhile. A bar under the header shows the progress, and a **Show**
+button appears when the new cards are ready.
+
+How the period is handled:
+- Editions stay one per week. Each is filed under the week of its period's last day.
+- Cards already shown in other editions are never repeated.
+- The number of cards scales with the length of the period: about 11 papers for 3 days, 75 for 3 weeks.
+
+The button needs phone sync to be connected: the same GitHub key does both (step F). With Claude on, a refresh costs about 1 cent.
+The first build of each month also runs the web sweep, about 25 cents.
 
 1. `psychopal/papers.py` queries PubMed, Europe PMC, OpenAlex, bioRxiv/medRxiv and arXiv, then removes duplicates. It scores papers
    by keyword groups (`config/queries.json`), imaging modality, named researchers, journal, and similarity to **your own papers**
@@ -152,18 +171,24 @@ The `deploy` job shows the site address.
 ### F. Phone, sync and eligibility
 - Open `https://<your-user-name-in-lowercase>.github.io/PsychoPal/` › iPhone: Share › **Add to Home Screen**; Android: ⋮ ›
   **Install app**.
-- **Connect sync.** Without it, your 👍 / 👎 / ★ stay on the phone and nothing is learned from them.
+- **Connect sync.** Without it, your 👍 / 👎 / ★ stay on the phone and nothing is learned from them, and the ⟳ button can't
+  start a refresh.
   1. Tap the "local only · connect sync" pill (or **Sync** at the bottom of the archive) › "pre-filled new-token page".
-  2. On GitHub: *Only select repositories* › **PsychoPal**, *Contents: Read and write*, 366 days › **Generate token**.
+  2. On GitHub: *Only select repositories* › **PsychoPal**. Under permissions, **Contents** and **Actions** should both already
+     say *Read and write*. Expiry: 366 days. Then **Generate token**.
   3. Paste the token in the app › **Test & connect**.
   4. Do this once per device. The run summary then shows "Preferences: N liked / …".
+
+  If your key was made before the ⟳ button existed, it has Contents only. Add **Actions: Read and write** to it on GitHub
+  (Settings › Developer settings › Fine-grained tokens › your key › **Edit**). The app explains this if you press ⟳.
 - Fill in `config/profile.yaml` (PhD date, nationality, recent countries) so fellowships you can't apply for are hidden.
 
 ### G. Laptop nudge (already set up on Claudio's laptop; nothing to do)
-A Windows scheduled task, **PsychoPal weekly nudge**, runs `python -m psychopal.nudge` at log-on, at unlock and on Monday to
-Wednesday mornings. If it missed a time because the laptop was off, it runs as soon as the laptop is on again.
+A Windows scheduled task, **PsychoPal weekly nudge**, runs `python -m psychopal.nudge` **once a week**: Monday at 07:30. If the
+laptop was off or asleep then, it runs as soon as the laptop is on again. If the site or GitHub can't be reached, it tries again
+every 10 minutes for an hour, then stops until next Monday.
 
-When last week's edition is missing from the site, the script pushes one small commit to the `weekly-nudge` branch. It pushes
+When no edition covers last Monday to Sunday yet, the script pushes one small commit to the `weekly-nudge` branch. It pushes
 with the GitHub login this laptop already uses for GitHub Desktop, so there are no new accounts or tokens. That push makes
 `.github/workflows/nudge.yml` start the weekly build. The commit reuses GitHub's own copy of the files, so nothing from your
 laptop is uploaded.
@@ -171,7 +196,7 @@ laptop is uploaded.
 - **Check by hand:** `.\.venv\Scripts\python -m psychopal.nudge --check`. To start a build if one is missing, leave out `--check`.
 - **On a new laptop**, or if the task was removed: `.\.venv\Scripts\python -m psychopal.nudge --install`. Remove it with
   `--uninstall`.
-- **Laptop off all week:** press **Run workflow** on GitHub (Actions › Weekly PsychoPal), or just open the laptop.
+- **Laptop off all week:** press ⟳ in the app and choose "Last week", or just open the laptop.
 
 Check a key locally: `$env:ANTHROPIC_API_KEY="sk-ant-..."; .\.venv\Scripts\python -m psychopal.check_claude --force`
 
@@ -197,6 +222,7 @@ Check a key locally: `$env:ANTHROPIC_API_KEY="sk-ant-..."; .\.venv\Scripts\pytho
 python -m venv .venv; .\.venv\Scripts\pip install -r requirements.txt
 .\.venv\Scripts\python -m pytest -q
 .\.venv\Scripts\python -m psychopal.run_weekly                     # last full week
+.\.venv\Scripts\python -m psychopal.run_weekly --end 2026-11-21    # this week so far (what the ⟳ button does); add --start for longer
 $env:ANTHROPIC_API_KEY="sk-ant-..."; .\.venv\Scripts\python -m psychopal.run_weekly --llm-limit 5   # (Claude on) try Claude on 5 cards
 .\.venv\Scripts\python -m psychopal.papers --end 2026-11-08 --reuse --claude   # (key set) see what the re-rank changes; writes only out/
 .\.venv\Scripts\python -m psychopal.monthly_sweep --force --dry-run           # (key set) test the web sweep (~$0.25; changes nothing)

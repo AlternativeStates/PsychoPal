@@ -24,6 +24,9 @@
       <img src="icons/icon.svg" alt="">
       <h1>PsychoPal</h1>
       <span class="wk" id="wk"></span>
+      <button class="ib" id="rf-btn" type="button" title="Get new cards now" aria-label="Get new cards now">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.9-3.9M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3.9M20 20v-4h-4"/></svg>
+      </button>
       <a class="ib" href="archive/" title="Archive &amp; search" aria-label="Archive and search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       </a>
@@ -32,7 +35,9 @@
     <nav class="chips sub" id="streams" aria-label="Topic" hidden></nav>
   </div>
 </header>
+<div class="wrap rfwrap" id="rf-bar" role="status" hidden></div>
 <main class="wrap" id="feed" aria-live="polite"><p class="empty">Loading this week…</p></main>
 <script src="app.js"></script>
+<script src="refresh.js"></script>
 </body>
 </html>

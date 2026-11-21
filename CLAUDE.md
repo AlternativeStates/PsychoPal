@@ -12,12 +12,18 @@ Weekly literature/funding/events feed for Claudio Agnorelli (Centre for Psychede
   Any Claude failure = scripted text / script-only ranking, retried next week. Without Claude, paper cards get a scripted summary
   (`psychopal/abstracts.py`, recomputed every run, never cached). Bump `summarise.PROMPT_VERSION` when the prompt/schema changes.
   Deadline countdowns/strip/badges are off (`deadlines: false`). Keep new features scripted first.
-- Entry point: `python -m psychopal.run_weekly` (flags: `--week-end`, `--no-llm`, `--llm-limit`, `--reuse-papers`, `--skip`).
-- Trigger: GitHub's `schedule` crons NEVER fire for this repo (Nov 2026; a */5 test cron missed 15 times), so the real trigger
-  is the laptop nudge: Windows task "PsychoPal weekly nudge" → `python -m psychopal.nudge` → if last week's edition is missing,
-  force-push a commit (origin/main's tree) to `weekly-nudge` → `nudge.yml` → `workflow_dispatch` weekly.yml with
-  `only_if_missing=true`. The `check` job skips the build when the edition is already live (nudge and cron runs; manual runs
-  always build). Keep the input and branch names stable. He found an external timer (cron-job.org + token) too complicated.
+- Entry point: `python -m psychopal.run_weekly` (flags: `--week-end`, `--start`, `--end`, `--no-llm`, `--llm-limit`,
+  `--reuse-papers`, `--skip`). Editions: one per ISO week, filed under the week of the period's LAST day (`edition_window`);
+  a re-run keeps an earlier start unless `--start` is given; max 28 days; per-week amounts scaled by `scale_for_period`;
+  label "(so far)" when the period stops before Sunday. Cards shown in other editions never repeat (items.jsonl).
+- Triggers (he asked for "not too many"; each automatic one fires once a week): (1) ONE GitHub cron Monday 05:17 UTC (fires
+  hours late or not at all for this repo); (2) laptop nudge, Windows task "PsychoPal weekly nudge", Monday 07:30 only
+  (StartWhenAvailable, retries 10 min × 1 h if offline) → `python -m psychopal.nudge` → force-push origin/main's tree to
+  `weekly-nudge` → `nudge.yml` → weekly.yml with `only_if_missing=true`; (3) the app's ⟳ button (`site/refresh.js`) →
+  workflow_dispatch with `end` (+ `start`) using the sync key (fine-grained PAT, Contents AND Actions read+write). "Done" =
+  one edition from last Monday (or earlier) to last Sunday (or later): `nudge.covered()`, the `check` job and refresh.js use
+  the same rule. Inputs reach the build step only as env vars. Keep input/branch names stable. No external timers (he
+  found cron-job.org + a token too complicated).
   Each build saves the key-check verdict (no key shape, no workspace ID) in `state/claude_check.json`.
 - Config lives in `config/` (queries.json = topics/weights; settings.yaml; watchlist YAMLs). Topics are ranked (Nov 2026):
   psychedelics > neuroimaging (incl. brain stimulation) > neuropsychopharm > bio_psychiatry > neurodynamics (merged with the old

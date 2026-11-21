@@ -24,7 +24,7 @@ button{font-family:inherit}
 .brand{display:flex;align-items:center;gap:10px;padding:12px 0 6px}
 .brand img{width:30px;height:30px;border-radius:8px}
 .brand h1{font-size:20px;margin:0;letter-spacing:-.01em}
-.brand .wk{font-size:13px;color:var(--mut);margin-left:auto;white-space:nowrap}
+.brand .wk{font-size:13px;color:var(--mut);margin-left:auto;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .brand .ib{border:1px solid var(--line);background:var(--panel);color:var(--mut);border-radius:10px;width:36px;height:36px;display:grid;place-items:center;cursor:pointer;text-decoration:none}
 .brand .ib svg{width:18px;height:18px}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:6px 0 10px;scrollbar-width:none}
@@ -107,3 +107,31 @@ button{font-family:inherit}
 .foot a{color:var(--mut)}
 @media (min-width:700px){.card{padding:16px 20px 8px}.card h3{font-size:18px}}
 @media (prefers-reduced-motion:no-preference){.card{animation:fade .25s ease-out both}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}}
+
+/* ⟳ refresh button (refresh.js): spinner while a build runs, progress bar under the header, period dialog */
+.brand button.ib{font:inherit;padding:0}
+.brand .ib.spin svg{animation:rfspin 1.4s linear infinite}
+@keyframes rfspin{to{transform:rotate(360deg)}}
+.rfwrap{padding-bottom:0}
+.rfbar{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-top:12px;padding:10px 16px;border-radius:var(--radius);background:var(--accent-soft);color:var(--tx);font-size:14px;box-sizing:border-box}
+.rfbar.ok{background:color-mix(in srgb,var(--good) 16%,var(--panel))}
+.rfbar.bad{background:color-mix(in srgb,var(--bad) 14%,var(--panel))}
+.rfbar .rf-acts{display:flex;gap:8px;align-items:center;flex:none}
+.rfbar a{color:var(--mut)}
+.rfbar button,.rf-box button{cursor:pointer;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--tx);font:inherit;font-size:14px;padding:6px 12px}
+.rfbar button.pri,.rf-box button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.rf-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:8px;animation:rfpulse 1.2s ease-in-out infinite}
+@keyframes rfpulse{50%{opacity:.25}}
+.rf-back{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px}
+.rf-box{background:var(--panel);color:var(--tx);border:1px solid var(--line);border-radius:14px;max-width:460px;width:100%;padding:18px 20px;box-sizing:border-box}
+.rf-box h2{margin:0 0 6px;font-size:19px}
+.rf-box .m{font-size:13px;color:var(--mut)}
+.rf-opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;margin:8px 0;border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.rf-opt input[type=radio]{margin-top:4px;accent-color:var(--accent)}
+.rf-opt small{color:var(--mut);font-size:13px}
+.rf-opt input[type=date]{font:inherit;font-size:14px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--panel2);color:var(--tx)}
+.rf-box .rf-acts{display:flex;gap:8px;margin-top:12px}
+.rf-msg{margin-top:10px;font-size:14px;min-height:1em}
+.rf-msg.bad{color:var(--bad)}
+.rf-msg a{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){.brand .ib.spin svg,.rf-dot{animation:none}}
