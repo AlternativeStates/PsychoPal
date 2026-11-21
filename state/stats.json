@@ -1,329 +1,333 @@
 {
- "week": "2026-W46",
+ "week": "2026-W47",
  "window": [
-  "2026-11-09",
-  "2026-11-15"
+  "2026-11-16",
+  "2026-11-21"
  ],
- "started": "2026-11-21T16:20:37",
+ "started": "2026-11-21T16:56:38",
+ "period_scale": 0.86,
  "preferences": {
-  "liked": 0,
-  "disliked": 0,
-  "starred": 0,
-  "synced": false
+  "liked": 5,
+  "disliked": 1,
+  "starred": 3,
+  "synced": true
  },
  "taste": {
-  "skipped": "0 marked cards (needs 10)"
+  "skipped": "4 marked cards (needs 10)"
  },
  "stage_seconds": {
   "taste": 0.0,
-  "papers": 1125.8,
-  "buzz": 51.9,
-  "buzz_discover": 15.5,
-  "wider": 17.2,
+  "papers": 352.8,
+  "buzz": 39.2,
+  "buzz_discover": 14.2,
+  "wider": 16.6,
   "trials": 0.1,
   "catchup": 1.3,
-  "tools": 13.3,
-  "opportunities": 33.2,
-  "summarise": 101.5,
+  "tools": 12.4,
+  "opportunities": 37.5,
+  "summarise": 56.9,
   "opportunities_finalise": 0.0,
-  "archive": 0.1
+  "archive": 0.2
  },
  "rerank": {
   "model": "claude-haiku-5-5",
-  "shortlist": 74,
-  "rated": 74,
-  "cost_usd": 0.0017526
+  "shortlist": 73,
+  "rated": 73,
+  "cost_usd": 0.0018629
  },
  "papers": {
   "window": [
-   "2026-11-09",
-   "2026-11-15"
+   "2026-11-16",
+   "2026-11-21"
   ],
   "sources": {
    "pubmed": {
-    "hits": 1314,
-    "seconds": 36.2,
+    "hits": 1119,
+    "seconds": 34.4,
     "queries": 44,
-    "query_errors": [],
+    "query_errors": [
+     "efetch: Response ended prematurely"
+    ],
     "per_group": {
-     "psychedelic_imaging": 2,
-     "psychedelic_any": 45,
+     "psychedelic_imaging": 5,
+     "psychedelic_any": 52,
      "psychedelic_clinical": 29,
-     "preclinical_psychedelic": 10,
-     "psychedelic_experience": 30,
-     "receptor_pharmacology": 2,
-     "psychedelic_pk_chem": 16,
-     "tryptamine_comp_chem": 4,
-     "own_centre": 1,
+     "preclinical_psychedelic": 12,
+     "psychedelic_experience": 39,
+     "receptor_pharmacology": 4,
+     "psychedelic_pk_chem": 14,
+     "tryptamine_comp_chem": 3,
+     "own_centre": 4,
      "altered_states_nondrug": 3,
-     "pet_methods": 7,
-     "eeg_meg_methods": 44,
-     "neuroimaging_methods": 80,
-     "brain_stimulation": 62,
-     "tms_eeg": 5,
-     "plasticity_imaging": 9,
-     "mri_methods": 72,
-     "ketamine_rapid": 55,
-     "stimulants": 57,
-     "cannabis": 137,
+     "pet_methods": 6,
+     "eeg_meg_methods": 38,
+     "neuroimaging_methods": 84,
+     "brain_stimulation": 81,
+     "tms_eeg": 6,
+     "plasticity_imaging": 13,
+     "mri_methods": 63,
+     "ketamine_rapid": 42,
+     "stimulants": 49,
+     "cannabis": 93,
      "serotonin_pet": 1,
-     "plasticity": 27,
-     "psychopharm_general": 99,
-     "pharmaco_imaging_other": 21,
-     "preclinical_psychiatry": 96,
-     "psychiatry_bio_human": 152,
-     "psychiatry_imaging": 29,
-     "addiction_imaging": 20,
-     "biopsych_top": 51,
-     "eeg_dynamics": 34,
-     "info_theory_dynamics": 33,
-     "travelling_waves": 0,
+     "plasticity": 38,
+     "psychopharm_general": 108,
+     "pharmaco_imaging_other": 25,
+     "preclinical_psychiatry": 137,
+     "psychiatry_bio_human": 177,
+     "psychiatry_imaging": 38,
+     "addiction_imaging": 18,
+     "biopsych_top": 64,
+     "eeg_dynamics": 32,
+     "info_theory_dynamics": 36,
+     "travelling_waves": 1,
      "aperiodic_waveform": 3,
-     "consciousness_dynamics": 36,
-     "comp_modelling": 0,
+     "consciousness_dynamics": 42,
+     "comp_modelling": 2,
      "dcm_wholebrain": 1,
-     "comp_psychiatry": 20,
-     "receptor_maps": 18,
-     "brain_body": 53,
-     "interoception_psych": 21,
-     "wider_journals": 295,
-     "tools_papers": 10,
-     "methods_papers": 44,
-     "named_researchers": 1
+     "comp_psychiatry": 18,
+     "receptor_maps": 24,
+     "brain_body": 46,
+     "interoception_psych": 16,
+     "wider_journals": 279,
+     "tools_papers": 13,
+     "methods_papers": 45,
+     "named_researchers": 6
     }
    },
    "europepmc": {
-    "hits": 1470,
-    "seconds": 1080.5,
-    "queries": 45,
+    "hits": 730,
+    "seconds": 316.8,
+    "queries": 25,
     "query_errors": [],
     "per_group": {
-     "psychedelic_imaging": 9,
-     "psychedelic_any": 93,
-     "psychedelic_clinical": 65,
-     "preclinical_psychedelic": 33,
-     "psychedelic_experience": 71,
-     "receptor_pharmacology": 7,
-     "psychedelic_pk_chem": 38,
-     "tryptamine_comp_chem": 8,
-     "own_centre": 0,
-     "altered_states_nondrug": 9,
-     "pet_methods": 15,
-     "eeg_meg_methods": 78,
-     "neuroimaging_methods": 151,
-     "brain_stimulation": 62,
-     "tms_eeg": 6,
-     "plasticity_imaging": 22,
-     "mri_methods": 114,
-     "ketamine_rapid": 96,
-     "stimulants": 72,
-     "cannabis": 124,
-     "serotonin_pet": 11,
-     "plasticity": 63,
-     "psychopharm_general": 212,
-     "pharmaco_imaging_other": 37,
-     "preclinical_psychiatry": 205,
-     "psychiatry_bio_human": 321,
-     "psychiatry_imaging": 63,
-     "addiction_imaging": 17,
-     "biopsych_top": 15,
-     "eeg_dynamics": 61,
-     "info_theory_dynamics": 108,
-     "travelling_waves": 4,
-     "aperiodic_waveform": 11,
-     "consciousness_dynamics": 87,
-     "comp_modelling": 2,
-     "dcm_wholebrain": 3,
-     "comp_psychiatry": 36,
-     "receptor_maps": 97,
-     "brain_body": 141,
-     "interoception_psych": 86,
-     "tools_papers": 61,
-     "named_researchers": 7
-    }
+     "psychedelic_imaging": 4,
+     "psychedelic_any": 68,
+     "psychedelic_clinical": 36,
+     "preclinical_psychedelic": 22,
+     "psychedelic_experience": 41,
+     "receptor_pharmacology": 3,
+     "psychedelic_pk_chem": 18,
+     "tryptamine_comp_chem": 9,
+     "own_centre": 1,
+     "altered_states_nondrug": 13,
+     "pet_methods": 11,
+     "eeg_meg_methods": 62,
+     "neuroimaging_methods": 95,
+     "brain_stimulation": 51,
+     "tms_eeg": 4,
+     "plasticity_imaging": 10,
+     "mri_methods": 60,
+     "ketamine_rapid": 66,
+     "stimulants": 49,
+     "cannabis": 89,
+     "serotonin_pet": 5,
+     "plasticity": 44,
+     "psychopharm_general": 151,
+     "pharmaco_imaging_other": 20,
+     "preclinical_psychiatry": 134
+    },
+    "skipped_slow": [
+     "psychiatry_bio_human",
+     "psychiatry_imaging",
+     "addiction_imaging",
+     "biopsych_top",
+     "eeg_dynamics",
+     "info_theory_dynamics",
+     "travelling_waves",
+     "aperiodic_waveform",
+     "consciousness_dynamics",
+     "comp_modelling",
+     "dcm_wholebrain",
+     "comp_psychiatry",
+     "receptor_maps",
+     "brain_body",
+     "interoception_psych",
+     "tools_papers",
+     "named_researchers"
+    ]
    },
    "openalex": {
-    "hits": 908,
-    "seconds": 31.5,
+    "hits": 857,
+    "seconds": 31.6,
     "queries": 21,
     "query_errors": [],
     "per_group": {
-     "psychedelic_imaging": 9,
-     "psychedelic_any": 127,
-     "tryptamine_comp_chem": 8,
-     "pet_methods": 6,
-     "brain_stimulation": 173,
+     "psychedelic_imaging": 4,
+     "psychedelic_any": 107,
+     "tryptamine_comp_chem": 7,
+     "pet_methods": 4,
+     "brain_stimulation": 113,
      "tms_eeg": 6,
-     "ketamine_rapid": 122,
-     "stimulants": 83,
-     "cannabis": 210,
-     "serotonin_pet": 2,
-     "plasticity": 32,
-     "preclinical_psychiatry": 95,
-     "eeg_dynamics": 109,
-     "info_theory_dynamics": 126,
-     "travelling_waves": 2,
-     "aperiodic_waveform": 12,
-     "comp_modelling": 1,
+     "ketamine_rapid": 72,
+     "stimulants": 72,
+     "cannabis": 164,
+     "serotonin_pet": 3,
+     "plasticity": 38,
+     "preclinical_psychiatry": 114,
+     "eeg_dynamics": 87,
+     "info_theory_dynamics": 98,
+     "travelling_waves": 7,
+     "aperiodic_waveform": 14,
+     "comp_modelling": 2,
      "dcm_wholebrain": 3,
-     "comp_psychiatry": 131,
-     "receptor_maps": 2,
-     "brain_body": 37
+     "comp_psychiatry": 83,
+     "receptor_maps": 6,
+     "brain_body": 48
     },
     "cost_usd": 0.02100000000000001
    },
    "biorxiv": {
-    "hits": 185,
-    "seconds": 21.3,
+    "hits": 227,
+    "seconds": 16.6,
     "per_category": {
-     "neuroscience": 176,
-     "pharmacology_and_toxicology": 9
+     "neuroscience": 207,
+     "pharmacology_and_toxicology": 20
     },
-    "versions_skipped": 131,
+    "versions_skipped": 98,
     "query_errors": []
    },
    "medrxiv": {
-    "hits": 64,
-    "seconds": 5.6,
+    "hits": 57,
+    "seconds": 2.6,
     "per_category": {
-     "psychiatry_and_clinical_psychology": 23,
-     "neurology": 27,
-     "addiction_medicine": 1,
-     "radiology_and_imaging": 13
+     "psychiatry_and_clinical_psychology": 14,
+     "neurology": 29,
+     "addiction_medicine": 3,
+     "radiology_and_imaging": 11
     },
-    "versions_skipped": 21,
+    "versions_skipped": 20,
     "query_errors": []
    },
    "arxiv": {
-    "hits": 71,
-    "seconds": 6.6,
+    "hits": 47,
+    "seconds": 6.4,
     "per_category": {
-     "q-bio.NC": 41,
-     "q-bio.QM": 30
+     "q-bio.NC": 31,
+     "q-bio.QM": 16
     }
    }
   },
-  "raw_hits": 4012,
-  "after_merge": 3241,
+  "raw_hits": 3037,
+  "after_merge": 2450,
   "dropped": {
-   "already_shown": 0,
-   "errata": 16,
+   "already_shown": 4,
+   "errata": 10,
    "outside_window": 0,
-   "bulk_below_threshold": 240
+   "bulk_below_threshold": 236
   },
-  "scored_pool": 2985,
-  "selected": 25,
+  "scored_pool": 2200,
+  "selected": 21,
   "tool_papers": 3,
   "skipped_too_similar": 0,
-  "wider_candidates": 282,
+  "wider_candidates": 264,
   "per_stream": {
-   "psychedelics": 9,
-   "neuroimaging": 4,
-   "neuropsychopharm": 5,
+   "psychedelics": 8,
+   "neuroimaging": 3,
+   "neuropsychopharm": 3,
    "bio_psychiatry": 3,
    "neurodynamics": 2,
    "brain_body": 2,
    "wider": 0,
    "tools": 0
   },
-  "seconds": 1125.8,
+  "seconds": 352.7,
   "claude_moves": {
    "in": [
-    "Neurophysiological correlates of interoceptive compassion training for depression",
-    "Multishell diffusion MRI models have limited sensitivity to ketamine-induced microstructur",
-    "A novel theta-frequency tACS approach for major depressive disorder: Initial findings from"
+    "The Multi-Objective Computational Design and Prioritization of Novel TSPO PET Radioligands",
+    "Psychedelics shift decision strategies and reconfigure orbitofrontal dynamics."
    ],
    "out": [
-    "Editorial: Emerging treatment approaches for substance use disorders, vol II",
-    "Vagus-Hepatic-Creatine axis modulates manic-like behaviors via hippocampal MMP19 upregulat",
-    "Paired-Pulse TMS as a Window into Cortical Microcircuits: Mechanistic Insights and Transla"
+    "Feasibility of Simulated Low-Count [&lt;sup&gt;18&lt;/sup&gt;F]FDG PET/MR for Patients wit",
+    "Difference in Patterns of Polysubstance Use Between Adults With Primary Cocaine Versus Met"
    ]
   }
  },
  "buzz": {
-  "checked": 25,
-  "with_chatter": 4,
+  "checked": 21,
+  "with_chatter": 6,
   "errors": 0
  },
  "buzz_discover": {
   "calls": 40,
-  "candidates": 9,
-  "kept": 1
+  "candidates": 2,
+  "kept": 0
  },
  "wider": {
-  "journal_candidates": 210,
-  "discussed_links": 392,
-  "resolved": 7,
+  "journal_candidates": 206,
+  "discussed_links": 275,
+  "resolved": 4,
   "bsky_calls": 45,
   "bsky_errors": 0,
-  "life_science_candidates": 198,
-  "picked": 4
+  "life_science_candidates": 182,
+  "picked": 3
  },
  "trials": {
-  "registered": 1,
-  "psychedelic": 0
+  "registered": 2,
+  "psychedelic": 1
  },
  "catchup": {
   "topics": [
-   "psilocybin depression",
-   "psychedelic neuroplasticity",
-   "serotonin release PET"
+   "5-HT2A receptor psychedelic",
+   "ketamine antidepressant mechanism",
+   "EEG complexity consciousness"
   ],
-  "pool": 61
+  "pool": 73
  },
  "tools": {
-  "releases": 3,
+  "releases": 0,
   "learned_repos": [],
-  "joss": 0,
-  "new_repos": 2,
+  "joss": 1,
+  "new_repos": 1,
   "errors": []
  },
  "opportunities": {
   "watched": 50,
   "fetched": 48,
   "fetch_failed": [],
-  "changed": 6,
-  "new": 8,
+  "changed": 0,
+  "new": 2,
   "hidden_ineligible": 0,
   "ukri": 1
  },
  "llm": {
-  "input_tokens": 45385,
-  "output_tokens": 16732,
+  "input_tokens": 26729,
+  "output_tokens": 11783,
   "cache_write": 0,
   "cache_read": 0,
   "web_searches": 0,
   "model": "claude-haiku-5-5",
-  "items": 52,
-  "requests": 6,
-  "batch": true,
-  "cost_usd": 0.00645225,
-  "skipped_thin": 1,
-  "written": 52
+  "items": 32,
+  "requests": 4,
+  "batch": false,
+  "cost_usd": 0.0085644,
+  "errors": [
+   "c3: AuthenticationError: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011ChGSLT8Sc7JzMS1AMsFRQ'}"
+  ],
+  "written": 30
  },
  "cards": {
   "catchup": 2,
-  "conference": 4,
-  "funding": 5,
-  "paper": 30,
-  "tool_paper": 3,
-  "tool_release": 3,
-  "tool_repo": 2,
-  "training": 2
+  "paper": 24,
+  "tool_paper": 4,
+  "tool_repo": 1,
+  "trial": 1
  },
- "finished": "2026-11-21T16:43:17",
- "health": [],
+ "finished": "2026-11-21T17:05:30",
+ "health": [
+  "europepmc was slow, so 17 lower-priority searches were skipped (PubMed and OpenAlex cover most of the same papers)"
+ ],
  "alerts": [],
  "claude": {
   "on": true,
-  "cost_usd": 0.0082,
-  "month_to_date_usd": 0.1542,
+  "cost_usd": 0.0104,
+  "month_to_date_usd": 0.1646,
   "budget_usd": 1.0,
   "parts": {
-   "llm": 0.00645225,
-   "rerank": 0.0017526,
+   "llm": 0.0085644,
+   "rerank": 0.0018629,
    "taste": 0
   },
-  "line": "cards 52 new ($0.006) · re-rank: 74 papers rated, 3 in / 3 out ($0.002) · taste: 0 marked cards (needs 10) · this run $0.008 · month $0.15 of $1.00"
+  "line": "cards 30 new ($0.009) · re-rank: 73 papers rated, 2 in / 2 out ($0.002) · taste: 4 marked cards (needs 10) · this run $0.010 · month $0.16 of $1.00"
  }
 }
