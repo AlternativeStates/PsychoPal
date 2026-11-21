@@ -4,33 +4,36 @@
   "2026-11-16",
   "2026-11-21"
  ],
- "started": "2026-11-21T17:06:41",
+ "started": "2026-11-21T17:33:58",
  "period_scale": 0.86,
  "preferences": {
-  "liked": 9,
+  "liked": 10,
   "disliked": 1,
   "starred": 3,
   "synced": true
  },
  "taste": {
-  "skipped": "8 marked cards (needs 10)"
+  "skipped": "9 marked cards (needs 10)"
  },
  "stage_seconds": {
   "taste": 0.0,
-  "papers": 340.7,
-  "buzz": 40.0,
-  "buzz_discover": 14.3,
-  "wider": 17.3,
-  "trials": 0.1,
-  "catchup": 1.2,
-  "tools": 12.1,
-  "opportunities": 32.6,
-  "summarise": 0.0,
+  "papers": 367.6,
+  "buzz": 39.5,
+  "buzz_discover": 14.4,
+  "wider": 17.0,
+  "trials": 0.2,
+  "catchup": 1.7,
+  "tools": 17.6,
+  "opportunities": 48.5,
+  "summarise": 9.2,
   "opportunities_finalise": 0.0,
   "archive": 0.2
  },
  "rerank": {
-  "skipped": "no ANTHROPIC_API_KEY"
+  "model": "claude-haiku-5-5",
+  "shortlist": 79,
+  "rated": 79,
+  "cost_usd": 0.0018442
  },
  "papers": {
   "window": [
@@ -40,7 +43,7 @@
   "sources": {
    "pubmed": {
     "hits": 1319,
-    "seconds": 31.3,
+    "seconds": 34.6,
     "queries": 44,
     "query_errors": [],
     "per_group": {
@@ -91,9 +94,9 @@
     }
    },
    "europepmc": {
-    "hits": 972,
-    "seconds": 306.1,
-    "queries": 39,
+    "hits": 398,
+    "seconds": 330.3,
+    "queries": 18,
     "query_errors": [],
     "per_group": {
      "psychedelic_imaging": 4,
@@ -113,29 +116,29 @@
      "tms_eeg": 4,
      "plasticity_imaging": 10,
      "mri_methods": 60,
-     "ketamine_rapid": 66,
-     "stimulants": 49,
-     "cannabis": 89,
-     "serotonin_pet": 5,
-     "plasticity": 44,
-     "psychopharm_general": 153,
-     "pharmaco_imaging_other": 20,
-     "preclinical_psychiatry": 136,
-     "psychiatry_bio_human": 226,
-     "psychiatry_imaging": 41,
-     "addiction_imaging": 17,
-     "biopsych_top": 17,
-     "eeg_dynamics": 39,
-     "info_theory_dynamics": 50,
-     "travelling_waves": 4,
-     "aperiodic_waveform": 18,
-     "consciousness_dynamics": 52,
-     "comp_modelling": 3,
-     "dcm_wholebrain": 0,
-     "comp_psychiatry": 26,
-     "receptor_maps": 41
+     "ketamine_rapid": 66
     },
     "skipped_slow": [
+     "stimulants",
+     "cannabis",
+     "serotonin_pet",
+     "plasticity",
+     "psychopharm_general",
+     "pharmaco_imaging_other",
+     "preclinical_psychiatry",
+     "psychiatry_bio_human",
+     "psychiatry_imaging",
+     "addiction_imaging",
+     "biopsych_top",
+     "eeg_dynamics",
+     "info_theory_dynamics",
+     "travelling_waves",
+     "aperiodic_waveform",
+     "consciousness_dynamics",
+     "comp_modelling",
+     "dcm_wholebrain",
+     "comp_psychiatry",
+     "receptor_maps",
      "brain_body",
      "interoception_psych",
      "tools_papers",
@@ -144,7 +147,7 @@
    },
    "openalex": {
     "hits": 857,
-    "seconds": 31.1,
+    "seconds": 35.1,
     "queries": 21,
     "query_errors": [],
     "per_group": {
@@ -174,7 +177,7 @@
    },
    "biorxiv": {
     "hits": 227,
-    "seconds": 15.1,
+    "seconds": 14.4,
     "per_category": {
      "neuroscience": 207,
      "pharmacology_and_toxicology": 20
@@ -184,7 +187,7 @@
    },
    "medrxiv": {
     "hits": 57,
-    "seconds": 3.2,
+    "seconds": 6.4,
     "per_category": {
      "psychiatry_and_clinical_psychology": 14,
      "neurology": 29,
@@ -196,45 +199,49 @@
    },
    "arxiv": {
     "hits": 47,
-    "seconds": 6.1,
+    "seconds": 6.3,
     "per_category": {
      "q-bio.NC": 31,
      "q-bio.QM": 16
     }
    }
   },
-  "raw_hits": 3479,
-  "after_merge": 2729,
+  "raw_hits": 2905,
+  "after_merge": 2469,
   "dropped": {
    "already_shown": 5,
    "errata": 10,
    "outside_window": 0,
    "bulk_below_threshold": 236
   },
-  "scored_pool": 2478,
+  "scored_pool": 2218,
   "selected": 21,
   "tool_papers": 3,
   "skipped_too_similar": 0,
   "wider_candidates": 264,
   "per_stream": {
-   "psychedelics": 7,
+   "psychedelics": 8,
    "neuroimaging": 3,
-   "neuropsychopharm": 4,
+   "neuropsychopharm": 3,
    "bio_psychiatry": 3,
    "neurodynamics": 2,
    "brain_body": 2,
    "wider": 0,
    "tools": 0
   },
-  "seconds": 340.7,
+  "seconds": 367.6,
   "claude_moves": {
-   "in": [],
-   "out": []
+   "in": [
+    "Animal models in psychedelic research - Tripping over translation."
+   ],
+   "out": [
+    "Difference in Patterns of Polysubstance Use Between Adults With Primary Cocaine Versus Met"
+   ]
   }
  },
  "buzz": {
   "checked": 21,
-  "with_chatter": 4,
+  "with_chatter": 5,
   "errors": 0
  },
  "buzz_discover": {
@@ -244,7 +251,7 @@
  },
  "wider": {
   "journal_candidates": 206,
-  "discussed_links": 275,
+  "discussed_links": 276,
   "resolved": 4,
   "bsky_calls": 45,
   "bsky_errors": 0,
@@ -274,40 +281,46 @@
   "watched": 50,
   "fetched": 48,
   "fetch_failed": [],
-  "changed": 1,
+  "changed": 0,
   "new": 2,
   "hidden_ineligible": 0,
   "ukri": 1
  },
  "llm": {
-  "skipped": "no ANTHROPIC_API_KEY",
-  "items": 9
+  "input_tokens": 6827,
+  "output_tokens": 2014,
+  "cache_write": 0,
+  "cache_read": 0,
+  "web_searches": 0,
+  "model": "claude-haiku-5-5",
+  "items": 6,
+  "requests": 1,
+  "batch": false,
+  "cost_usd": 0.0016897,
+  "written": 6
  },
  "cards": {
   "catchup": 2,
-  "conference": 1,
   "paper": 24,
   "tool_paper": 4,
   "tool_repo": 1,
   "trial": 1
  },
- "finished": "2026-11-21T17:14:20",
+ "finished": "2026-11-21T17:42:34",
  "health": [
-  "europepmc was slow, so 4 lower-priority searches were skipped (PubMed and OpenAlex cover most of the same papers)"
+  "europepmc was slow, so 24 lower-priority searches were skipped (PubMed and OpenAlex cover most of the same papers)"
  ],
- "alerts": [
-  "No Claude API key is set, so cards show scripted summaries. Add the ANTHROPIC_API_KEY secret on GitHub."
- ],
+ "alerts": [],
  "claude": {
   "on": true,
-  "cost_usd": 0.0,
-  "month_to_date_usd": 0.1646,
+  "cost_usd": 0.0035,
+  "month_to_date_usd": 0.1681,
   "budget_usd": 1.0,
   "parts": {
-   "llm": 0,
-   "rerank": 0,
+   "llm": 0.0016897,
+   "rerank": 0.0018442,
    "taste": 0
   },
-  "line": "cards: no ANTHROPIC_API_KEY · re-rank: no ANTHROPIC_API_KEY · taste: 8 marked cards (needs 10) · this run $0.000 · month $0.16 of $1.00"
+  "line": "cards 6 new ($0.002) · re-rank: 79 papers rated, 1 in / 1 out ($0.002) · taste: 9 marked cards (needs 10) · this run $0.004 · month $0.17 of $1.00"
  }
 }
