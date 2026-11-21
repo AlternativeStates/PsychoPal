@@ -1,5 +1,5 @@
 {
  "date": "2026-11-21",
- "status": "ok",
- "result": "OK: claude-haiku-5-5 answered 'ready'; claude-sonnet-5-5 available for the monthly sweep"
+ "status": "fail",
+ "result": "FAIL: ANTHROPIC_API_KEY is not set (GitHub: add it under Settings > Secrets and variables > Actions)."
 }
