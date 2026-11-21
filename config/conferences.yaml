@@ -84,3 +84,38 @@ items:
     url: https://www.brainstimjrnl.com/content/conferences
     organiser: Brain Stimulation journal / Elsevier
     disabled: true   # site blocks automated checks; covered by the monthly sweep
+
+  - id: sweep-bna-festival-of-neuroscience
+    name: "BNA Festival of Neuroscience"
+    url: "https://www.bna.org.uk/"
+    organiser: "British Neuroscience Association"
+    notes: "Main UK neuroscience meeting, useful for networking and UK early-career funders."
+    source: sweep
+    added: 2026-11-21
+    location: "UK"
+
+  - id: sweep-bernstein-conference
+    name: "Bernstein Conference"
+    url: "https://bernstein-network.de/en/bernstein-conference/"
+    organiser: "Bernstein Network Computational Neuroscience"
+    notes: "Computational neuroscience meeting covering whole-brain and neural mass modelling and neurodynamics."
+    source: sweep
+    added: 2026-11-21
+    location: "Germany"
+
+  - id: sweep-cns-computational-neuroscience-meeting
+    name: "CNS* – Computational Neuroscience Meeting"
+    url: "https://www.cnsorg.org/"
+    organiser: "Organization for Computational Neurosciences"
+    notes: "Annual computational neuroscience meeting relevant to neural mass models and criticality."
+    source: sweep
+    added: 2026-11-21
+
+  - id: sweep-eanm-congress
+    name: "EANM Congress"
+    url: "https://www.eanm.org/"
+    organiser: "European Association of Nuclear Medicine"
+    notes: "Largest European PET meeting, with neuroreceptor and synaptic density PET and kinetic modelling content."
+    source: sweep
+    added: 2026-11-21
+    location: "Europe"

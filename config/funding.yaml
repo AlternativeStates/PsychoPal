@@ -112,3 +112,12 @@ items:
     url: https://www.imperial.ac.uk/research-and-innovation/support-for-staff/research-office/funder-information/funding-opportunities/
     funder: Imperial College London
     notes: Internal selection rounds and institutional calls (e.g. UKRI FLF, Wellcome, pump-priming).
+
+  - id: sweep-rosetrees-trust-research-funding
+    name: "Rosetrees Trust – research funding"
+    url: "https://www.rosetreestrust.co.uk/"
+    funder: "Rosetrees Trust"
+    notes: "UK medical research charity funding early-career and project grants, applied for via the host institution."
+    source: sweep
+    added: 2026-11-21
+    location: "UK"

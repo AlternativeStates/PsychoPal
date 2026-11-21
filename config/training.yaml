@@ -61,3 +61,12 @@ items:
     url: https://www.fil.ion.ucl.ac.uk/spm/course/
     organiser: UCL FIL
     disabled: true
+
+  - id: sweep-okinawa-computational-neuroscience-cours
+    name: "Okinawa Computational Neuroscience Course (OCNC)"
+    url: "https://groups.oist.jp/ocnc"
+    organiser: "OIST"
+    notes: "Summer course on computational and whole-brain modelling that fits your wish to learn modelling methods."
+    source: sweep
+    added: 2026-11-21
+    location: "Okinawa, Japan"
