@@ -31,7 +31,7 @@ def check(force=False):
         if not enabled:
             m = "OFF: Claude is switched off (llm.enabled: false) and no ANTHROPIC_API_KEY is set; cards use scripted summaries."
             return "off", m, m
-        m = "FAIL: ANTHROPIC_API_KEY is not set (GitHub: add it under Settings > Secrets and variables > Actions)."
+        m = "FAIL: no Claude API key reached the run (GitHub: add it as the secret PSYCHOPAL_2027 under Settings > Secrets and variables > Actions)."
         return "fail", m, m
     if not enabled and not force:
         m = "OFF: Claude is switched off (llm.enabled: false in config/settings.yaml); cards use scripted abstract summaries."

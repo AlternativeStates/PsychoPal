@@ -103,20 +103,20 @@ jobs:
         id: claude
         continue-on-error: true
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.PSYCHOPAL_2027 || secrets.ANTHROPIC_API_KEY }}   # GitHub secret PSYCHOPAL_2027 (older name: ANTHROPIC_API_KEY)
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
         run: python -m psychopal.check_claude --force --save state/claude_check.json | tee claude_check.txt   # the saved file holds only OK/FAIL + reason
 
       - name: Monthly discovery sweep (first run of each month that sweeps; skipped while Claude or the sweep is off)
         if: ${{ inputs.no_llm != true }}
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.PSYCHOPAL_2027 || secrets.ANTHROPIC_API_KEY }}   # GitHub secret PSYCHOPAL_2027 (older name: ANTHROPIC_API_KEY)
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
         run: python -m psychopal.monthly_sweep || echo "sweep failed (non-fatal)"
 
       - name: Build the edition
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.PSYCHOPAL_2027 || secrets.ANTHROPIC_API_KEY }}   # GitHub secret PSYCHOPAL_2027 (older name: ANTHROPIC_API_KEY)
           ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NCBI_API_KEY: ${{ secrets.NCBI_API_KEY }}

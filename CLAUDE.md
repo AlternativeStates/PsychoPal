@@ -24,7 +24,8 @@ Weekly literature/funding/events feed for Claudio Agnorelli (Centre for Psychede
   one edition from last Monday (or earlier) to last Sunday (or later): `nudge.covered()`, the `check` job and refresh.js use
   the same rule. Inputs reach the build step only as env vars. Keep input/branch names stable. No external timers (he
   found cron-job.org + a token too complicated).
-  Each build saves the key-check verdict (no key shape, no workspace ID) in `state/claude_check.json`.
+  Each build saves the key-check verdict (no key shape, no workspace ID) in `state/claude_check.json`. The Claude key is the
+  GitHub secret `PSYCHOPAL_2027` (fallback `ANTHROPIC_API_KEY`), exposed to scripts as env `ANTHROPIC_API_KEY`; 1-year key, expires 2027-11-21.
 - Config lives in `config/` (queries.json = topics/weights; settings.yaml; watchlist YAMLs). Topics are ranked (Nov 2026):
   psychedelics > neuroimaging (incl. brain stimulation) > neuropsychopharm > bio_psychiatry > neurodynamics (merged with the old
   comp_neuro) > brain_body; quotas in settings `stream_quota`, ranking tilt in queries.json `scoring.stream_bonus`/`primary_stream`. State in `state/` (committed by CI).

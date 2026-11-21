@@ -156,7 +156,9 @@ the repo already has one (`.github/workflows/weekly.yml`).
 ### D. GitHub secrets and variables
 Repo › **Settings** › sidebar *Security* › **Secrets and variables › Actions**. Optional: tab **Variables** › `PSYCHOPAL_MAILTO`
 (contact email for PubMed/OpenAlex); secret `NCBI_API_KEY` (free, from your NCBI account). Only if Claude is switched on:
-**New repository secret** › Name `ANTHROPIC_API_KEY`, Secret = the key › **Add secret**.
+**New repository secret** › Name `PSYCHOPAL_2027`, Secret = the key › **Add secret**. (The workflow also accepts the older
+name `ANTHROPIC_API_KEY`. When you replace the key, edit the existing secret rather than adding one with a new name; a new name
+also has to be changed in `.github/workflows/weekly.yml`.)
 
 ### E. First run
 Repo › **Actions** tab › **Weekly PsychoPal** (left list) › **Run workflow** › `week_end` = `2026-11-08` › **Run workflow**.

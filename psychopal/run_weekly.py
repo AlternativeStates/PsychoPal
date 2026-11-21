@@ -121,14 +121,14 @@ def claude_alerts(llm, settings, no_llm=False, today=None):
         out.append(f"Claude's monthly budget (${float(b):.2f}) is used up, so cards show scripted summaries until the 1st. "
                    "Raise llm.monthly_budget_usd in config/settings.yaml to change this.")
     elif err and ("401" in err or "Authentication" in err):
-        out.append("Claude rejected the API key, so cards show scripted summaries this week. Replace the ANTHROPIC_API_KEY secret on GitHub, "
+        out.append("Claude rejected the API key, so cards show scripted summaries this week. Replace the PSYCHOPAL_2027 secret on GitHub, "
                    "then re-run the workflow for this week.")
     elif err and ("credit" in err.lower() or "billing" in err.lower()):
         out.append("The Claude account has run out of credits, so cards show scripted summaries this week.")
     elif err:
         out.append("Claude was unavailable, so some cards show scripted summaries this week. They are rewritten next week.")
     elif llm.get("skipped") and not no_llm and (settings.get("llm") or {}).get("enabled", True):
-        out.append("No Claude API key is set, so cards show scripted summaries. Add the ANTHROPIC_API_KEY secret on GitHub.")
+        out.append("No Claude API key is set, so cards show scripted summaries. Add the PSYCHOPAL_2027 secret on GitHub.")
     exp = (settings.get("llm") or {}).get("key_expires")
     if exp:
         try:
@@ -136,10 +136,10 @@ def claude_alerts(llm, settings, no_llm=False, today=None):
         except ValueError:
             days = None
         if days is not None and days < 0:
-            out.append(f"The Claude API key expired on {exp}. Create a new one and update the ANTHROPIC_API_KEY secret on GitHub "
+            out.append(f"The Claude API key expired on {exp}. Create a new one and update the PSYCHOPAL_2027 secret on GitHub "
                        "(and llm.key_expires in config/settings.yaml).")
         elif days is not None and days <= 21:
-            out.append(f"The Claude API key expires in {days} days ({exp}). Create a new one and update the ANTHROPIC_API_KEY secret on "
+            out.append(f"The Claude API key expires in {days} days ({exp}). Create a new one and update the PSYCHOPAL_2027 secret on "
                        "GitHub, and llm.key_expires in config/settings.yaml.")
     return out
 
