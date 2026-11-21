@@ -116,8 +116,11 @@ def pubmed(cfg, start, end, log):
 
 # ---------------- Europe PMC ----------------
 EPMC = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
-def europepmc(cfg, start, end, log):
+EPMC_BUDGET_S = 300     # normally 1-3 min; on 21 Nov 2026 the service was slow and took 18. After this, the remaining (lower-
+                        # priority) groups are skipped: PubMed and OpenAlex cover most of the same papers. Logged as skipped_slow.
+def europepmc(cfg, start, end, log, budget_s=None, clock=time.time):
     info = {"queries": 0, "query_errors": [], "per_group": {}}
+    t0, budget_s = clock(), EPMC_BUDGET_S if budget_s is None else budget_s
     out = {}
     queries = []
     for g in cfg["groups"]:
@@ -129,7 +132,11 @@ def europepmc(cfg, start, end, log):
     people = [p for p in cfg.get("named_researchers", {}).get("people", []) if not p.get("strict")]
     if people:
         queries.append(("named_researchers", " OR ".join(f'AUTH:"{p["surname"]} {p["first"][0]}"' for p in people)))
-    for name, q in queries:
+    for qi, (name, q) in enumerate(queries):
+        if clock() - t0 > budget_s:                       # groups are in priority order, so the most important ones ran
+            info["skipped_slow"] = [n for n, _ in queries[qi:]]
+            log(f"europepmc: slow today, skipped {len(queries) - qi} of {len(queries)} searches after {budget_s} s")
+            break
         full = f"({q}) AND (FIRST_PDATE:[{start} TO {end}])"
         cursor, pages = "*", 0
         try:

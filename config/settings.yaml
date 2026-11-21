@@ -56,7 +56,8 @@ llm:
   model: claude-haiku-5-5
   effort: low
   thinking: "off"           # "off" = no extended thinking (cheapest); "adaptive" = let the model think
-  use_batch: true           # Message Batches API: 50% cheaper, results within minutes (max wait below)
+  use_batch: false          # false = direct calls, done in ~2 min (the app's ⟳ refresh waits for them). true = Message Batches:
+                            # 50% cheaper (~$0.30/yr less) but can take up to batch_max_wait_min
   batch_max_wait_min: 60
   items_per_request: 10
   max_items_to_llm: 80      # hard cap per week

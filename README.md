@@ -101,7 +101,7 @@ Claude only writes text, gives a small capped ranking bonus, and proposes watchl
 
 | Feature | What Claude does | Model | Cost per year |
 |---|---|---|---|
-| Card text (`summarise.py`) | Paper cards: Aim / Methods / Results / Conclusion written from the abstract, plus "Why it matters for you". Other cards: a short post. Only new items are sent, all at once in one batch (50% cheaper), and the text is cached for good. | Haiku 5.5 | ≈ $0.30 |
+| Card text (`summarise.py`) | Paper cards: Aim / Methods / Results / Conclusion written from the abstract, plus "Why it matters for you". Other cards: a short post. Only new items are sent, as a few direct requests (about 2 minutes), and the text is cached for good. A batch would be 50% cheaper but can take up to an hour (`llm.use_batch`). | Haiku 5.5 | ≈ $0.60 |
 | Pages (`opportunities.py`) | Reads changed funding, conference and course pages (status, dates; no countdowns), hides pages that are closed, and hides UKRI calls you can't apply for. | Haiku 5.5 (same batch) | included |
 | Re-rank (`prefs.py`) | Rates the week's ~80-paper shortlist 1–5 for you, giving a bonus between −2.5 and +2.5 points. The edition cut-off is ≈ 17 points, so it reorders papers but can't pull in an off-topic one. | Haiku 5.5 | ≈ $0.10 |
 | Taste digest (`prefs.py`) | Monthly, once you have marked 10 or more cards (needs phone sync): writes a short profile of what you like plus a few terms to rank higher or lower (±1.5 points at most). It's shown at the top of the feed. | Haiku 5.5 | ≈ $0.02 |

@@ -241,6 +241,10 @@ def main():
             failed = [k for k, v in res["stats"]["sources"].items() if v.get("error")]
             if failed:
                 health.append("paper sources unavailable: " + ", ".join(failed))
+            for k, v in res["stats"]["sources"].items():
+                if v.get("skipped_slow"):
+                    health.append(f"{k} was slow, so {len(v['skipped_slow'])} lower-priority searches were skipped "
+                                  "(PubMed and OpenAlex cover most of the same papers)")
             if len(failed) >= 3 or not res["papers"]:
                 alerts.append("Few or no papers this week: the literature databases could not be reached (" + (", ".join(failed) or "no results") + ").")
         else:

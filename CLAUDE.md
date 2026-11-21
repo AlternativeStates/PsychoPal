@@ -4,7 +4,7 @@ Weekly literature/funding/events feed for Claudio Agnorelli (Centre for Psychede
 
 - Design rule: **scripts do retrieval, ranking and rendering**; Claude is optional, minimal-cost (~$3-4/yr) and fail-safe.
   `llm.enabled` (settings.yaml) is the single MASTER switch for all Claude use (off = zero API calls, exactly the scripted feed).
-  Claude parts (decided Nov 2026): card text (`summarise.py`: Haiku 5.5, one cached Message Batch/week, papers get `sections`
+  Claude parts (decided Nov 2026): card text (`summarise.py`: Haiku 5.5, cached, direct calls since 21 Nov 2026 (`llm.use_batch: false`: ~2 min instead of up to 1 h), papers get `sections`
   Aim/Methods/Results/Conclusion + why_you; opportunity pages get status/dates/relevance), weekly capped re-rank and monthly taste
   digest from 👍/👎/★ (`prefs.py`, Haiku; bonus at most ±4 points via `papers.run(adjust=...)`), monthly web sweep
   (`monthly_sweep.py`, Sonnet 5.5, ≤6 searches, once per month via state/sweeps.jsonl). Shared helpers in `llm.py` (per-model
