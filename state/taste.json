@@ -1,0 +1,32 @@
+{
+ "version": 1,
+ "month": "2026-11",
+ "written": "2026-11-23",
+ "model": "claude-haiku-5-5",
+ "marks": {
+  "liked": 16,
+  "disliked": 1,
+  "total": 17,
+  "hash": "e99fc5a9"
+ },
+ "profile": "You favour psychedelic neuroscience in humans and animals, especially psilocybin, LSD, DMT and breathwork, examined through EEG, sleep physiology, PET receptor and synaptic density binding, and whole-brain dynamics such as criticality, vortex and control-energy models. Heart-brain coupling, meditation states and ketamine combined with neuromodulation also draw your attention. Clinical trial readouts in depression and mechanistic pharmacology of 5-HT2A signalling fit well. You are less interested in glymphatic and CSF clearance physiology, and in funding or conference announcements that lack methodological content.",
+ "boost": [
+  "psilocybin",
+  "5-hydroxytryptamine",
+  "synaptic density",
+  "eeg",
+  "criticality",
+  "neural dynamics",
+  "heart-brain",
+  "ketamine"
+ ],
+ "penalise": [
+  "glymphatic",
+  "cerebrospinal fluid",
+  "interstitial fluid",
+  "funding call",
+  "sleep-wake",
+  "astrocyte"
+ ],
+ "cost_usd": 0.000471
+}
