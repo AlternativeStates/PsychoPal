@@ -3,37 +3,37 @@
   "funding:wellcome-early-career": {
    "hash": "e03652d9d01e",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "fu-b884feb9df",
    "extracted": true
   },
   "funding:wellcome-career-development": {
    "hash": "2f529aeb7a3a",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "fu-ba6c93efac",
    "extracted": true
   },
   "funding:mrc-cda": {
    "hash": "4452d271f044",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "fu-ea51702fcb",
    "extracted": true
   },
   "funding:ukri-flf": {
    "hash": "d915294c34aa",
    "hash_week": "2026-W46",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "deadline": "2027-02-16",
    "card_id": "fu-08fe98c05b",
    "extracted": true,
    "status": "unknown"
   },
   "funding:royal-society-urf": {
-   "hash": "632224765b80",
+   "hash": "beacceb4f247",
    "hash_week": "2026-W48",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "fu-01e1783fbd",
    "extracted": true
   },
@@ -54,21 +54,21 @@
   "funding:msca-pf": {
    "hash": "66917941c063",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "fu-ec431b8dba",
    "extracted": true
   },
   "funding:erc-starting": {
    "hash": "2058701e18ce",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "fu-b9ee714b98",
    "extracted": true
   },
   "funding:embo-postdoc": {
    "hash": "fadaf1ccd0c4",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "deadline": "2027-01-22",
    "card_id": "fu-065b108e4c",
    "extracted": true
@@ -76,7 +76,7 @@
   "funding:hfsp-postdoc": {
    "hash": "f9c99839b0db",
    "hash_week": "2026-W46",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "fu-490179f894",
    "extracted": true,
    "deadline": "2027-05-04",
@@ -85,21 +85,21 @@
   "funding:bbrf-young-investigator": {
    "hash": "9304a14a3634",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "fu-3e807b5239",
    "extracted": true
   },
   "funding:heffter": {
    "hash": "6d4f677005cf",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "fu-25c299a260",
    "extracted": true
   },
   "funding:wellcome-mental-health": {
    "hash": "4ab75aae2969",
    "hash_week": "2026-W46",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "fu-9d21b19a02",
    "extracted": true,
    "status": "unknown"
@@ -107,35 +107,35 @@
   "funding:imperial-icrf": {
    "hash": "7fbf72528c89",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "fu-33c7d121e7",
    "extracted": true
   },
   "funding:imperial-funding-opps": {
    "hash": "1e9fa6c178c9",
    "hash_week": "2026-W48",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "fu-c006946263",
    "extracted": true
   },
   "conference:psychedelic-science": {
-   "hash": "b858cb282617",
+   "hash": "89bfbe752b46",
    "hash_week": "2026-W48",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-c757bd84a7",
    "extracted": true
   },
   "conference:insight": {
    "hash": "d78fa95a3eaa",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-5dd07aa8fc",
    "extracted": true
   },
   "conference:icpr": {
    "hash": "5a852f3e8be0",
    "hash_week": "2026-W46",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-2a20826763",
    "extracted": true,
    "event_dates": "7-10 Jun 2028",
@@ -144,56 +144,56 @@
   "conference:assc": {
    "hash": "759b9dd968d6",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-a7afa2df31",
    "extracted": true
   },
   "conference:ohbm": {
    "hash": "4b7e8d09dece",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-b201fedfff",
    "extracted": true
   },
   "conference:ipeg": {
    "hash": "c2a71e80a354",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-9b6b102534",
    "extracted": true
   },
   "conference:nrm": {
    "hash": "8dbcea3f49ac",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-8b46676562",
    "extracted": true
   },
   "conference:brainpet": {
    "hash": "5b1859c8cff7",
    "hash_week": "2026-W46",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-ae6049fbf7",
    "extracted": true
   },
   "conference:ecnp": {
-   "hash": "3b644e2be4dc",
+   "hash": "1130bb5235a9",
    "hash_week": "2026-W48",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-46c7bc3676",
    "extracted": true
   },
   "conference:cinp": {
    "hash": "72579c4b7c51",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-c1b2466e4a",
    "extracted": true
   },
   "conference:acnp": {
    "hash": "c0a95f8c7d18",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "deadline": "2026-11-19",
    "card_id": "co-bf9ceef5e8",
    "extracted": true
@@ -201,35 +201,38 @@
   "conference:sobp": {
    "hash": "a9635fdce424",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-dfe0ee64a4",
    "extracted": true
   },
   "conference:bap": {
-   "hash": "4b9473562487",
-   "hash_week": "2026-W46",
-   "seen": "2026-11-24",
-   "card_id": "co-f7872815a9",
-   "extracted": true
+   "hash": "57ce4f34b52f",
+   "hash_week": "2026-W48",
+   "seen": "2026-11-28",
+   "card_id": "co-c46c3fe1b0",
+   "extracted": true,
+   "status": "unknown"
   },
   "conference:breaking-convention": {
    "hash": "1a087ce89596",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-1c6ded33e6",
    "extracted": true
   },
   "conference:fens": {
-   "hash": "53afb196bf34",
-   "hash_week": "2026-W46",
-   "seen": "2026-11-24",
-   "card_id": "co-590d862a83",
-   "extracted": true
+   "hash": "3b23f80b1305",
+   "hash_week": "2026-W48",
+   "seen": "2026-11-28",
+   "card_id": "co-37d2703b39",
+   "extracted": true,
+   "event_dates": "26-29 May 2027",
+   "status": "open"
   },
   "conference:sfn": {
    "hash": "28ebdd1f2486",
    "hash_week": "2026-W46",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-329b105bda",
    "extracted": true,
    "status": "closed"
@@ -237,7 +240,7 @@
   "conference:ccn": {
    "hash": "17bdd51cb359",
    "hash_week": "2026-W46",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "deadline": "2027-02-04",
    "card_id": "co-f918115f00",
    "extracted": true
@@ -245,63 +248,63 @@
   "conference:cosyne": {
    "hash": "169fb2ad735d",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "co-2900527c4e",
    "extracted": true
   },
   "training:spm-course": {
    "hash": "8568c5ffd539",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "tr-3d996d4215",
    "extracted": true
   },
   "training:fsl-course": {
    "hash": "0b37c8317f73",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "tr-52be515346",
    "extracted": true
   },
   "training:fieldtrip-workshops": {
    "hash": "7e1a0ea5db5a",
    "hash_week": "2026-W48",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "tr-c647c93e32",
    "extracted": true
   },
   "training:eeglab-workshops": {
    "hash": "6098d139a7ba",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "tr-03d039551f",
    "extracted": true
   },
   "training:tms-eeg-summer-school": {
    "hash": "c6eabeaf7d5e",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "tr-3a91f178dc",
    "extracted": true
   },
   "training:neuromatch": {
    "hash": "ee7514f2af2e",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "tr-d6306859c4",
    "extracted": true
   },
   "training:cpc-zurich": {
    "hash": "63278dcdd638",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "tr-f96725dc9f",
    "extracted": true
   },
   "training:woods-hole-mcn": {
    "hash": "17caed056f42",
    "hash_week": "2026-W46",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "tr-a35456c042",
    "extracted": true,
    "deadline": "2027-03-10",
@@ -311,21 +314,21 @@
   "training:brainhack": {
    "hash": "915f533c0426",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "tr-7708b04241",
    "extracted": true
   },
   "training:turku-pet-course": {
    "hash": "1d20ce67e9ba",
    "hash_week": "2026-W45",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "card_id": "tr-c51d1a408f",
    "extracted": true
   },
   "funding:sweep-rosetrees-trust-research-funding": {
    "hash": "af6316588409",
    "hash_week": "2026-W46",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "status": "unknown",
    "card_id": "fu-0bd416fbe0",
    "extracted": true
@@ -333,7 +336,7 @@
   "conference:sweep-bna-festival-of-neuroscience": {
    "hash": "4e80282c4ba7",
    "hash_week": "2026-W46",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "status": "unknown",
    "card_id": "co-d943963b46",
    "extracted": true
@@ -341,7 +344,7 @@
   "conference:sweep-bernstein-conference": {
    "hash": "b3a2056c6bea",
    "hash_week": "2026-W46",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "event_dates": "28 Sep-1 Oct 2026",
    "status": "closed",
    "card_id": "co-7b3fdb0423",
@@ -350,7 +353,7 @@
   "conference:sweep-cns-computational-neuroscience-meeting": {
    "hash": "ad6b7d00455e",
    "hash_week": "2026-W46",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "event_dates": "10-14 Jul 2027",
    "status": "upcoming",
    "card_id": "co-0f46adda63",
@@ -359,18 +362,19 @@
   "conference:sweep-eanm-congress": {
    "hash": "152307f6911a",
    "hash_week": "2026-W46",
-   "seen": "2026-11-24",
+   "seen": "2026-11-28",
    "status": "unknown",
    "card_id": "co-a5d81d3bf3",
    "extracted": true
   },
   "training:sweep-okinawa-computational-neuroscience-cours": {
-   "hash": "5034ec469dd1",
-   "hash_week": "2026-W46",
-   "seen": "2026-11-24",
-   "status": "unknown",
-   "card_id": "tr-001462becd",
-   "extracted": true
+   "hash": "2a84f01cb2a2",
+   "hash_week": "2026-W48",
+   "seen": "2026-11-28",
+   "status": "closed",
+   "card_id": "tr-35c2084696",
+   "extracted": true,
+   "event_dates": "23 Jun - 10 Jul 2025"
   }
  },
  "first_run_done": true
